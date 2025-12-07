@@ -186,11 +186,14 @@ router.get('/list', authenticate, (req, res) => {
         });
       }
 
+      // 处理数据库查询返回null的情况
+      const total = countRow && countRow.total ? countRow.total : (rows ? rows.length : 0);
+
       res.json({
         success: true,
         data: {
-          list: rows,
-          total: countRow.total,
+          list: rows || [],
+          total: total,
           page: parseInt(page),
           pageSize: limit
         }
