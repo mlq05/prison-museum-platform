@@ -374,45 +374,77 @@ const bookingsCollection = {
     try {
       const { status, startDate, endDate, keyword, page = 1, pageSize = 20 } = filters;
       
+      // 先构建基础查询（不使用 orderBy，避免索引问题）
       let query = cloudDb.collection('bookings');
 
       if (status && status !== 'all') {
         query = query.where({ status });
       }
 
-      if (startDate) {
-        query = query.where({
-          bookingDate: cloudDb.command.gte(startDate),
+      // 日期范围查询：由于 CloudBase 限制，先查询所有数据，然后在内存中过滤
+      // 为了避免数据量过大，如果提供了日期范围，先使用日期过滤
+      let allBookings;
+      if (startDate || endDate) {
+        // 如果有日期范围，先查询所有状态的数据，然后在内存中过滤
+        const baseQuery = cloudDb.collection('bookings');
+        let tempQuery = baseQuery;
+        if (status && status !== 'all') {
+          tempQuery = tempQuery.where({ status });
+        }
+        
+        const tempResult = await tempQuery.get();
+        allBookings = (tempResult.data || []).filter(booking => {
+          if (startDate && booking.bookingDate < startDate) {
+            return false;
+          }
+          if (endDate && booking.bookingDate > endDate) {
+            return false;
+          }
+          return true;
         });
+      } else {
+        // 没有日期范围，直接查询
+        const result = await query.get();
+        allBookings = result.data || [];
       }
 
-      if (endDate) {
-        query = query.where({
-          bookingDate: cloudDb.command.lte(endDate),
-        });
-      }
+      console.log('查询到的预约总数（过滤前）:', allBookings.length);
 
-      // 获取总数
-      const countResult = await query.count();
-      const total = countResult.total || 0;
-
-      // 获取列表
-      const skip = (page - 1) * pageSize;
-      let result = await query
-        .orderBy('createdAt', 'desc')
-        .skip(skip)
-        .limit(pageSize)
-        .get();
-
-      let list = result.data || [];
-
-      // 关键词搜索（在内存中过滤，因为云数据库全文搜索有限制）
+      // 关键词搜索（在内存中过滤）
       if (keyword) {
-        list = list.filter(item => 
+        allBookings = allBookings.filter(item => 
           (item.userName && item.userName.includes(keyword)) ||
           (item.phone && item.phone.includes(keyword))
         );
+        console.log('关键词过滤后的预约数:', allBookings.length);
       }
+
+      // 在内存中排序（按创建时间倒序）
+      allBookings.sort((a, b) => {
+        const timeA = a.createdAt || 0;
+        const timeB = b.createdAt || 0;
+        return timeB - timeA; // 倒序
+      });
+
+      // 获取总数
+      const total = allBookings.length;
+
+      // 内存分页
+      const skip = (page - 1) * pageSize;
+      const list = allBookings.slice(skip, skip + pageSize);
+
+      console.log('分页结果:', {
+        total,
+        skip,
+        pageSize,
+        listLength: list.length,
+        sampleBooking: list.length > 0 ? {
+          _id: list[0]._id,
+          userName: list[0].userName,
+          bookingDate: list[0].bookingDate,
+          status: list[0].status
+        } : null
+      });
 
       return {
         list,
@@ -422,6 +454,11 @@ const bookingsCollection = {
       };
     } catch (error) {
       console.error('查询预约列表失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
       throw error;
     }
   },

@@ -125,6 +125,8 @@ router.get('/booking/list', async (req, res) => {
       keyword
     } = req.query;
 
+    console.log('管理员查询预约列表，参数:', { status, startDate, endDate, page, pageSize, keyword });
+
     // 使用云数据库API查询预约列表
     const result = await collections.bookings.listAll({
       status: status || 'all',
@@ -135,12 +137,24 @@ router.get('/booking/list', async (req, res) => {
       pageSize: parseInt(pageSize),
     });
 
+    console.log('查询预约列表结果:', {
+      listLength: result.list ? result.list.length : 0,
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize
+    });
+
     res.json({
       success: true,
       data: result
     });
   } catch (error) {
     console.error('查询预约列表失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
     res.status(500).json({
       success: false,
       message: '查询失败，请稍后重试'
