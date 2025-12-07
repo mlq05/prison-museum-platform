@@ -6,7 +6,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
-const { db } = require('../db/database');
+const { db, collections } = require('../db/database');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 
 /**
@@ -15,23 +15,18 @@ const { authenticate, requireAdmin } = require('../middleware/auth');
  * 注意：此路由必须在 router.use(authenticate) 之前定义，否则会被拦截
  */
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body || {};
+  try {
+    const { username, password } = req.body || {};
 
-  if (!username || !password) {
-    return res.status(400).json({
-      success: false,
-      message: '用户名和密码不能为空',
-    });
-  }
-
-  db.get('SELECT * FROM admins WHERE username = ?', [username], (err, admin) => {
-    if (err) {
-      console.error('查询管理员失败:', err);
-      return res.status(500).json({
+    if (!username || !password) {
+      return res.status(400).json({
         success: false,
-        message: '登录失败，请稍后重试',
+        message: '用户名和密码不能为空',
       });
     }
+
+    // 使用云数据库API查询管理员
+    const admin = await collections.admins.findByUsername(username);
 
     if (!admin) {
       return res.status(401).json({
@@ -40,6 +35,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // 验证密码
     const isValid = bcrypt.compareSync(password, admin.passwordHash);
     if (!isValid) {
       return res.status(401).json({
@@ -48,10 +44,11 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // 生成JWT token
     const payload = {
       userId: admin.username,
-      role: 'admin',
-      name: admin.username,
+      role: admin.role || 'admin',
+      name: admin.name || admin.username,
     };
 
     const token = jwt.sign(
@@ -67,11 +64,18 @@ router.post('/login', async (req, res) => {
         token,
         admin: {
           username: admin.username,
-          role: admin.role,
+          role: admin.role || 'admin',
+          name: admin.name || admin.username,
         },
       },
     });
-  });
+  } catch (error) {
+    console.error('管理员登录失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '登录失败，请稍后重试',
+    });
+  }
 });
 
 // 所有以下管理接口都需要认证和管理员权限

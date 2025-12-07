@@ -283,6 +283,12 @@ const bookingsCollection = {
       };
     } catch (error) {
       console.error('创建预约失败:', error);
+      // 检查是否是集合不存在错误
+      if (error.message && (error.message.includes('collection') || error.message.includes('集合') || error.code === 'COLLECTION_NOT_FOUND')) {
+        const enhancedError = new Error('数据库集合 "bookings" 不存在，请在 CloudBase 控制台的"文档型数据库"中创建此集合');
+        enhancedError.originalError = error;
+        throw enhancedError;
+      }
       throw error;
     }
   },
@@ -346,6 +352,12 @@ const bookingsCollection = {
       };
     } catch (error) {
       console.error('查询预约列表失败:', error);
+      // 检查是否是集合不存在错误
+      if (error.message && (error.message.includes('collection') || error.message.includes('集合') || error.code === 'COLLECTION_NOT_FOUND')) {
+        const enhancedError = new Error('数据库集合 "bookings" 不存在，请在 CloudBase 控制台的"文档型数据库"中创建此集合');
+        enhancedError.originalError = error;
+        throw enhancedError;
+      }
       throw error;
     }
   },
@@ -447,6 +459,12 @@ const bookingsCollection = {
         stack: error.stack,
         code: error.code
       });
+      // 检查是否是集合不存在错误
+      if (error.message && (error.message.includes('collection') || error.message.includes('集合') || error.code === 'COLLECTION_NOT_FOUND')) {
+        const enhancedError = new Error('数据库集合 "bookings" 不存在，请在 CloudBase 控制台的"文档型数据库"中创建此集合');
+        enhancedError.originalError = error;
+        throw enhancedError;
+      }
       throw error;
     }
   },
@@ -656,7 +674,7 @@ const feedbacksCollection = {
     const now = Date.now();
     const data = {
       ...feedbackData,
-      status: 'pending',
+      status: 'approved', // 自动审核通过，可以在互动墙显示
       createdAt: now,
     };
 
@@ -668,6 +686,12 @@ const feedbacksCollection = {
       };
     } catch (error) {
       console.error('创建反馈失败:', error);
+      // 检查是否是集合不存在错误
+      if (error.message && (error.message.includes('collection') || error.message.includes('集合') || error.code === 'COLLECTION_NOT_FOUND')) {
+        const enhancedError = new Error('数据库集合 "feedbacks" 不存在，请在 CloudBase 控制台的"文档型数据库"中创建此集合');
+        enhancedError.originalError = error;
+        throw enhancedError;
+      }
       throw error;
     }
   },
@@ -728,6 +752,12 @@ const feedbacksCollection = {
       };
     } catch (error) {
       console.error('查询公开反馈列表失败:', error);
+      // 检查是否是集合不存在错误
+      if (error.message && (error.message.includes('collection') || error.message.includes('集合') || error.code === 'COLLECTION_NOT_FOUND')) {
+        const enhancedError = new Error('数据库集合 "feedbacks" 不存在，请在 CloudBase 控制台的"文档型数据库"中创建此集合');
+        enhancedError.originalError = error;
+        throw enhancedError;
+      }
       throw error;
     }
   },
