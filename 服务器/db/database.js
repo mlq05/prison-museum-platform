@@ -13,17 +13,36 @@ try {
 
   // 初始化云开发（如果环境变量未设置，使用默认值）
   const envId = process.env.TCB_ENV || process.env.TENCENTCLOUD_RUNENV || 'prison-museum-dev-8e6hujc6eb768b';
+  const secretId = process.env.TCB_SECRET_ID;
+  const secretKey = process.env.TCB_SECRET_KEY;
   
-  app = tcb.init({
-    env: envId,
-    secretId: process.env.TCB_SECRET_ID,
-    secretKey: process.env.TCB_SECRET_KEY,
-  });
+  // 检查必要的环境变量
+  if (!secretId || !secretKey) {
+    console.error('❌ 数据库初始化失败：缺少必要的环境变量');
+    console.error('   请检查以下环境变量是否已配置：');
+    console.error('   - TCB_ENV (当前值:', envId, ')');
+    console.error('   - TCB_SECRET_ID (当前值:', secretId ? '已设置' : '未设置', ')');
+    console.error('   - TCB_SECRET_KEY (当前值:', secretKey ? '已设置' : '未设置', ')');
+    console.error('   注意：环境变量名称必须是 TCB_SECRET_KEY（下划线），不是 TCB_SECRET KEY（空格）');
+    db = null;
+  } else {
+    app = tcb.init({
+      env: envId,
+      secretId: secretId,
+      secretKey: secretKey,
+    });
 
-  db = app.database();
-  console.log('云数据库初始化成功，环境ID:', envId);
+    db = app.database();
+    console.log('✅ 云数据库初始化成功');
+    console.log('   环境ID:', envId);
+    console.log('   SecretId:', secretId.substring(0, 8) + '...');
+  }
 } catch (error) {
-  console.error('云数据库初始化失败:', error);
+  console.error('❌ 云数据库初始化失败:', error.message);
+  console.error('   错误详情:', error);
+  if (error.stack) {
+    console.error('   堆栈:', error.stack);
+  }
   // 如果初始化失败，创建一个空的db对象，避免服务无法启动
   db = null;
 }
@@ -133,9 +152,14 @@ const initDatabase = async () => {
   }
 };
 
+// 导出集合操作服务
+const collections = require('./collections');
+
 module.exports = {
   db: dbWrapper,
   initDatabase,
   // 导出原始db对象，供需要直接使用云数据库API的地方使用
   cloudDb: db,
+  // 导出集合操作服务
+  collections,
 };
