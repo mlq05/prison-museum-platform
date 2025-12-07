@@ -114,8 +114,8 @@ Page({
   useDefaultARUrl(hallId: string) {
     // 从云开发环境获取静态网站托管域名
     // 使用静态网站托管实际访问域名
-    const cloudHostingUrl = 'https://cloud1-6glt083780b46f82-1390050511.tcloudbaseapp.com';
-    const arPageUrl = `${cloudHostingUrl}/ar-pages/marker-ar-simple.html?hallId=${hallId}`;
+    const cloudHostingUrl = 'https://prison-museum-dev-8e6hujc6eb768b-1390408503.tcloudbaseapp.com';
+    const arPageUrl = `${cloudHostingUrl}/marker-ar-simple.html?hallId=${hallId}`;
     
     this.setData({ arUrl: arPageUrl });
     this.generateQRCode(arPageUrl);
