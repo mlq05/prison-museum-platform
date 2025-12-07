@@ -237,9 +237,29 @@ const requestWithHttp = <T = any>(
         // 处理非JSON响应
         let response: ApiResponse<T>;
         try {
+          // 详细日志：记录服务器原始响应
+          console.log('服务器响应详情:', {
+            statusCode,
+            url: `${BASE_URL}${url}`,
+            dataType: typeof res.data,
+            dataLength: typeof res.data === 'string' ? res.data.length : 'not string',
+            dataPreview: typeof res.data === 'string' 
+              ? res.data.substring(0, 200) 
+              : JSON.stringify(res.data).substring(0, 200),
+          });
+
           response = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
         } catch (e) {
-          const errorMessage = '服务器响应格式错误';
+          // 详细的解析错误信息
+          console.error('JSON解析失败:', {
+            error: e,
+            dataType: typeof res.data,
+            dataContent: typeof res.data === 'string' ? res.data.substring(0, 500) : res.data,
+            statusCode,
+            url: `${BASE_URL}${url}`,
+          });
+          
+          const errorMessage = `服务器响应格式错误: ${e instanceof Error ? e.message : String(e)}`;
           reject(new Error(errorMessage));
           return;
         }
@@ -274,7 +294,23 @@ const requestWithHttp = <T = any>(
           wx.hideLoading();
         }
 
-        console.error('HTTP 请求失败', url, err);
+        // 详细错误日志
+        console.error('HTTP 请求失败', {
+          url: `${BASE_URL}${url}`,
+          endpoint: url,
+          error: err,
+          errMsg: err.errMsg,
+          errno: err.errno,
+        });
+
+        // 检查是否是域名白名单问题
+        if (err.errMsg && (err.errMsg.includes('域名') || err.errMsg.includes('不在合法域名'))) {
+          console.error('域名白名单错误：', {
+            message: '需要在微信公众平台配置服务器域名白名单',
+            apiUrl: BASE_URL,
+            tip: '测试版本需要配置域名白名单，或使用开发版本测试',
+          });
+        }
 
         // 如果是创建预约请求，提供测试模式降级
         if (url.includes('/booking/create')) {
@@ -289,13 +325,22 @@ const requestWithHttp = <T = any>(
           return;
         }
 
-        const errorMessage = ERROR_MESSAGES[ERROR_CODES.NETWORK_ERROR] || '网络错误，请检查网络连接';
+        // 更详细的错误提示
+        let errorMessage = ERROR_MESSAGES[ERROR_CODES.NETWORK_ERROR] || '网络错误，请检查网络连接';
+        
+        // 如果是域名相关错误，提供更明确的提示
+        if (err.errMsg && (err.errMsg.includes('域名') || err.errMsg.includes('不在合法域名'))) {
+          errorMessage = '网络错误：需要在微信公众平台配置服务器域名白名单，或使用开发版本测试';
+        } else if (err.errMsg) {
+          errorMessage = `网络错误：${err.errMsg}`;
+        }
+
         // 只在非静默模式下显示错误提示
         if (showLoading) {
           wx.showToast({
             title: errorMessage,
             icon: 'none',
-            duration: 2000,
+            duration: 3000,
           });
         }
         reject(new Error(errorMessage));
