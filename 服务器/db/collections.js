@@ -424,19 +424,29 @@ const bookingsCollection = {
     }
 
     try {
-      const result = await cloudDb.collection('bookings')
+      // CloudBase 数据库查询：日期范围查询
+      // 先查询所有满足状态条件的记录，然后在内存中过滤日期范围
+      // 因为 CloudBase 不支持在单个字段上同时使用 gte 和 lte
+      const allBookings = await cloudDb.collection('bookings')
         .where({
-          bookingDate: cloudDb.command.and([
-            cloudDb.command.gte(startDate),
-            cloudDb.command.lte(endDate),
-          ]),
           status: cloudDb.command.in(['pending', 'approved']),
         })
         .get();
 
-      return result.data || [];
+      // 在内存中过滤日期范围
+      const bookings = (allBookings.data || []).filter(booking => {
+        return booking.bookingDate >= startDate && booking.bookingDate <= endDate;
+      });
+
+      return bookings;
     } catch (error) {
       console.error('查询预约日历失败:', error);
+      console.error('查询参数:', { startDate, endDate });
+      console.error('错误详情:', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
       throw error;
     }
   },

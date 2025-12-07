@@ -135,11 +135,13 @@ router.post('/create', authenticate, (req, res) => {
       console.error('错误详情:', {
         message: error.message,
         stack: error.stack,
-        code: error.code
+        code: error.code,
+        name: error.name
       });
       res.status(500).json({
         success: false,
-        message: '创建预约失败，请稍后重试'
+        message: '创建预约失败，请稍后重试',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
   })();
@@ -178,9 +180,16 @@ router.get('/list', authenticate, async (req, res) => {
     });
   } catch (error) {
     console.error('查询预约列表失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: '查询失败'
+      message: '查询失败',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -361,9 +370,16 @@ router.get('/calendar', async (req, res) => {
     });
   } catch (error) {
     console.error('查询预约日历失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: '查询失败'
+      message: '查询失败',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

@@ -41,9 +41,16 @@ router.post('/submit', authenticate, async (req, res) => {
     });
   } catch (error) {
     console.error('提交反馈失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: '提交失败'
+      message: '提交失败',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -126,9 +133,16 @@ router.get('/public', async (req, res) => {
     });
   } catch (error) {
     console.error('查询公开反馈列表失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: '查询失败'
+      message: '查询失败',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
