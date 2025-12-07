@@ -114,81 +114,38 @@ router.use((req, res, next) => {
 /**
  * 获取预约列表（管理员）
  */
-router.get('/booking/list', (req, res) => {
-  const {
-    status,
-    startDate,
-    endDate,
-    page = 1,
-    pageSize = 20,
-    keyword
-  } = req.query;
+router.get('/booking/list', async (req, res) => {
+  try {
+    const {
+      status,
+      startDate,
+      endDate,
+      page = 1,
+      pageSize = 20,
+      keyword
+    } = req.query;
 
-  let query = 'SELECT * FROM bookings WHERE 1=1';
-  const params = [];
-
-  if (status && status !== 'all') {
-    query += ' AND status = ?';
-    params.push(status);
-  }
-
-  if (startDate) {
-    query += ' AND bookingDate >= ?';
-    params.push(startDate);
-  }
-
-  if (endDate) {
-    query += ' AND bookingDate <= ?';
-    params.push(endDate);
-  }
-
-  if (keyword) {
-    query += ' AND (userName LIKE ? OR phone LIKE ?)';
-    const keywordPattern = `%${keyword}%`;
-    params.push(keywordPattern, keywordPattern);
-  }
-
-  query += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
-  const limit = parseInt(pageSize);
-  const offset = (parseInt(page) - 1) * limit;
-  params.push(limit, offset);
-
-  db.all(query, params, (err, rows) => {
-    if (err) {
-      console.error('查询预约列表失败:', err);
-      return res.status(500).json({
-        success: false,
-        message: '查询失败'
-      });
-    }
-
-    // 获取总数
-    let countQuery = query.replace(/SELECT \*/, 'SELECT COUNT(*) as total').replace(/ORDER BY.*$/, '');
-    const countParams = params.slice(0, -2); // 移除LIMIT和OFFSET参数
-
-    db.get(countQuery, countParams, (err, countRow) => {
-      if (err) {
-        console.error('查询总数失败:', err);
-        return res.status(500).json({
-          success: false,
-          message: '查询失败'
-        });
-      }
-
-      // 处理数据库查询返回null的情况
-      const total = countRow && countRow.total ? countRow.total : (rows ? rows.length : 0);
-
-      res.json({
-        success: true,
-        data: {
-          list: rows || [],
-          total: total,
-          page: parseInt(page),
-          pageSize: limit
-        }
-      });
+    // 使用云数据库API查询预约列表
+    const result = await collections.bookings.listAll({
+      status: status || 'all',
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      keyword: keyword || undefined,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
     });
-  });
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('查询预约列表失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败，请稍后重试'
+    });
+  }
 });
 
 /**
@@ -207,61 +164,63 @@ router.get('/profile', (req, res) => {
 /**
  * 审核预约
  */
-router.post('/booking/review', (req, res) => {
-  const { bookingId, action, rejectReason } = req.body;
-  const adminId = req.user.openId || req.user.userId;
+router.post('/booking/review', async (req, res) => {
+  try {
+    const { bookingId, action, rejectReason } = req.body;
+    const adminId = req.user.openId || req.user.userId;
 
-  if (!bookingId || !action) {
-    return res.status(400).json({
-      success: false,
-      message: '参数不完整'
-    });
-  }
-
-  if (!['approve', 'reject'].includes(action)) {
-    return res.status(400).json({
-      success: false,
-      message: '操作类型无效'
-    });
-  }
-
-  if (action === 'reject' && !rejectReason) {
-    return res.status(400).json({
-      success: false,
-      message: '驳回原因不能为空'
-    });
-  }
-
-  const status = action === 'approve' ? 'approved' : 'rejected';
-  const now = Date.now();
-
-  db.run(
-    `UPDATE bookings 
-     SET status = ?, rejectReason = ?, reviewedBy = ?, reviewedAt = ?, updatedAt = ?
-     WHERE id = ?`,
-    [status, rejectReason || null, adminId, now, now, bookingId],
-    function(err) {
-      if (err) {
-        console.error('审核预约失败:', err);
-        return res.status(500).json({
-          success: false,
-          message: '审核失败'
-        });
-      }
-
-      if (this.changes === 0) {
-        return res.status(404).json({
-          success: false,
-          message: '预约不存在'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: action === 'approve' ? '已通过审核' : '已驳回'
+    if (!bookingId || !action) {
+      return res.status(400).json({
+        success: false,
+        message: '参数不完整'
       });
     }
-  );
+
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({
+        success: false,
+        message: '操作类型无效'
+      });
+    }
+
+    if (action === 'reject' && !rejectReason) {
+      return res.status(400).json({
+        success: false,
+        message: '驳回原因不能为空'
+      });
+    }
+
+    const status = action === 'approve' ? 'approved' : 'rejected';
+    
+    // 使用云数据库API更新预约状态
+    const reviewInfo = {
+      reviewedBy: adminId,
+      reviewedAt: Date.now(),
+    };
+    
+    if (action === 'reject') {
+      reviewInfo.rejectReason = rejectReason;
+    }
+
+    await collections.bookings.updateStatus(bookingId, status, reviewInfo);
+
+    res.json({
+      success: true,
+      message: action === 'approve' ? '已通过审核' : '已驳回'
+    });
+  } catch (error) {
+    console.error('审核预约失败:', error);
+    if (error.message && error.message.includes('不存在')) {
+      return res.status(404).json({
+        success: false,
+        message: '预约不存在'
+      });
+    }
+    res.status(500).json({
+      success: false,
+      message: '审核失败，请稍后重试'
+    });
+  }
 });
 
 /**
@@ -409,79 +368,70 @@ router.post('/visit/settings', (req, res) => {
 /**
  * 获取统计数据
  */
-router.get('/statistics', (req, res) => {
-  const { startDate, endDate } = req.query;
+router.get('/statistics', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
 
-  if (!startDate || !endDate) {
-    return res.status(400).json({
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: '日期范围不能为空'
+      });
+    }
+
+    // 使用云数据库API查询预约列表
+    const allBookings = await collections.bookings.listAll({
+      startDate,
+      endDate,
+      page: 1,
+      pageSize: 10000, // 获取所有数据用于统计
+    });
+
+    const bookings = allBookings.list || [];
+
+    // 计算统计数据
+    const totalBookings = bookings.length;
+    const approvedBookings = bookings.filter(b => b.status === 'approved').length;
+    const cancelledBookings = bookings.filter(b => b.status === 'cancelled').length;
+    const totalVisitors = bookings.reduce((sum, b) => sum + (b.visitorCount || 0), 0);
+
+    // 计算角色分布
+    const roleDistribution = {
+      student: 0,
+      faculty: 0,
+      visitor: 0
+    };
+
+    bookings.forEach(booking => {
+      const role = booking.userRole || 'visitor';
+      if (roleDistribution.hasOwnProperty(role)) {
+        roleDistribution[role]++;
+      }
+    });
+
+    const cancellationRate = totalBookings > 0 
+      ? ((cancelledBookings / totalBookings) * 100).toFixed(2)
+      : '0.00';
+
+    res.json({
+      success: true,
+      data: {
+        dateRange: { start: startDate, end: endDate },
+        totalBookings,
+        approvedBookings,
+        cancelledBookings,
+        totalVisitors,
+        roleDistribution,
+        cancellationRate
+      }
+    });
+  } catch (error) {
+    console.error('查询统计失败:', error);
+    res.status(500).json({
       success: false,
-      message: '日期范围不能为空'
+      message: '查询失败，请稍后重试'
     });
   }
-
-  // 获取预约统计
-  db.get(
-    `SELECT 
-      COUNT(*) as totalBookings,
-      SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approvedBookings,
-      SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelledBookings,
-      SUM(visitorCount) as totalVisitors
-     FROM bookings
-     WHERE bookingDate >= ? AND bookingDate <= ?`,
-    [startDate, endDate],
-    (err, stats) => {
-      if (err) {
-        console.error('查询统计失败:', err);
-        return res.status(500).json({
-          success: false,
-          message: '查询失败'
-        });
-      }
-
-      // 获取角色分布
-      db.all(
-        `SELECT userRole, COUNT(*) as count
-         FROM bookings
-         WHERE bookingDate >= ? AND bookingDate <= ?
-         GROUP BY userRole`,
-        [startDate, endDate],
-        (err, roleStats) => {
-          if (err) {
-            console.error('查询角色统计失败:', err);
-            return res.status(500).json({
-              success: false,
-              message: '查询失败'
-            });
-          }
-
-          const roleDistribution = {
-            student: 0,
-            faculty: 0,
-            visitor: 0
-          };
-
-          roleStats.forEach(stat => {
-            roleDistribution[stat.userRole] = stat.count;
-          });
-
-          res.json({
-            success: true,
-            data: {
-              dateRange: { start: startDate, end: endDate },
-              totalBookings: stats.totalBookings || 0,
-              approvedBookings: stats.approvedBookings || 0,
-              cancelledBookings: stats.cancelledBookings || 0,
-              totalVisitors: stats.totalVisitors || 0,
-              roleDistribution,
-              cancellationRate: stats.totalBookings > 0 
-                ? ((stats.cancelledBookings || 0) / stats.totalBookings * 100).toFixed(2)
-                : 0
-            }
-          });
-        }
-      );
-    }
-  );
 });
 
 module.exports = router;
