@@ -12,6 +12,11 @@ const moment = require('moment');
  * 创建预约
  */
 router.post('/create', authenticate, (req, res) => {
+  console.log('收到创建预约请求:', {
+    body: req.body,
+    user: req.user
+  });
+
   const {
     bookingDate,
     bookingTimeSlot,
@@ -27,6 +32,7 @@ router.post('/create', authenticate, (req, res) => {
 
   // 验证必填字段
   if (!bookingDate || !bookingTimeSlot || !visitorCount || !name || !phone) {
+    console.log('必填字段验证失败:', { bookingDate, bookingTimeSlot, visitorCount, name, phone });
     return res.status(400).json({
       success: false,
       message: '请填写完整的预约信息'
@@ -43,11 +49,19 @@ router.post('/create', authenticate, (req, res) => {
   }
 
   // 验证人数（单次预约人数上限）
-  const maxCount = parseInt(process.env.MAX_VISITOR_COUNT) || 10;
-  if (visitorCount < 1 || visitorCount > maxCount) {
+  const visitorCountNum = parseInt(visitorCount);
+  if (isNaN(visitorCountNum) || visitorCountNum < 1) {
     return res.status(400).json({
       success: false,
-      message: `参观人数必须在1-${maxCount}人之间`
+      message: '参观人数无效，必须大于0'
+    });
+  }
+
+  const maxCount = parseInt(process.env.MAX_VISITOR_COUNT) || 10;
+  if (visitorCountNum > maxCount) {
+    return res.status(400).json({
+      success: false,
+      message: `参观人数不能超过${maxCount}人`
     });
   }
 
@@ -79,20 +93,22 @@ router.post('/create', authenticate, (req, res) => {
         });
       }
 
+      console.log('时段配置查询结果:', { row, bookingDate, bookingTimeSlot });
+
       // 如果没有配置，则使用环境变量中的默认容量
       const slotsPerTime = parseInt(process.env.SLOTS_PER_TIME) || 20;
-      const capacity = row ? row.capacity : slotsPerTime;
-      const usedCount = row ? row.usedCount : 0;
-      const maxPerBookingSetting = row && row.maxPerBooking ? row.maxPerBooking : null;
+      const capacity = (row && row.capacity) ? parseInt(row.capacity) : slotsPerTime;
+      const usedCount = (row && row.usedCount) ? parseInt(row.usedCount) : 0;
+      const maxPerBookingSetting = (row && row.maxPerBooking) ? parseInt(row.maxPerBooking) : null;
 
-      if (maxPerBookingSetting && visitorCount > maxPerBookingSetting) {
+      if (maxPerBookingSetting && visitorCountNum > maxPerBookingSetting) {
         return res.status(400).json({
           success: false,
           message: `单次预约人数不能超过${maxPerBookingSetting}人`
         });
       }
 
-      if (usedCount + visitorCount > capacity) {
+      if (usedCount + visitorCountNum > capacity) {
         return res.status(400).json({
           success: false,
           message: '该时段预约人数已满，请选择其他时段或日期'
@@ -105,21 +121,39 @@ router.post('/create', authenticate, (req, res) => {
           userId, userName, userRole, phone, bookingDate, bookingTimeSlot,
           visitorCount, status, createdAt, updatedAt
         ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
-        [userId, name, userRole, phone, bookingDate, bookingTimeSlot, visitorCount, now, now],
+        [userId, name, userRole, phone, bookingDate, bookingTimeSlot, visitorCountNum, now, now],
         function(err2) {
           if (err2) {
             console.error('创建预约失败:', err2);
+            console.error('错误详情:', {
+              message: err2.message,
+              stack: err2.stack,
+              code: err2.code
+            });
             return res.status(500).json({
               success: false,
               message: '创建预约失败，请稍后重试'
             });
           }
 
+          // 处理 lastID 可能为 undefined 的情况
+          const lastID = (this && typeof this.lastID !== 'undefined') ? this.lastID : null;
+          const bookingId = lastID ? String(lastID) : String(Date.now());
+
+          console.log('预约创建成功:', {
+            bookingId,
+            lastID,
+            userId,
+            bookingDate,
+            bookingTimeSlot,
+            visitorCount: visitorCountNum
+          });
+
           res.json({
             success: true,
             message: '预约提交成功',
             data: {
-              bookingId: this.lastID.toString()
+              bookingId: bookingId
             }
           });
         }

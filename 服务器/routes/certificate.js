@@ -83,12 +83,16 @@ router.post('/generate', (req, res) => {
         });
       }
 
+      // 处理 lastID 可能为 undefined 的情况
+      const lastID = (this && typeof this.lastID !== 'undefined') ? this.lastID : null;
+      const certificateId = lastID || Date.now();
+
       res.json({
         success: true,
         message: '证书生成成功',
         data: {
-          id: this.lastID,
-          certificateId: this.lastID,
+          id: certificateId,
+          certificateId: certificateId,
           certificateNumber,
           issueDate
         }
