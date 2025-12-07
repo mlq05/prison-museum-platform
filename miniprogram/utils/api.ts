@@ -6,12 +6,10 @@
 import { API_ENDPOINTS, ERROR_CODES, ERROR_MESSAGES } from './constants';
 import { ApiResponse } from './types';
 
-// 请求基础URL（本地服务器）
-// 注意：
-// 1. 在微信开发者工具内调试时，使用 http://localhost:3000 即可；
-// 2. 真机调试时，需要改成你电脑在局域网中的 IP，如：http://192.168.1.100:3000
-// 3. 所有接口统一挂在 /api 前缀下，对应 server.js 中的 app.use('/api/xxx', ...)
-const BASE_URL = 'http://localhost:3000/api';
+// 请求基础URL（云托管服务器）
+// 生产环境：使用云托管地址
+// 开发环境：如需本地调试，改为 http://localhost:3000/api
+const BASE_URL = 'https://museum-api-205770-6-1390408503.sh.run.tcloudbase.com/api';
 
 // 是否使用云开发云函数
 // 本项目当前采用本地 Node.js 服务器，不再使用云函数调用
