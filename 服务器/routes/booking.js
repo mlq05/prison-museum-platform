@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { db } = require('../db/database');
+const { db, cloudDb, collections } = require('../db/database');
 const { authenticate } = require('../middleware/auth');
 const moment = require('moment');
 
@@ -69,37 +69,26 @@ router.post('/create', authenticate, (req, res) => {
   const userId = req.user.openId || req.user.userId;
   const userRole = req.user.role || 'visitor';
 
-  // 检查该日期与时段的总人数是否超过管理员配置的容量
-  db.get(
-    `SELECT 
-       vs.capacity,
-       vs.maxPerBooking,
-       IFNULL(SUM(b.visitorCount), 0) AS usedCount
-     FROM visit_settings vs
-     LEFT JOIN bookings b
-       ON vs.date = b.bookingDate
-       AND vs.timeSlotId = b.bookingTimeSlot
-       AND b.status IN ('pending', 'approved')
-     WHERE vs.date = ?
-       AND vs.timeSlotId = ?
-       AND vs.isActive = 1`,
-    [bookingDate, bookingTimeSlot],
-    (err, row) => {
-      if (err) {
-        console.error('查询参观时段配置失败:', err);
-        return res.status(500).json({
-          success: false,
-          message: '创建预约失败，请稍后重试'
-        });
-      }
+  // 使用云数据库API检查容量并创建预约
+  (async () => {
+    try {
+      // 检查该日期与时段的总人数是否超过管理员配置的容量
+      const countResult = await collections.bookings.countByDateAndTimeSlot(bookingDate, bookingTimeSlot);
+      const usedCount = countResult.totalCount || 0;
 
-      console.log('时段配置查询结果:', { row, bookingDate, bookingTimeSlot });
-
-      // 如果没有配置，则使用环境变量中的默认容量
+      // 查询时段配置（暂时使用默认值，后续可以添加visit_settings集合查询）
       const slotsPerTime = parseInt(process.env.SLOTS_PER_TIME) || 20;
-      const capacity = (row && row.capacity) ? parseInt(row.capacity) : slotsPerTime;
-      const usedCount = (row && row.usedCount) ? parseInt(row.usedCount) : 0;
-      const maxPerBookingSetting = (row && row.maxPerBooking) ? parseInt(row.maxPerBooking) : null;
+      const capacity = slotsPerTime; // 默认容量
+      const maxPerBookingSetting = null; // 暂时不限制单次预约人数
+
+      console.log('时段容量检查:', {
+        bookingDate,
+        bookingTimeSlot,
+        capacity,
+        usedCount,
+        visitorCount: visitorCountNum,
+        available: capacity - usedCount
+      });
 
       if (maxPerBookingSetting && visitorCountNum > maxPerBookingSetting) {
         return res.status(400).json({
@@ -115,192 +104,163 @@ router.post('/create', authenticate, (req, res) => {
         });
       }
 
-      // 插入预约记录
-      db.run(
-        `INSERT INTO bookings (
-          userId, userName, userRole, phone, bookingDate, bookingTimeSlot,
-          visitorCount, status, createdAt, updatedAt
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
-        [userId, name, userRole, phone, bookingDate, bookingTimeSlot, visitorCountNum, now, now],
-        function(err2) {
-          if (err2) {
-            console.error('创建预约失败:', err2);
-            console.error('错误详情:', {
-              message: err2.message,
-              stack: err2.stack,
-              code: err2.code
-            });
-            return res.status(500).json({
-              success: false,
-              message: '创建预约失败，请稍后重试'
-            });
-          }
+      // 使用云数据库API插入预约记录
+      const booking = await collections.bookings.create({
+        userId,
+        userName: name,
+        userRole,
+        phone,
+        bookingDate,
+        bookingTimeSlot,
+        visitorCount: visitorCountNum,
+      });
 
-          // 处理 lastID 可能为 undefined 的情况
-          const lastID = (this && typeof this.lastID !== 'undefined') ? this.lastID : null;
-          const bookingId = lastID ? String(lastID) : String(Date.now());
+      console.log('预约创建成功:', {
+        bookingId: booking._id,
+        userId,
+        bookingDate,
+        bookingTimeSlot,
+        visitorCount: visitorCountNum
+      });
 
-          console.log('预约创建成功:', {
-            bookingId,
-            lastID,
-            userId,
-            bookingDate,
-            bookingTimeSlot,
-            visitorCount: visitorCountNum
-          });
-
-          res.json({
-            success: true,
-            message: '预约提交成功',
-            data: {
-              bookingId: bookingId
-            }
-          });
+      res.json({
+        success: true,
+        message: '预约提交成功',
+        data: {
+          bookingId: booking._id
         }
-      );
+      });
+    } catch (error) {
+      console.error('创建预约失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
+      res.status(500).json({
+        success: false,
+        message: '创建预约失败，请稍后重试'
+      });
     }
-  );
+  })();
 });
 
 /**
  * 获取预约列表
  */
-router.get('/list', authenticate, (req, res) => {
-  const { status, page = 1, pageSize = 10 } = req.query;
-  const userId = req.user.openId || req.user.userId;
+router.get('/list', authenticate, async (req, res) => {
+  try {
+    const { status, page = 1, pageSize = 10 } = req.query;
+    const userId = req.user.openId || req.user.userId;
 
-  // 开发环境下，为了方便调试，允许查看所有预约记录
-  const isDev = (process.env.NODE_ENV || 'development') === 'development';
+    console.log('查询预约列表:', { userId, status, page, pageSize });
 
-  let query = 'SELECT * FROM bookings WHERE 1=1';
-  const params = [];
-
-  if (!isDev) {
-    query += ' AND userId = ?';
-    params.push(userId);
-  }
-
-  if (status && status !== 'all') {
-    query += ' AND status = ?';
-    params.push(status);
-  }
-
-  query += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
-  const limit = parseInt(pageSize);
-  const offset = (parseInt(page) - 1) * limit;
-  params.push(limit, offset);
-
-  db.all(query, params, (err, rows) => {
-    if (err) {
-      console.error('查询预约列表失败:', err);
-      return res.status(500).json({
-        success: false,
-        message: '查询失败'
-      });
-    }
-
-    // 获取总数
-    let countQuery = 'SELECT COUNT(*) as total FROM bookings WHERE 1=1';
-    const countParams = [];
-    if (!isDev) {
-      countQuery += ' AND userId = ?';
-      countParams.push(userId);
-    }
-    if (status && status !== 'all') {
-      countQuery += ' AND status = ?';
-      countParams.push(status);
-    }
-
-    db.get(countQuery, countParams, (err, countRow) => {
-      if (err) {
-        console.error('查询总数失败:', err);
-        return res.status(500).json({
-          success: false,
-          message: '查询失败'
-        });
-      }
-
-      // 处理数据库查询返回null的情况
-      const total = countRow && countRow.total ? countRow.total : (rows ? rows.length : 0);
-
-      res.json({
-        success: true,
-        data: {
-          list: rows || [],
-          total: total,
-          page: parseInt(page),
-          pageSize: limit
-        }
-      });
+    // 使用云数据库API查询预约列表
+    const result = await collections.bookings.listByUser(userId, {
+      status: status || 'all',
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
     });
-  });
+
+    console.log('预约列表查询结果:', {
+      count: result.list.length,
+      total: result.total,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        list: result.list || [],
+        total: result.total || 0,
+        page: result.page,
+        pageSize: result.pageSize,
+      }
+    });
+  } catch (error) {
+    console.error('查询预约列表失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败'
+    });
+  }
 });
 
 /**
  * 获取预约详情
  */
-router.get('/detail', authenticate, (req, res) => {
-  const { id } = req.query;
-  const userId = req.user.openId || req.user.userId;
+router.get('/detail', authenticate, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const userId = req.user.openId || req.user.userId;
 
-  if (!id) {
-    return res.status(400).json({
-      success: false,
-      message: '预约ID不能为空'
-    });
-  }
-
-  db.get('SELECT * FROM bookings WHERE id = ? AND userId = ?', [id, userId], (err, row) => {
-    if (err) {
-      console.error('查询预约详情失败:', err);
-      return res.status(500).json({
+    if (!id) {
+      return res.status(400).json({
         success: false,
-        message: '查询失败'
+        message: '预约ID不能为空'
       });
     }
 
-    if (!row) {
-      return res.status(404).json({
-        success: false,
-        message: '预约不存在'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: row
-    });
-  });
-});
-
-/**
- * 取消预约
- */
-router.post('/cancel', authenticate, (req, res) => {
-  const { bookingId } = req.body;
-  const userId = req.user.openId || req.user.userId;
-
-  if (!bookingId) {
-    return res.status(400).json({
-      success: false,
-      message: '预约ID不能为空'
-    });
-  }
-
-  // 验证权限
-  db.get('SELECT * FROM bookings WHERE id = ? AND userId = ?', [bookingId, userId], (err, booking) => {
-    if (err) {
-      console.error('查询预约失败:', err);
-      return res.status(500).json({
-        success: false,
-        message: '查询失败'
-      });
-    }
+    // 使用云数据库API查询预约详情
+    const booking = await collections.bookings.findById(id);
 
     if (!booking) {
       return res.status(404).json({
         success: false,
         message: '预约不存在'
+      });
+    }
+
+    // 验证权限（只能查看自己的预约）
+    if (booking.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: '无权访问此预约'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: booking
+    });
+  } catch (error) {
+    console.error('查询预约详情失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败'
+    });
+  }
+});
+
+/**
+ * 取消预约
+ */
+router.post('/cancel', authenticate, async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const userId = req.user.openId || req.user.userId;
+
+    if (!bookingId) {
+      return res.status(400).json({
+        success: false,
+        message: '预约ID不能为空'
+      });
+    }
+
+    // 使用云数据库API查询预约
+    const booking = await collections.bookings.findById(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: '预约不存在'
+      });
+    }
+
+    // 验证权限
+    if (booking.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: '无权取消此预约'
       });
     }
 
@@ -311,143 +271,101 @@ router.post('/cancel', authenticate, (req, res) => {
       });
     }
 
-    // 更新状态
-    db.run(
-      'UPDATE bookings SET status = ?, updatedAt = ? WHERE id = ?',
-      ['cancelled', Date.now(), bookingId],
-      function(err) {
-        if (err) {
-          console.error('取消预约失败:', err);
-          return res.status(500).json({
-            success: false,
-            message: '取消预约失败'
-          });
-        }
+    // 使用云数据库API更新状态
+    await collections.bookings.updateStatus(bookingId, 'cancelled');
 
-        res.json({
-          success: true,
-          message: '预约已取消'
-        });
-      }
-    );
-  });
+    res.json({
+      success: true,
+      message: '预约已取消'
+    });
+  } catch (error) {
+    console.error('取消预约失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '取消预约失败'
+    });
+  }
 });
 
 /**
  * 获取预约日历数据
  */
-router.get('/calendar', (req, res) => {
-  const { startDate, endDate } = req.query;
+router.get('/calendar', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
 
-  if (!startDate || !endDate) {
-    return res.status(400).json({
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: '日期范围不能为空'
+      });
+    }
+
+    // 使用云数据库API查询指定日期范围内的预约
+    const bookings = await collections.bookings.listByDateRange(startDate, endDate);
+
+    const dateMap = {};
+    const slotsPerTime = parseInt(process.env.SLOTS_PER_TIME) || 20;
+
+    // 默认时段配置
+    const defaultTimeSlots = [
+      { id: 'morning1', time: '09:00-11:00' },
+      { id: 'morning2', time: '11:00-13:00' },
+      { id: 'afternoon1', time: '14:00-16:00' },
+      { id: 'afternoon2', time: '16:00-18:00' }
+    ];
+
+    // 初始化日期范围内的每一天
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      dateMap[dateStr] = {
+        date: dateStr,
+        timeSlots: defaultTimeSlots.map(slot => ({
+          id: slot.id,
+          time: slot.time,
+          available: slotsPerTime,
+          total: slotsPerTime,
+          isWarning: false
+        })),
+        totalAvailable: slotsPerTime * 4,
+        isFull: false
+      };
+    }
+
+    // 根据预约记录更新可用名额
+    bookings.forEach(booking => {
+      if (dateMap[booking.bookingDate]) {
+        const dayInfo = dateMap[booking.bookingDate];
+        const slot = dayInfo.timeSlots.find(s => s.id === booking.bookingTimeSlot);
+        if (slot) {
+          slot.available = Math.max(0, slot.available - (booking.visitorCount || 0));
+        }
+      }
+    });
+
+    // 计算总可用名额和警告状态
+    Object.keys(dateMap).forEach(date => {
+      const dateData = dateMap[date];
+      dateData.totalAvailable = dateData.timeSlots.reduce((sum, slot) => sum + slot.available, 0);
+      dateData.isFull = dateData.totalAvailable === 0;
+      dateData.timeSlots.forEach(slot => {
+        slot.isWarning = slot.available <= 5;
+      });
+    });
+
+    res.json({
+      success: true,
+      data: Object.values(dateMap)
+    });
+  } catch (error) {
+    console.error('查询预约日历失败:', error);
+    res.status(500).json({
       success: false,
-      message: '日期范围不能为空'
+      message: '查询失败'
     });
   }
-
-  // 查询指定日期范围内的预约
-  db.all(
-    `SELECT 
-       b.bookingDate,
-       b.bookingTimeSlot,
-       b.visitorCount,
-       b.status
-     FROM bookings b
-     WHERE b.bookingDate >= ? AND b.bookingDate <= ? 
-       AND b.status IN ('pending', 'approved')`,
-    [startDate, endDate],
-    (err, bookingRows) => {
-      if (err) {
-        console.error('查询预约日历失败:', err);
-        return res.status(500).json({
-          success: false,
-          message: '查询失败'
-        });
-      }
-
-      // 查询对应日期范围内的管理员时段配置
-      db.all(
-        `SELECT date, timeSlotId, timeRange, capacity
-         FROM visit_settings
-         WHERE date >= ? AND date <= ? AND isActive = 1`,
-        [startDate, endDate],
-        (err2, settingRows) => {
-          if (err2) {
-            console.error('查询参观时段配置失败:', err2);
-            return res.status(500).json({
-              success: false,
-              message: '查询失败'
-            });
-          }
-
-          const dateMap = {};
-          const slotsPerTime = parseInt(process.env.SLOTS_PER_TIME) || 20;
-
-          // 根据配置初始化每一天的时段
-          settingRows.forEach(setting => {
-            if (!dateMap[setting.date]) {
-              dateMap[setting.date] = {
-                date: setting.date,
-                timeSlots: [],
-                totalAvailable: 0,
-                isFull: false
-              };
-            }
-            dateMap[setting.date].timeSlots.push({
-              id: setting.timeSlotId,
-              time: setting.timeRange,
-              available: setting.capacity,
-              total: setting.capacity,
-              isWarning: false
-            });
-          });
-
-          // 如果某天没有专门配置，则使用默认4个时段
-          const ensureDate = (d) => {
-            if (!dateMap[d]) {
-              dateMap[d] = {
-                date: d,
-                timeSlots: [
-                  { id: 'morning1', time: '09:00-11:00', available: slotsPerTime, total: slotsPerTime, isWarning: false },
-                  { id: 'morning2', time: '11:00-13:00', available: slotsPerTime, total: slotsPerTime, isWarning: false },
-                  { id: 'afternoon1', time: '14:00-16:00', available: slotsPerTime, total: slotsPerTime, isWarning: false },
-                  { id: 'afternoon2', time: '16:00-18:00', available: slotsPerTime, total: slotsPerTime, isWarning: false }
-                ],
-                totalAvailable: slotsPerTime * 4,
-                isFull: false
-              };
-            }
-          };
-
-          bookingRows.forEach(booking => {
-            ensureDate(booking.bookingDate);
-
-            const dayInfo = dateMap[booking.bookingDate];
-            const slot = dayInfo.timeSlots.find(s => s.id === booking.bookingTimeSlot);
-            if (slot) {
-              slot.available = Math.max(0, slot.available - booking.visitorCount);
-            }
-          });
-
-          // 计算总可用名额
-          Object.keys(dateMap).forEach(date => {
-            const dateData = dateMap[date];
-            dateData.totalAvailable = dateData.timeSlots.reduce((sum, slot) => sum + slot.available, 0);
-            dateData.isFull = dateData.totalAvailable === 0;
-            dateData.timeSlots.forEach(slot => {
-              slot.isWarning = slot.available <= 5;
-            });
-          });
-
-          res.json({
-            success: true,
-            data: Object.values(dateMap)
-          });
-        }
-      );
-    }
-  );
 });
 
 module.exports = router;
