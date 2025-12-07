@@ -71,9 +71,25 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('管理员登录失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
+    
+    // 检查是否是集合不存在错误
+    if (error.message && (error.message.includes('collection') || error.message.includes('集合') || error.code === 'COLLECTION_NOT_FOUND' || error.code === 'DATABASE_COLLECTION_NOT_EXIST')) {
+      return res.status(500).json({
+        success: false,
+        message: '数据库集合 "admins" 不存在，请在 CloudBase 控制台的"文档型数据库"中创建此集合',
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: '登录失败，请稍后重试',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
