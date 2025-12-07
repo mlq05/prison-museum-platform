@@ -3,7 +3,12 @@
  * 封装所有数据库集合的CRUD操作，使用云数据库API
  */
 
-const { cloudDb } = require('./database');
+// 延迟获取 cloudDb，避免循环依赖
+function getCloudDb() {
+  // 避免循环依赖：动态获取 database 模块
+  const database = require('./database');
+  return database.cloudDb;
+}
 
 /**
  * 用户集合操作
@@ -13,6 +18,7 @@ const usersCollection = {
    * 根据openId查询用户
    */
   async findByOpenId(openId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       const error = new Error('数据库未初始化，请检查环境变量 TCB_ENV, TCB_SECRET_ID, TCB_SECRET_KEY 是否配置正确');
       console.error('❌ 数据库操作失败:', error.message);
@@ -35,6 +41,7 @@ const usersCollection = {
    * 创建用户
    */
   async create(userData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -62,6 +69,7 @@ const usersCollection = {
    * 更新用户信息
    */
   async update(openId, updateData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -88,6 +96,7 @@ const usersCollection = {
    * 查询用户列表（管理员功能）
    */
   async list(page = 1, pageSize = 20, filters = {}) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -136,6 +145,7 @@ const adminsCollection = {
    * 根据用户名查询管理员
    */
   async findByUsername(username) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -156,6 +166,7 @@ const adminsCollection = {
    * 创建管理员
    */
   async create(adminData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -183,6 +194,7 @@ const adminsCollection = {
    * 更新管理员信息
    */
   async update(adminId, updateData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -213,6 +225,7 @@ const adminsCollection = {
    * 查询管理员列表
    */
   async list(page = 1, pageSize = 20) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -249,6 +262,7 @@ const bookingsCollection = {
    * 创建预约
    */
   async create(bookingData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -277,6 +291,7 @@ const bookingsCollection = {
    * 根据ID查询预约
    */
   async findById(bookingId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -297,6 +312,7 @@ const bookingsCollection = {
    * 查询用户预约列表
    */
   async listByUser(userId, filters = {}) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -338,6 +354,7 @@ const bookingsCollection = {
    * 查询所有预约列表（管理员功能）
    */
   async listAll(filters = {}) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -401,6 +418,7 @@ const bookingsCollection = {
    * 查询指定日期范围的预约（用于日历）
    */
   async listByDateRange(startDate, endDate) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -427,6 +445,7 @@ const bookingsCollection = {
    * 更新预约状态
    */
   async updateStatus(bookingId, status, reviewInfo = {}) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -454,6 +473,7 @@ const bookingsCollection = {
    * 统计指定日期和时段的预约人数
    */
   async countByDateAndTimeSlot(bookingDate, bookingTimeSlot) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -489,6 +509,7 @@ const hallsCollection = {
    * 查询所有展区列表
    */
   async list() {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -511,6 +532,7 @@ const hallsCollection = {
    * 根据ID查询展区详情
    */
   async findById(hallId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -531,6 +553,7 @@ const hallsCollection = {
    * 创建展区
    */
   async create(hallData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -559,6 +582,7 @@ const hallsCollection = {
    * 更新展区信息
    */
   async update(hallId, updateData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -585,6 +609,7 @@ const hallsCollection = {
    * 删除展区（软删除）
    */
   async delete(hallId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -613,6 +638,7 @@ const feedbacksCollection = {
    * 创建反馈
    */
   async create(feedbackData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -640,6 +666,7 @@ const feedbacksCollection = {
    * 查询用户反馈列表
    */
   async listByUser(userId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -661,6 +688,7 @@ const feedbacksCollection = {
    * 查询公开反馈列表（互动墙）
    */
   async listPublic(filters = {}) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -698,6 +726,7 @@ const feedbacksCollection = {
    * 更新反馈状态
    */
   async updateStatus(feedbackId, status) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -730,6 +759,7 @@ const collectionsCollection = {
    * 创建收藏
    */
   async create(collectionData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -756,6 +786,7 @@ const collectionsCollection = {
    * 查询用户收藏列表
    */
   async listByUser(userId, type = null) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -782,6 +813,7 @@ const collectionsCollection = {
    * 删除收藏
    */
   async remove(collectionId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -802,6 +834,7 @@ const collectionsCollection = {
    * 检查是否已收藏
    */
   async checkExists(userId, type, itemId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -831,6 +864,7 @@ const certificatesCollection = {
    * 创建证书
    */
   async create(certificateData) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -857,6 +891,7 @@ const certificatesCollection = {
    * 查询用户证书列表
    */
   async listByUser(userId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
@@ -878,6 +913,7 @@ const certificatesCollection = {
    * 根据ID查询证书
    */
   async findById(certificateId) {
+    const cloudDb = getCloudDb();
     if (!cloudDb) {
       throw new Error('数据库未初始化');
     }
