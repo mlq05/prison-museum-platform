@@ -1,0 +1,157 @@
+<!-- ar-xr.wxml - 使用xr-frame实现AR（支持Hiro marker识别和3D模型） -->
+<view class="ar-xr-page">
+  <navigation-bar title="AR体验" />
+  
+  <!-- AR场景容器 -->
+  <view class="ar-container" wx:if="{{!error && cameraAuthorized}}">
+    <!-- xr-frame AR场景 -->
+    <xr-scene 
+      id="xr-scene"
+      ar-system="modes:Marker" 
+      bind:ready="onSceneReady"
+      bind:ar-ready="onARReady"
+      bind:error="onSceneError"
+      class="xr-scene"
+    >
+      <!-- 资源加载 -->
+      <xr-assets bind:progress="onAssetsProgress" bind:loaded="onAssetsLoaded">
+        <!-- 加载Hiro marker -->
+        <xr-asset-load 
+          type="pattern" 
+          asset-id="hiro-marker" 
+          src="/miniprogram/ar-pages/libs/hiro.patt" 
+        />
+        
+        <!-- 加载3D模型（如果有） -->
+        <xr-asset-load 
+          wx:if="{{modelUrl}}"
+          type="gltf" 
+          asset-id="ar-model" 
+          src="{{modelUrl}}" 
+        />
+      </xr-assets>
+      
+      <!-- 相机（必须在最外层，AR摄像头） -->
+      <xr-camera 
+        id="xr-camera" 
+        node-id="camera"
+        clear-color="0.925 0.925 0.925 1"
+        background="ar"
+        is-ar-camera
+      />
+      
+      <!-- 环境光照 -->
+      <xr-env env-data="xr-frame-team-workspace-day" />
+      
+      <!-- 灯光 -->
+      <xr-node node-id="lights">
+        <xr-light type="ambient" color="1 1 1" intensity="1" />
+        <xr-light type="directional" rotation="180 0 0" color="1 1 1" intensity="3" />
+      </xr-node>
+      
+      <!-- AR节点容器 -->
+      <xr-node wx:if="{{arReady}}">
+        <!-- AR追踪器（Marker识别） -->
+        <xr-ar-tracker 
+          mode="Marker" 
+          src="hiro-marker"
+          bind:found="onMarkerFound"
+          bind:lost="onMarkerLost"
+        >
+        <!-- 3D模型显示 -->
+        <xr-model 
+          wx:if="{{modelUrl}}"
+          model="ar-model" 
+          position="0 0.5 0" 
+          scale="{{modelScale}}"
+          bind:tap="onModelTap"
+        />
+        
+        <!-- 默认3D物体（如果没有模型，显示这些） -->
+        <block wx:else>
+          <!-- 蓝色旋转立方体（中心展示） -->
+          <xr-mesh 
+            geometry="box:0.4,0.4,0.4" 
+            material="color:#409EFF;opacity:0.9"
+            position="0 0.3 0"
+            animation="rotation:0,360,0;duration:10000;loop:true"
+            bind:tap="onCubeTap"
+          />
+          
+          <!-- 装饰球体 -->
+          <xr-mesh 
+            geometry="sphere:0.15" 
+            material="color:#67C23A"
+            position="0.5 0.4 0"
+          />
+        </block>
+        
+        <!-- 介绍文本（始终显示，在marker上方） -->
+        <xr-label 
+          wx:if="{{hallTitle}}"
+          content="{{hallTitle}}" 
+          position="0 0.8 0" 
+          color="#1A365D"
+          size="0.08"
+          align="center"
+          background="rgba(255,255,255,0.9)"
+          padding="0.02"
+        />
+        <xr-label 
+          wx:if="{{hallDescription}}"
+          content="{{hallDescription}}" 
+          position="0 0.6 0" 
+          color="#666666"
+          size="0.06"
+          align="center"
+          background="rgba(255,255,255,0.8)"
+          padding="0.015"
+        />
+        </xr-ar-tracker>
+      </xr-node>
+    </xr-scene>
+    
+    <!-- 顶部提示 -->
+    <view class="info-panel" wx:if="{{!markerDetected}}">
+      <view class="info-title">AR体验</view>
+      <view class="info-text">请将摄像头对准Hiro marker图案</view>
+      <view class="info-text-small">保持30-50cm距离，确保光线充足</view>
+      <view class="info-link" bindtap="showMarkerGuide">
+        📋 查看Hiro Marker图片
+      </view>
+    </view>
+    
+    <!-- 识别成功提示 -->
+    <view class="detected-panel" wx:if="{{markerDetected}}">
+      <view class="detected-badge">√ 识别成功</view>
+      <view class="detected-tip" wx:if="{{hallTitle}}">{{hallTitle}}</view>
+    </view>
+    
+    <!-- 底部控制栏 -->
+    <view class="control-bar">
+      <button class="control-btn" bindtap="resetScene">重置</button>
+      <button class="control-btn" bindtap="toggleAnimation" wx:if="{{!modelUrl}}">
+        {{animationPaused ? '播放' : '暂停'}}动画
+      </button>
+      <button class="control-btn danger" bindtap="closeAR">返回</button>
+    </view>
+  </view>
+  
+  <!-- 错误提示 -->
+  <view class="error-container" wx:if="{{error}}">
+    <view class="error-content">
+      <view class="error-icon">⚠️</view>
+      <view class="error-title">AR初始化失败</view>
+      <view class="error-message">{{error}}</view>
+      <view class="error-tip">
+        <text>请检查：</text>
+        <text>1. 微信版本是否支持xr-frame（8.0.29+）</text>
+        <text>2. 基础库版本是否≥2.27.1</text>
+        <text>3. 设备是否支持AR功能</text>
+      </view>
+      <button class="retry-btn" bindtap="retryInit">重试</button>
+      <button class="back-btn" bindtap="closeAR">返回</button>
+    </view>
+  </view>
+</view>
+

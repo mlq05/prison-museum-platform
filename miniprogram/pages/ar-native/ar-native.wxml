@@ -1,0 +1,132 @@
+<!-- ar-native.wxml - 基于小程序原生组件的AR体验页面 -->
+<view class="ar-native-page">
+  <navigation-bar title="AR体验" />
+  
+  <!-- 摄像头视图 -->
+  <view class="camera-container" wx:if="{{!showResult}}">
+    <camera
+      class="camera-view"
+      device-position="{{devicePosition}}"
+      flash="{{flash}}"
+      bindscancode="onScanCode"
+      bindstop="onCameraStop"
+      binderror="onCameraError"
+    >
+      <!-- 扫描框 -->
+      <view class="scan-frame">
+        <view class="scan-box">
+          <view class="scan-corner scan-corner-tl"></view>
+          <view class="scan-corner scan-corner-tr"></view>
+          <view class="scan-corner scan-corner-bl"></view>
+          <view class="scan-corner scan-corner-br"></view>
+          <view class="scan-line" wx:if="{{scanning}}"></view>
+        </view>
+        <view class="scan-tip">将摄像头对准展区二维码标识</view>
+      </view>
+    </camera>
+    
+    <!-- 顶部提示 -->
+    <view class="top-hint" wx:if="{{!markerDetected}}">
+      <view class="hint-text">{{hintText}}</view>
+    </view>
+    
+    <!-- AR叠加内容（识别成功后的3D模型预览） -->
+    <view class="ar-overlay" wx:if="{{markerDetected}}">
+      <view class="ar-model-preview">
+        <image class="model-icon" src="{{arModelIcon}}" mode="aspectFit"></image>
+        <view class="model-title">{{arModelTitle}}</view>
+        <view class="model-desc">{{arModelDesc}}</view>
+        <view class="detect-badge">
+          <text class="badge-icon">√</text>
+          <text class="badge-text">识别成功</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 底部控制栏 -->
+    <view class="control-bar">
+      <button class="control-btn" bindtap="switchCamera">
+        <text class="iconfont">🔄</text>
+        <text>切换摄像头</text>
+      </button>
+      <button class="control-btn primary" bindtap="manualScan" wx:if="{{!scanning}}">
+        <text class="iconfont">📷</text>
+        <text>扫码识别</text>
+      </button>
+      <button class="control-btn danger" bindtap="closeAR">
+        <text class="iconfont">✕</text>
+        <text>返回</text>
+      </button>
+    </view>
+  </view>
+  
+  <!-- AR内容展示页面（识别成功后） -->
+  <view class="ar-result-page" wx:if="{{showResult}}">
+    <scroll-view class="result-scroll" scroll-y="true">
+      <!-- 3D模型展示区域 -->
+      <view class="model-display-area">
+        <view class="model-placeholder">
+          <image class="model-image" src="{{arModelImage}}" mode="aspectFit" wx:if="{{arModelImage}}"></image>
+          <view class="model-placeholder-text" wx:else>
+            <text class="iconfont">🎨</text>
+            <text>3D模型展示区域</text>
+            <text class="sub-text">模型将在此显示</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 展区信息 -->
+      <view class="hall-info-card">
+        <view class="hall-title">{{arModelTitle}}</view>
+        <view class="hall-description">{{arModelDesc}}</view>
+        
+        <!-- 知识点列表 -->
+        <view class="knowledge-points" wx:if="{{knowledgePoints.length > 0}}">
+          <view class="points-title">知识点</view>
+          <view class="point-item" wx:for="{{knowledgePoints}}" wx:key="id" bindtap="onPointTap" data-point="{{item}}">
+            <view class="point-icon">{{item.icon}}</view>
+            <view class="point-content">
+              <view class="point-title">{{item.title}}</view>
+              <view class="point-desc">{{item.desc}}</view>
+            </view>
+            <view class="point-arrow">›</view>
+          </view>
+        </view>
+        
+        <!-- 语音导览 -->
+        <view class="audio-guide" wx:if="{{audioUrl}}">
+          <view class="audio-title">语音导览</view>
+          <view class="audio-player">
+            <button class="play-btn {{audioPlaying ? 'playing' : ''}}" bindtap="toggleAudio">
+              <text wx:if="{{audioPlaying}}">⏸</text>
+              <text wx:else>▶</text>
+            </button>
+            <view class="audio-info">
+              <view class="audio-name">{{audioTitle}}</view>
+              <view class="audio-duration">{{audioDuration}}</view>
+            </view>
+            <progress class="audio-progress" percent="{{audioProgress}}" show-info="false"></progress>
+          </view>
+        </view>
+        
+        <!-- AR打卡 -->
+        <view class="checkin-section">
+          <button class="checkin-btn {{checkInStatus === 'checked' ? 'checked' : ''}}" bindtap="onCheckIn" disabled="{{checkInStatus === 'checked'}}">
+            <text wx:if="{{checkInStatus === 'checked'}}">√ 已打卡</text>
+            <text wx:else>📸 AR打卡</text>
+          </button>
+          <view class="checkin-tip" wx:if="{{checkInStatus !== 'checked'}}">
+            完成AR打卡任务，解锁专属勋章
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <!-- 返回按钮 -->
+    <view class="result-footer">
+      <button class="back-btn" bindtap="backToCamera">重新扫描</button>
+      <button class="close-btn" bindtap="closeAR">关闭</button>
+    </view>
+  </view>
+</view>
+

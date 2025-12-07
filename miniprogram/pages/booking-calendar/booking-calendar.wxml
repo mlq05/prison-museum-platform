@@ -1,0 +1,74 @@
+<!--booking-calendar.wxml - 预约日历页面-->
+<view class="booking-calendar-page">
+  <navigation-bar title="选择日期和时段" />
+
+  <!-- 可滚动内容区域 -->
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}">
+    <!-- 日期选择 -->
+    <view class="date-section card">
+      <view class="section-title title-medium">选择参观日期</view>
+      <scroll-view class="date-scroll" scroll-x="{{true}}" show-scrollbar="{{false}}" enable-flex="{{true}}">
+        <view class="date-list">
+          <view 
+            class="date-item {{selectedDate === item ? 'selected' : ''}}" 
+            wx:for="{{dates}}" 
+            wx:key="index"
+            wx:for-item="item"
+            wx:for-index="index"
+            data-date="{{item}}"
+            bindtap="onDateSelect"
+          >
+            <view class="date-day">{{getDateDay(item)}}</view>
+            <view class="date-weekday">{{getWeekday(item)}}</view>
+            <view class="date-status" wx:if="{{dateBookingMap[item]}}">
+              <text class="status-dot" wx:if="{{dateBookingMap[item].isFull}}">满</text>
+              <text class="status-dot available" wx:else>可约</text>
+            </view>
+            <view class="date-status" wx:else>
+              <text class="status-dot available">可约</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="date-loading" wx:if="{{dates.length === 0}}">
+        <text class="loading-text">正在加载日期...</text>
+      </view>
+    </view>
+
+    <!-- 时段选择 -->
+    <view class="timeslot-section card" wx:if="{{selectedDate}}">
+      <view class="section-title title-medium">选择参观时段</view>
+      <view class="selected-date">预约日期：{{selectedDate}}</view>
+      <view class="timeslot-list">
+        <view 
+          class="timeslot-item {{selectedTimeSlot === item.id ? 'selected' : ''}} {{item.available <= 0 ? 'disabled' : ''}} {{item.isWarning ? 'warning' : ''}}"
+          wx:for="{{timeSlots}}"
+          wx:key="id"
+          data-slot="{{item}}"
+          bindtap="onTimeSlotSelect"
+        >
+          <view class="timeslot-time">{{item.time}}</view>
+          <view class="timeslot-label">{{item.label}}</view>
+          <view class="timeslot-available">
+            <text wx:if="{{item.available > 0}}">剩余 {{item.available}}/{{item.total}}</text>
+            <text wx:else class="full-text">已满</text>
+          </view>
+          <view class="warning-icon" wx:if="{{item.isWarning && item.available > 0}}">⚠️</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态提示 -->
+    <view class="empty-tip" wx:if="{{!selectedDate}}">
+      <view class="tip-text">请先选择参观日期</view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions safe-area-bottom">
+    <button class="btn btn-primary {{!selectedDate || !selectedTimeSlot ? 'disabled' : ''}}" bindtap="onNext" disabled="{{!selectedDate || !selectedTimeSlot}}">
+      下一步：填写预约信息
+    </button>
+  </view>
+</view>
+

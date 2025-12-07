@@ -1,0 +1,37 @@
+<!-- ar-webview.wxml - 使用web-view承载A-Frame+AR.js实现的AR页面 -->
+<!-- 注意：此功能需要企业主体，个人主体无法使用web-view -->
+<view class="ar-webview-page">
+  <navigation-bar title="AR体验" />
+  
+  <!-- web-view容器 -->
+  <web-view 
+    src="{{arUrl}}" 
+    bindmessage="onWebViewMessage"
+    binderror="onWebViewError"
+    bindload="onWebViewLoad"
+  ></web-view>
+  
+  <!-- 加载提示 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">AR页面加载中...</view>
+  </view>
+  
+  <!-- 错误提示 -->
+  <view class="error-container" wx:if="{{error}}">
+    <view class="error-content">
+      <view class="error-icon">⚠️</view>
+      <view class="error-title">AR页面加载失败</view>
+      <view class="error-message">{{error}}</view>
+      <view class="error-tip">
+        <text>可能的原因：</text>
+        <text>1. 个人主体无法使用web-view（需要企业主体）</text>
+        <text>2. 业务域名未配置</text>
+        <text>3. AR页面URL不正确</text>
+      </view>
+      <button class="retry-btn" bindtap="retryLoad">重试</button>
+      <button class="back-btn" bindtap="goBack">返回</button>
+    </view>
+  </view>
+</view>
+

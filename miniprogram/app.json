@@ -1,0 +1,99 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/booking/booking",
+    "pages/booking-calendar/booking-calendar",
+    "pages/booking-form/booking-form",
+    "pages/booking-success/booking-success",
+    "pages/booking-list/booking-list",
+    "pages/booking-detail/booking-detail",
+    "pages/ar-experience/ar-experience",
+    "pages/ar-native/ar-native",
+    "pages/ar-link/ar-link",
+    "pages/ar-webview/ar-webview",
+    "pages/ar-guide/ar-guide",
+    "pages/ar-xr/ar-xr",
+    "pages/exhibition-halls/exhibition-halls",
+    "pages/exhibition-halls/detail",
+    "pages/knowledge-game/knowledge-game",
+    "pages/knowledge-result/knowledge-result",
+    "pages/certificate/certificate",
+    "pages/my/my",
+    "pages/my-collections/my-collections",
+    "pages/my-certificates/my-certificates",
+    "pages/admin/admin",
+    "pages/admin-booking/admin-booking",
+    "pages/admin-statistics/admin-statistics",
+    "pages/admin-halls/admin-halls",
+    "pages/interactive-wall/interactive-wall",
+    "pages/feedback/feedback"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "监狱历史文化展览馆",
+    "navigationBarBackgroundColor": "#1A365D",
+    "navigationStyle": "custom",
+    "backgroundColor": "#F5F1E6",
+    "backgroundTextStyle": "light",
+    "enablePullDownRefresh": false
+  },
+  "permission": {
+    "scope.camera": {
+      "desc": "需要使用摄像头进行AR marker识别"
+    },
+    "scope.userLocation": {
+      "desc": "需要获取您的位置以便提供智能导览服务"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "style": "v2",
+  "renderer": "skyline",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "tagNameStyleIsolation": "legacy",
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "cloud": true,
+  "tabBar": {
+    "color": "#9C9C9C",
+    "selectedColor": "#1A365D",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/tab-home.png",
+        "selectedIconPath": "assets/icons/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/booking/booking",
+        "text": "预约",
+        "iconPath": "assets/icons/tab-booking.png",
+        "selectedIconPath": "assets/icons/tab-booking-active.png"
+      },
+      {
+        "pagePath": "pages/ar-experience/ar-experience",
+        "text": "AR体验",
+        "iconPath": "assets/icons/tab-ar.png",
+        "selectedIconPath": "assets/icons/tab-ar-active.png"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "assets/icons/tab-my.png",
+        "selectedIconPath": "assets/icons/tab-my-active.png"
+      }
+    ]
+  }
+}

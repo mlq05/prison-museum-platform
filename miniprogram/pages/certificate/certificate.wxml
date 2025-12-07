@@ -1,0 +1,72 @@
+<!--certificate.wxml-->
+<view class="certificate-page">
+  <navigation-bar title="我的证书" />
+  
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}" style="height: {{scrollHeight}};">
+    <view class="scroll-wrapper">
+      <view wx:if="{{!loading && certificate}}" class="certificate-container">
+        <!-- 证书主体 -->
+        <view class="certificate-card">
+          <!-- 证书标题 -->
+          <view class="certificate-header">
+            <text class="certificate-title">{{certificate.title}}</text>
+          </view>
+          
+          <!-- 证书内容 -->
+          <view class="certificate-body">
+            <view class="certificate-content">
+              <text class="content-text">{{certificate.content}}</text>
+            </view>
+            
+            <!-- 用户信息 -->
+            <view class="certificate-user">
+              <text class="user-label">获得者：</text>
+              <text class="user-name">{{certificate.userName}}</text>
+            </view>
+            
+            <!-- 成绩信息（如果是闯关证书） -->
+            <view wx:if="{{certificate.type === 'game' && certificate.gameScore}}" class="certificate-score">
+              <text class="score-label">得分：</text>
+              <text class="score-value">{{certificate.gameScore}} / {{certificate.gameTotalScore}}</text>
+            </view>
+            
+            <!-- 颁发日期 -->
+            <view class="certificate-date">
+              <text class="date-label">颁发日期：</text>
+              <text class="date-value">{{certificate.issueDate}}</text>
+            </view>
+            
+            <!-- 证书编号 -->
+            <view class="certificate-number">
+              <text class="number-label">证书编号：</text>
+              <text class="number-value">{{certificate.certificateNumber}}</text>
+            </view>
+          </view>
+          
+          <!-- 证书装饰 -->
+          <view class="certificate-decoration">
+            <view class="decoration-line"></view>
+            <text class="decoration-text">中国监狱历史文化展览馆</text>
+            <view class="decoration-line"></view>
+          </view>
+        </view>
+        
+        <!-- 操作按钮 -->
+        <view class="certificate-actions">
+          <button class="btn btn-primary" bindtap="onShare">分享证书</button>
+          <button class="btn btn-secondary" bindtap="onSaveImage">保存图片</button>
+          <button class="btn btn-outline" bindtap="onExportPDF">导出PDF</button>
+        </view>
+      </view>
+      
+      <!-- 加载中 -->
+      <view wx:if="{{loading}}" class="loading-container">
+        <text class="loading-text">加载中...</text>
+      </view>
+      
+      <!-- 底部安全区域 -->
+      <view class="scroll-bottom-safe"></view>
+    </view>
+  </scroll-view>
+</view>
+

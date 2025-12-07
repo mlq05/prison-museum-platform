@@ -1,0 +1,61 @@
+<!--booking-success.wxml - 预约成功页面-->
+<view class="booking-success-page">
+  <navigation-bar title="预约成功" show-back="{{false}}" />
+
+  <scroll-view class="content-scroll" scroll-y="{{true}}">
+    <!-- 成功提示 -->
+    <view class="success-content">
+      <view class="success-icon">
+        <text class="icon-text">√</text>
+      </view>
+      <view class="success-title title-large">预约成功！</view>
+      <view class="success-subtitle">AR功能已为您准备就绪～</view>
+
+      <!-- 印章动画 -->
+      <view class="seal-stamp {{showSeal ? 'seal-stamp' : ''}}" wx:if="{{showSeal}}">
+        <view class="seal-text">已通过</view>
+      </view>
+    </view>
+
+    <!-- 预约信息 -->
+    <view class="booking-info card">
+      <view class="info-title title-small">预约信息</view>
+      <view class="info-item">
+        <text class="info-label">预约日期：</text>
+        <text class="info-value">{{bookingDate}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">参观时段：</text>
+        <text class="info-value">{{timeSlotLabel || timeSlot}}</text>
+      </view>
+    </view>
+
+    <!-- AR使用指南 -->
+    <view class="ar-guide card">
+      <view class="guide-title title-medium">AR功能使用指南</view>
+      <view class="guide-steps">
+        <view class="guide-step" wx:for="{{arGuideSteps}}" wx:key="id">
+          <view class="step-number">{{item.id}}</view>
+          <image class="step-icon" src="{{item.icon}}" mode="aspectFit" />
+          <view class="step-content">
+            <view class="step-title">{{item.title}}</view>
+            <view class="step-desc">{{item.desc}}</view>
+          </view>
+        </view>
+      </view>
+      <button class="btn btn-primary" bindtap="onTryAR">立即体验AR</button>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="btn btn-secondary" bindtap="onAddToCalendar">添加到日历</button>
+      <button class="btn btn-secondary" bindtap="onViewBookingDetail">查看预约详情</button>
+    </view>
+  </scroll-view>
+
+  <!-- 底部返回按钮 -->
+  <view class="bottom-actions safe-area-bottom">
+    <button class="btn btn-primary" bindtap="onBackHome">返回首页</button>
+  </view>
+</view>
+

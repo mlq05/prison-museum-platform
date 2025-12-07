@@ -1,0 +1,8 @@
+<!--admin-halls.wxml-->
+<view class="admin-halls-page">
+  <navigation-bar title="展区管理" />
+  <view class="container">
+    <view class="empty-text">功能开发中...</view>
+  </view>
+</view>
+

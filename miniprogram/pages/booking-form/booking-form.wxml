@@ -1,0 +1,168 @@
+<!--booking-form.wxml - 预约表单页面-->
+<view class="booking-form-page">
+  <navigation-bar title="填写预约信息" />
+
+  <scroll-view class="form-scroll" scroll-y="{{true}}" enable-back-to-top="{{true}}" show-scrollbar="{{false}}">
+    <!-- 预约信息摘要 -->
+    <view class="booking-summary card">
+      <view class="summary-title title-small">预约信息</view>
+      <view class="summary-item">
+        <text class="summary-label">预约日期：</text>
+        <text class="summary-value">{{bookingDate}}</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-label">参观时段：</text>
+        <text class="summary-value">{{timeSlotLabel}}</text>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="form-section card">
+      <view class="section-title title-small">基本信息</view>
+      
+      <!-- 姓名 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text>姓名</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input {{errors.name ? 'error' : ''}}"
+          type="text"
+          placeholder="请输入姓名"
+          value="{{name}}"
+          bindinput="onNameInput"
+          cursor-spacing="20"
+        />
+        <view class="error-text" wx:if="{{errors.name}}">{{errors.name}}</view>
+      </view>
+
+      <!-- 手机号 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text>手机号</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input {{errors.phone ? 'error' : ''}}"
+          type="number"
+          placeholder="请输入手机号"
+          value="{{phone}}"
+          bindinput="onPhoneInput"
+          maxlength="11"
+        />
+        <view class="error-text" wx:if="{{errors.phone}}">{{errors.phone}}</view>
+      </view>
+
+      <!-- 学生 - 学号 -->
+      <view class="form-item" wx:if="{{userRole === 'student'}}">
+        <view class="form-label">
+          <text>学号</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input {{errors.studentId ? 'error' : ''}}"
+          type="text"
+          placeholder="请输入学号"
+          value="{{studentId}}"
+          bindinput="onStudentIdInput"
+          cursor-spacing="20"
+        />
+        <view class="error-text" wx:if="{{errors.studentId}}">{{errors.studentId}}</view>
+      </view>
+
+      <!-- 教职工 - 工号 -->
+      <view class="form-item" wx:if="{{userRole === 'faculty'}}">
+        <view class="form-label">
+          <text>工号</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input {{errors.workId ? 'error' : ''}}"
+          type="text"
+          placeholder="请输入工号"
+          value="{{workId}}"
+          bindinput="onWorkIdInput"
+          cursor-spacing="20"
+        />
+        <view class="error-text" wx:if="{{errors.workId}}">{{errors.workId}}</view>
+      </view>
+
+      <!-- 校外访客 - 院系 -->
+      <view class="form-item" wx:if="{{userRole === 'visitor'}}">
+        <view class="form-label">
+          <text>院系</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input {{errors.unit ? 'error' : ''}}"
+          type="text"
+          placeholder="请输入院系名称"
+          value="{{unit}}"
+          bindinput="onUnitInput"
+          cursor-spacing="20"
+        />
+        <view class="error-text" wx:if="{{errors.unit}}">{{errors.unit}}</view>
+      </view>
+
+      <!-- 校外访客 - 班级 -->
+      <view class="form-item" wx:if="{{userRole === 'visitor'}}">
+        <view class="form-label">
+          <text>班级</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="form-input {{errors.idCard ? 'error' : ''}}"
+          type="text"
+          placeholder="请输入班级"
+          value="{{idCard}}"
+          bindinput="onIdCardInput"
+          cursor-spacing="20"
+        />
+        <view class="error-text" wx:if="{{errors.idCard}}">{{errors.idCard}}</view>
+      </view>
+    </view>
+
+    <!-- 参观信息 -->
+    <view class="form-section card">
+      <view class="section-title title-small">参观信息</view>
+      
+      <!-- 参观人数 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text>参观人数</text>
+          <text class="required">*</text>
+        </view>
+        <picker 
+          mode="selector" 
+          range="{{[1,2,3,4,5,6,7,8,9,10]}}"
+          value="{{visitorCount - 1}}"
+          bindchange="onVisitorCountChange"
+        >
+          <view class="picker-view">
+            <text class="picker-text">{{visitorCount}}人</text>
+            <text class="picker-arrow">></text>
+          </view>
+        </picker>
+        <view class="error-text" wx:if="{{errors.visitorCount}}">{{errors.visitorCount}}</view>
+      </view>
+    </view>
+
+    <!-- 温馨提示 -->
+    <view class="tips card">
+      <view class="tips-title title-small">温馨提示</view>
+      <view class="tips-content">
+        <text>• 预约提交后，管理员将在1小时内完成审核</text>
+        <text>• 审核通过后，您将收到微信通知</text>
+        <text>• 参观时请携带有效证件</text>
+        <text>• 建议提前了解AR功能使用方法</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部提交按钮 -->
+  <view class="bottom-actions safe-area-bottom">
+    <button class="btn btn-primary" bindtap="onSubmit">提交预约</button>
+  </view>
+</view>
+

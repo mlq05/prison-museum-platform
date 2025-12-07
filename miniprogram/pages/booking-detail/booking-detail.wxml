@@ -1,0 +1,61 @@
+<!--booking-detail.wxml-->
+<view class="booking-detail-page">
+  <navigation-bar title="预约详情" />
+  <view class="container" wx:if="{{formattedBooking}}">
+    <!-- 状态与基础信息 -->
+    <view class="card status-card">
+      <view class="status-row">
+        <view class="status-text" style="color: {{formattedBooking.statusColor}}">
+          {{formattedBooking.statusText}}
+        </view>
+        <view class="status-time">{{formattedBooking.formattedCreatedAt}}</view>
+      </view>
+      <view class="date-row">
+        <view class="date-main">{{formattedBooking.formattedDate}} {{formattedBooking.weekday}}</view>
+        <view class="date-sub">{{formattedBooking.bookingTimeSlot}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-item">参观人数：{{formattedBooking.visitorCount}}人</view>
+        <view class="info-item">预约人：{{formattedBooking.userName || '本人'}}</view>
+      </view>
+    </view>
+
+    <!-- 预约人信息 -->
+    <view class="card section-card">
+      <view class="section-title">预约人信息</view>
+      <view class="section-row">姓名：{{formattedBooking.userName || '开发测试用户'}}</view>
+      <view class="section-row">手机号：{{formattedBooking.maskedPhone}}</view>
+      <view class="section-row" wx:if="{{formattedBooking.roleText}}">身份：{{formattedBooking.roleText}}</view>
+      <view class="section-row" wx:if="{{formattedBooking.maskedIdCard}}">证件号：{{formattedBooking.maskedIdCard}}</view>
+    </view>
+
+    <!-- 审核信息 -->
+    <view class="card section-card" wx:if="{{formattedBooking.status !== 'pending'}}">
+      <view class="section-title">审核信息</view>
+      <view class="section-row">状态：{{formattedBooking.statusText}}</view>
+      <view class="section-row" wx:if="{{formattedBooking.formattedReviewedAt}}">
+        审核时间：{{formattedBooking.formattedReviewedAt}}
+      </view>
+      <view class="section-row" wx:if="{{formattedBooking.rejectReason}}">
+        驳回原因：{{formattedBooking.rejectReason}}
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="actions">
+      <button class="btn btn-secondary" bindtap="onCopyBookingInfo">复制预约信息</button>
+      <button
+        class="btn btn-danger"
+        wx:if="{{formattedBooking.canCancel}}"
+        bindtap="onCancelBooking"
+      >
+        撤销预约
+      </button>
+    </view>
+  </view>
+
+  <view class="container" wx:else>
+    <view class="empty-text">正在加载预约信息...</view>
+  </view>
+</view>
+

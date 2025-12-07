@@ -1,0 +1,165 @@
+/**my.wxss - 我的页面样式**/
+
+.my-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-bottom: var(--spacing-xl);
+}
+
+/* 用户信息卡片 */
+.user-card {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2C5282 100%);
+  color: var(--white);
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  margin-right: var(--spacing-md);
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: var(--spacing-xs);
+}
+
+.user-role {
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+.edit-icon {
+  font-size: 32rpx;
+  opacity: 0.8;
+}
+
+.user-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: var(--spacing-lg);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.user-stats .stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.user-stats .stat-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-bottom: var(--spacing-xs);
+}
+
+.user-stats .stat-label {
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+.user-stats .stat-divider {
+  width: 1rpx;
+  height: 60rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 登录提示 */
+.login-prompt {
+  margin: var(--spacing-md);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.prompt-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.prompt-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.5;
+  margin-bottom: var(--spacing-md);
+}
+
+.prompt-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* 功能菜单 */
+.menu-section {
+  margin: var(--spacing-md) 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  margin: 0 var(--spacing-md) var(--spacing-md);
+  position: relative;
+}
+
+.menu-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: var(--spacing-md);
+}
+
+.menu-content {
+  flex: 1;
+}
+
+.menu-title {
+  font-size: 30rpx;
+  color: var(--text-primary);
+}
+
+.menu-badge {
+  position: absolute;
+  top: 50%;
+  right: 80rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  background-color: var(--error-color);
+  color: var(--white);
+  border-radius: 16rpx;
+  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+  transform: translateY(-50%);
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: var(--text-light);
+}
+
+/* 退出登录 */
+.logout-section {
+  margin: var(--spacing-xl) var(--spacing-md);
+}
+
+.logout-section .btn {
+  width: 100%;
+}
+

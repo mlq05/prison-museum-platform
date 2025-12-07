@@ -1,0 +1,73 @@
+{
+  "description": "项目配置文件",
+  "miniprogramRoot": "miniprogram/",
+  "compileType": "miniprogram",
+  "setting": {
+    "useCompilerPlugins": [
+      "typescript"
+    ],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "coverView": false,
+    "postcss": false,
+    "minified": true,
+    "enhance": true,
+    "showShadowRootInWxmlPanel": false,
+    "packNpmRelationList": [
+      {
+        "packageJsonPath": "./miniprogram/package.json",
+        "miniprogramNpmDistDir": "./miniprogram/"
+      }
+    ],
+    "ignoreUploadUnusedFiles": true,
+    "compileHotReLoad": false,
+    "skylineRenderEnable": true,
+    "es6": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": false,
+    "packNpmManually": true,
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "disableUseStrict": false
+  },
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {},
+  "srcMiniprogramRoot": "miniprogram/",
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "libVersion": "3.0.0",
+  "miniprogramNpmDistDir": "./miniprogram/",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "file",
+        "value": "ar-pages/libs/aframe-ar.js"
+      },
+      {
+        "type": "file",
+        "value": "ar-pages/libs/aframe.min.js"
+      },
+      {
+        "type": "file",
+        "value": "ar-pages/marker-ar-simple.html"
+      },
+      {
+        "type": "file",
+        "value": "assets/images/改革开放与社会主义建设时期劳改工作的创新.jpg"
+      }
+    ],
+    "include": []
+  },
+  "appid": "wx5e7a55743d20c930"
+}

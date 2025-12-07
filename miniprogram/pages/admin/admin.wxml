@@ -1,0 +1,42 @@
+<!--admin.wxml-->
+<view class="admin-page">
+  <navigation-bar title="后台管理" />
+  <view class="container">
+    <block wx:if="{{!isAdmin}}">
+      <view class="card">
+        <view class="card-title">管理员登录</view>
+        <view class="form-item">
+          <text class="label">账号</text>
+          <input
+            class="input"
+            placeholder="请输入管理员账号"
+            value="{{username}}"
+            bindinput="onUsernameInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">密码</text>
+          <input
+            class="input"
+            placeholder="请输入密码"
+            password="true"
+            value="{{password}}"
+            bindinput="onPasswordInput"
+          />
+        </view>
+        <button class="primary-btn" bindtap="onLogin" loading="{{loading}}">登录</button>
+        <view class="tips">初始账号：zysfjgxy，密码：123456</view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="card">
+        <view class="card-title">功能入口</view>
+        <button class="primary-btn" bindtap="onBookingManage">预约审批与时段设置</button>
+        <button class="secondary-btn" bindtap="onStatistics">数据统计</button>
+        <button class="secondary-btn" bindtap="onHallManage">展区管理</button>
+      </view>
+    </block>
+  </view>
+</view>
+

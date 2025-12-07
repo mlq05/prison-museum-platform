@@ -1,0 +1,200 @@
+/* ar-xr.wxss - xr-frame AR页面样式 */
+
+.ar-xr-page {
+  width: 100%;
+  height: 100vh;
+  background-color: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+/* AR容器 */
+.ar-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.xr-scene {
+  width: 100%;
+  height: 100%;
+}
+
+/* 信息面板 */
+.info-panel {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(26, 54, 93, 0.95);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  z-index: 100;
+  text-align: center;
+  max-width: 85%;
+  backdrop-filter: blur(10px);
+}
+
+.info-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.info-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.info-link {
+  font-size: 14px;
+  color: #66B1FF;
+  text-decoration: underline;
+  padding: 8px 0;
+}
+
+/* 识别成功提示 */
+.detected-panel {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.detected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #67C23A;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.4);
+  margin-bottom: 8px;
+}
+
+.detected-tip {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 8px;
+}
+
+.info-text-small {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 8px;
+}
+
+/* 控制栏 */
+.control-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 30rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  z-index: 100;
+}
+
+.control-btn {
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: none;
+  border-radius: 16rpx;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.control-btn.danger {
+  background-color: rgba(245, 108, 108, 0.8);
+}
+
+/* 错误容器 */
+.error-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1A365D;
+  padding: 40rpx;
+}
+
+.error-content {
+  background-color: #fff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  max-width: 600rpx;
+}
+
+.error-icon {
+  font-size: 80rpx;
+  margin-bottom: 30rpx;
+}
+
+.error-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1A365D;
+  margin-bottom: 20rpx;
+}
+
+.error-message {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 30rpx;
+  text-align: left;
+}
+
+.error-tip {
+  background-color: #F8F9FA;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 40rpx;
+  text-align: left;
+}
+
+.error-tip text {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 2;
+  margin-bottom: 8rpx;
+}
+
+.error-tip text:first-child {
+  font-weight: bold;
+  color: #1A365D;
+  margin-bottom: 12rpx;
+}
+
+.retry-btn,
+.back-btn {
+  width: 100%;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.retry-btn {
+  background-color: #409EFF;
+  color: #fff;
+}
+
+.back-btn {
+  background-color: #F8F9FA;
+  color: #1A365D;
+}
+

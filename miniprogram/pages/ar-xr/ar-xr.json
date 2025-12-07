@@ -1,0 +1,11 @@
+{
+  "navigationStyle": "custom",
+  "renderer": "xr-frame",
+  "usingComponents": {
+    "navigation-bar": "/components/navigation-bar/navigation-bar"
+  },
+  "requiredPrivateInfos": [
+    "camera"
+  ]
+}
+

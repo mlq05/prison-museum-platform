@@ -1,0 +1,113 @@
+/**
+ * 服务器入口文件
+ * 中国监狱历史文化展览馆智慧预约与文化传播平台
+ */
+
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const path = require('path');
+const fs = require('fs');
+const { initDatabase } = require('./db/database');
+
+// 导入路由
+const bookingRoutes = require('./routes/booking');
+const userRoutes = require('./routes/user');
+const hallRoutes = require('./routes/hall');
+const adminRoutes = require('./routes/admin');
+const arRoutes = require('./routes/ar');
+const collectionRoutes = require('./routes/collection');
+const gameRoutes = require('./routes/game');
+const certificateRoutes = require('./routes/certificate');
+const feedbackRoutes = require('./routes/feedback');
+
+// 导入中间件
+const errorHandler = require('./middleware/errorHandler');
+const logger = require('./middleware/logger');
+
+const app = express();
+// 云托管会自动分配端口，通过环境变量 PORT 获取
+const PORT = process.env.PORT || 3000;
+
+// 确保必要的目录存在
+// 云托管环境使用 /tmp 目录，本地开发使用相对路径
+const isCloud = process.env.TCB_ENV || process.env.TENCENTCLOUD_RUNENV;
+const baseDir = isCloud ? '/tmp' : __dirname;
+const dirs = isCloud 
+  ? ['/tmp/uploads', '/tmp/uploads/images', '/tmp/uploads/audio']
+  : ['./data', './uploads', './uploads/images', './uploads/audio'];
+dirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
+
+// 中间件
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(logger);
+
+// 静态文件服务
+// 云托管环境使用 /tmp/uploads，本地开发使用相对路径
+const uploadsDir = isCloud ? '/tmp/uploads' : path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsDir));
+
+// 健康检查
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: '服务器运行正常',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API路由
+app.use('/api/booking', bookingRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/hall', hallRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/ar', arRoutes);
+app.use('/api/collection', collectionRoutes);
+app.use('/api/game', gameRoutes);
+app.use('/api/certificate', certificateRoutes);
+app.use('/api/feedback', feedbackRoutes);
+
+// 404处理
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: '接口不存在'
+  });
+});
+
+// 错误处理
+app.use(errorHandler);
+
+// 启动服务器（先确保数据库已初始化）
+initDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      const env = process.env.NODE_ENV || 'development';
+      const isCloud = process.env.TCB_ENV || process.env.TENCENTCLOUD_RUNENV;
+      const serverType = isCloud ? '云托管服务器' : '本地服务器';
+      
+      console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║  中国监狱历史文化展览馆智慧预约平台 - ${serverType}          ║
+║                                                           ║
+║  服务器已启动: 端口 ${PORT}                                  ║
+║  环境: ${env}                                             ║
+║  运行环境: ${isCloud ? '云托管' : '本地'}                    ║
+╚═══════════════════════════════════════════════════════════╝
+      `);
+    });
+  })
+  .catch((err) => {
+    console.error('服务器启动失败，数据库初始化出错:', err);
+    process.exit(1);
+  });
+
+module.exports = app;
+

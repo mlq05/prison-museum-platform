@@ -1,0 +1,53 @@
+<!--exhibition-halls.wxml-->
+<view class="exhibition-halls-page">
+  <navigation-bar title="展馆导览" />
+  
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}" style="height: {{scrollHeight}};">
+    <view class="scroll-wrapper">
+      <!-- 展馆介绍 -->
+      <view class="intro-section">
+        <view class="intro-title">中国监狱历史文化展览馆</view>
+        <view class="intro-desc">本展馆展出面积八百多平米，分八大部分，全面展示中国监狱制度的历史演变与法治建设的进程。</view>
+      </view>
+
+      <!-- 展区列表 -->
+      <view class="halls-list">
+        <view 
+          class="hall-card" 
+          wx:for="{{halls}}" 
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onHallTap"
+        >
+          <view class="hall-image-wrapper" style="background-color: {{item.bgColor}};">
+            <image 
+              wx:if="{{item.coverImage}}"
+              class="hall-image" 
+              src="{{item.coverImage}}" 
+              mode="aspectFill"
+              lazy-load="{{true}}"
+              binderror="onImageError"
+              data-index="{{index}}"
+            />
+            <view class="hall-badge">详情</view>
+          </view>
+          <view class="hall-content">
+            <view class="hall-header">
+              <view class="hall-name">{{item.name}}</view>
+              <view class="hall-floor">F{{item.floor}}</view>
+            </view>
+            <view class="hall-description">{{item.description}}</view>
+            <view class="hall-footer">
+              <view class="hall-order">第{{item.order}}展区</view>
+              <view class="hall-arrow">></view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 底部安全区域 -->
+      <view class="scroll-bottom-safe"></view>
+    </view>
+  </scroll-view>
+</view>
+

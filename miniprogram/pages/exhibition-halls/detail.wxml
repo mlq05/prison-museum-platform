@@ -1,0 +1,49 @@
+<!--exhibition-halls/detail.wxml-->
+<view class="hall-detail-page">
+  <navigation-bar title="{{hallName || '展区详情'}}" />
+  
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}" style="height: {{scrollHeight}};">
+    <view class="scroll-wrapper">
+      <view wx:if="{{loading}}" class="loading-container">
+        <view class="loading-spinner"></view>
+        <view class="loading-text">加载中...</view>
+      </view>
+
+      <view wx:else class="hall-detail">
+        <!-- 封面图片 -->
+        <view class="hall-cover-wrapper" style="background-color: {{hall.bgColor || '#1A365D'}};">
+          <image wx:if="{{hall.coverImage}}" class="hall-cover" src="{{hall.coverImage}}" mode="aspectFill" lazy-load="{{true}}" binderror="onImageError" />
+          <view class="hall-cover-overlay">
+            <view class="hall-title">{{hall.name}}</view>
+            <view class="hall-subtitle">第{{hall.order}}展区 · F{{hall.floor}}层</view>
+          </view>
+          <view class="hall-badge" wx:if="{{hall.order}}">第{{hall.order}}展区</view>
+        </view>
+
+        <!-- 基本信息 -->
+        <view class="hall-info card">
+          <view class="info-title">展区简介</view>
+          <view class="info-description">{{hall.description}}</view>
+        </view>
+
+        <!-- 详细内容 -->
+        <view class="hall-content card">
+          <view class="content-title">详细内容</view>
+          <view class="content-text">{{hall.detail}}</view>
+        </view>
+
+        <!-- AR体验按钮 -->
+        <view class="action-section" wx:if="{{hall.arEnabled}}">
+          <button class="ar-button" bindtap="onStartAR">
+            <text class="ar-icon">📷</text>
+            <text class="ar-text">开始AR体验</text>
+          </button>
+        </view>
+
+        <!-- 底部安全区域 -->
+        <view class="scroll-bottom-safe"></view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+

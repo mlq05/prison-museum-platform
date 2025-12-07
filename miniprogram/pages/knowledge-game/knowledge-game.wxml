@@ -1,0 +1,75 @@
+<!--knowledge-game.wxml-->
+<view class="knowledge-game-page">
+  <navigation-bar title="知识闯关" />
+  
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}" style="height: {{scrollHeight}};">
+    <view class="scroll-wrapper">
+      <view wx:if="{{questions.length > 0}}" class="game-container">
+        <!-- 进度条 -->
+        <view class="progress-section">
+          <view class="progress-info">
+            <text class="progress-text">第 {{currentIndex + 1}} / {{questions.length}} 题</text>
+            <text class="progress-percent">{{progressPercent}}%</text>
+          </view>
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{progressPercent}}%"></view>
+          </view>
+        </view>
+
+        <!-- 题目卡片 -->
+        <view class="question-card" wx:if="{{currentQuestion}}">
+          <view class="question-header">
+            <text class="question-number">题目 {{currentIndex + 1}}</text>
+            <text class="question-hall">{{currentQuestion.hallName}}</text>
+          </view>
+          <view class="question-content">
+            <text class="question-text">{{currentQuestion.question}}</text>
+          </view>
+        </view>
+
+        <!-- 选项列表 -->
+        <view class="options-section" wx:if="{{currentQuestion}}">
+          <view 
+            class="option-item {{selectedAnswer === index ? 'selected' : ''}}"
+            wx:for="{{currentQuestion.options}}" 
+            wx:key="index"
+            wx:for-index="index"
+            data-index="{{index}}"
+            bindtap="onSelectAnswer"
+          >
+            <view class="option-label">{{optionLabels[index]}}.</view>
+            <view class="option-text">{{item}}</view>
+            <view wx:if="{{selectedAnswer === index}}" class="option-check">√</view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="action-buttons">
+          <button 
+            class="btn btn-prev" 
+            disabled="{{currentIndex === 0}}"
+            bindtap="onPrevQuestion"
+          >
+            上一题
+          </button>
+          <button 
+            class="btn btn-next {{selectedAnswer === null ? 'disabled' : ''}}" 
+            disabled="{{selectedAnswer === null}}"
+            bindtap="onNextQuestion"
+          >
+            {{currentIndex === questions.length - 1 ? '提交答案' : '下一题'}}
+          </button>
+        </view>
+      </view>
+
+      <!-- 加载中 -->
+      <view wx:else class="loading-container">
+        <text class="loading-text">正在加载题目...</text>
+      </view>
+
+      <!-- 底部安全区域 -->
+      <view class="scroll-bottom-safe"></view>
+    </view>
+  </scroll-view>
+</view>
+

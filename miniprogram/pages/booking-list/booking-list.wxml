@@ -1,0 +1,16 @@
+<!--booking-list.wxml-->
+<view class="booking-list-page">
+  <navigation-bar title="我的预约" />
+  <view class="container">
+    <view class="booking-list" wx:if="{{bookings.length > 0}}">
+      <view class="booking-item card" wx:for="{{bookings}}" wx:key="id" data-id="{{item.id}}" bindtap="onBookingTap">
+        <view class="booking-date">{{item.date}} {{item.timeSlot}}</view>
+        <view class="booking-status status-{{item.status}}">{{item.statusText}}</view>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <view class="empty-text">暂无预约记录</view>
+    </view>
+  </view>
+</view>
+

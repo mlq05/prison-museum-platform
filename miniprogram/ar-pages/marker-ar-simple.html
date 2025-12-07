@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 适配移动端：避免页面缩放，确保AR场景全屏 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Web AR 基础示例（A-Frame+AR.js）</title>
+    
+    <!-- 引入A-Frame核心库（3D场景渲染） -->
+    <script src="./libs/aframe.min.js"></script>
+    
+    <!-- 引入AR.js核心库（AR识别与追踪，支持Marker和NFT两种识别模式） -->
+    <script src="./libs/aframe-ar.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+        
+        /* 提示信息 */
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(26, 54, 93, 0.95);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            z-index: 100;
+            text-align: center;
+            max-width: 90%;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .info-panel.hidden {
+            display: none;
+        }
+        
+        .info-panel a {
+            color: #66B1FF;
+            text-decoration: none;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        
+        /* 控制按钮 */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(26, 54, 93, 0.9);
+            border-radius: 12px;
+            padding: 15px 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn {
+            padding: 10px 20px;
+            background-color: #409EFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .control-btn:hover {
+            background-color: #66B1FF;
+        }
+        
+        .control-btn.danger {
+            background-color: #F56C6C;
+        }
+    </style>
+</head>
+<body>
+    <!-- 提示信息面板 -->
+    <div class="info-panel" id="infoPanel">
+        <div><strong>AR体验</strong></div>
+        <div style="margin-top: 8px;">请将摄像头对准Marker图案</div>
+        <div style="margin-top: 5px;">
+            <a href="https://ar-js-org.github.io/AR.js-Docs/marker-training/" target="_blank">点击生成自定义Marker</a>
+        </div>
+    </div>
+
+    <!-- 1. AR场景容器：所有AR内容都在这个标签内 -->
+    <!-- arjs属性：配置AR模式（marker标记识别）、摄像头参数 -->
+    <a-scene 
+        arjs="trackingMethod: best; sourceType: webcam;"  <!-- trackingMethod:识别算法，sourceType:摄像头源 -->
+        vr-mode-ui="enabled: false"  <!-- 隐藏VR模式按钮（我们只需要AR） -->
+        renderer="logarithmicDepthBuffer: true"  <!-- 解决3D模型层级渲染问题 -->
+    >
+        <!-- 2. Marker标记：AR识别的锚点，必须和你生成的Marker图匹配 -->
+        <!-- type="pattern"：使用自定义Marker；url：Marker图的路径（本地/在线都可以） -->
+        <a-marker 
+            type="pattern" 
+            url="./libs/hiro.patt"  <!-- 重点：替换成你保存的Marker图路径！默认使用hiro marker -->
+            preset="hiro"  <!-- 备用：如果自定义Marker失效，会自动使用默认hiro标记 -->
+        >
+            <!-- 3. 要显示的3D内容：这里用基础几何图形（新手友好），也可以替换成3D模型 -->
+            <!-- 第一个3D物体：红色立方体 -->
+            <a-entity
+                geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5"  <!-- 几何形状：立方体，尺寸0.5米 -->
+                material="color: #ff0000; opacity: 0.8"  <!-- 材质：红色，透明度0.8 -->
+                position="0 0.25 0"  <!-- 位置：在Marker上方0.25米处 -->
+                animation="property: rotation; to: 360 360 360; duration: 10000; repeat: indefinite"  <!-- 动画：10秒旋转一圈，无限循环 -->
+            ></a-entity>
+
+            <!-- 第二个3D物体：蓝色球体（可选，演示多个物体） -->
+            <a-entity
+                geometry="primitive: sphere; radius: 0.3"  <!-- 几何形状：球体，半径0.3米 -->
+                material="color: #0000ff"  <!-- 材质：蓝色 -->
+                position="0.8 0.3 0"  <!-- 位置：在立方体右侧0.8米处 -->
+            ></a-entity>
+        </a-marker>
+
+        <!-- 4. 相机：AR场景必备，无需修改 -->
+        <a-entity camera></a-entity>
+    </a-scene>
+    
+    <!-- 控制按钮面板 -->
+    <div class="control-panel">
+        <button class="control-btn" onclick="resetScene()">重置</button>
+        <button class="control-btn danger" onclick="closeAR()">返回</button>
+    </div>
+
+    <script>
+        let isMarkerDetected = false;
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initAR();
+        });
+        
+        // 初始化AR
+        function initAR() {
+            console.log('AR初始化');
+            
+            const marker = document.querySelector('a-marker');
+            const scene = document.querySelector('a-scene');
+            const infoPanel = document.getElementById('infoPanel');
+            
+            if (!marker || !scene) {
+                console.error('找不到AR元素');
+                return;
+            }
+            
+            // marker识别成功
+            marker.addEventListener('markerFound', () => {
+                console.log('Marker识别成功');
+                isMarkerDetected = true;
+                if (infoPanel) {
+                    infoPanel.classList.add('hidden');
+                }
+            });
+            
+            // marker丢失
+            marker.addEventListener('markerLost', () => {
+                console.log('Marker丢失');
+                isMarkerDetected = false;
+                if (infoPanel) {
+                    infoPanel.classList.remove('hidden');
+                }
+            });
+            
+            // 场景加载完成
+            scene.addEventListener('loaded', () => {
+                console.log('AR场景加载完成');
+            });
+        }
+        
+        // 重置场景
+        function resetScene() {
+            const cube = document.querySelector('a-entity[geometry*="box"]');
+            if (cube) {
+                cube.setAttribute('rotation', '0 0 0');
+            }
+            console.log('场景已重置');
+        }
+        
+        // 关闭AR
+        function closeAR() {
+            // 如果是小程序环境，返回小程序
+            if (window.wx && window.wx.miniProgram) {
+                window.wx.miniProgram.navigateBack();
+            } else {
+                // 浏览器环境，提示关闭
+                if (confirm('确定要关闭AR体验吗？')) {
+                    window.close();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

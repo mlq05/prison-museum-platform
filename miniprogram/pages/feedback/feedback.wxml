@@ -1,0 +1,128 @@
+<!--feedback.wxml - 反馈页面-->
+<view class="feedback-page">
+  <navigation-bar title="参观反馈" />
+
+  <scroll-view class="form-scroll" scroll-y="{{true}}" enable-back-to-top="{{true}}" show-scrollbar="{{false}}">
+    <!-- 反馈类型 -->
+    <view class="form-section card">
+      <view class="section-title title-small">反馈类型</view>
+      <picker 
+        mode="selector" 
+        range="{{typeOptions}}" 
+        range-key="label"
+        value="{{typeIndex}}"
+        bindchange="onTypeChange">
+        <view class="picker-view">
+          <text class="picker-text">{{typeOptions[typeIndex].label}}</text>
+          <text class="picker-arrow">></text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 评分 -->
+    <view class="form-section card">
+      <view class="section-title title-small">
+        <text>总体评分</text>
+        <text class="required">*</text>
+      </view>
+      <view class="rating-container">
+        <view 
+          class="rating-star {{index < rating ? 'active' : ''}}" 
+          wx:for="{{5}}" 
+          wx:key="*this"
+          wx:for-index="index"
+          data-rating="{{index + 1}}"
+          bindtap="onRatingTap">
+          ★
+        </view>
+      </view>
+      <view class="error-text" wx:if="{{errors.rating}}">{{errors.rating}}</view>
+    </view>
+
+    <!-- AR评分（如果是AR体验类型） -->
+    <view class="form-section card" wx:if="{{showARRating}}">
+      <view class="section-title title-small">
+        <text>AR体验评分</text>
+        <text class="required">*</text>
+      </view>
+      <view class="rating-container">
+        <view 
+          class="rating-star {{index < arRating ? 'active' : ''}}" 
+          wx:for="{{5}}" 
+          wx:key="*this"
+          wx:for-index="index"
+          data-rating="{{index + 1}}"
+          bindtap="onARRatingTap">
+          ★
+        </view>
+      </view>
+      <view class="error-text" wx:if="{{errors.arRating}}">{{errors.arRating}}</view>
+    </view>
+
+    <!-- 反馈内容 -->
+    <view class="form-section card">
+      <view class="section-title title-small">
+        <text>反馈内容</text>
+        <text class="required">*</text>
+      </view>
+      <textarea 
+        class="form-textarea {{errors.content ? 'error' : ''}}"
+        placeholder="请详细描述您的参观体验、建议或意见（至少10个字符）"
+        value="{{content}}"
+        bindinput="onContentInput"
+        maxlength="500"
+        show-confirm-bar="{{false}}"
+        cursor-spacing="20"
+      />
+      <view class="char-count">{{content.length}}/500</view>
+      <view class="error-text" wx:if="{{errors.content}}">{{errors.content}}</view>
+    </view>
+
+    <!-- 图片上传 -->
+    <view class="form-section card">
+      <view class="section-title title-small">上传图片（可选）</view>
+      <view class="image-upload-container">
+        <view class="image-list">
+          <view 
+            class="image-item" 
+            wx:for="{{images}}" 
+            wx:key="index">
+            <image 
+              class="uploaded-image" 
+              src="{{item}}" 
+              mode="aspectFill"
+              data-index="{{index}}"
+              bindtap="onPreviewImage" />
+            <view 
+              class="delete-btn" 
+              data-index="{{index}}"
+              bindtap="onDeleteImage">
+              ×
+            </view>
+          </view>
+          <view 
+            class="image-upload-btn" 
+            wx:if="{{images.length < 9}}"
+            bindtap="onChooseImage">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">添加图片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button 
+        class="submit-btn btn btn-primary {{submitting ? 'disabled' : ''}}"
+        bindtap="onSubmit"
+        disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交反馈'}}
+      </button>
+    </view>
+
+    <!-- 底部安全区域 -->
+    <view class="scroll-bottom-safe"></view>
+  </scroll-view>
+</view>
+

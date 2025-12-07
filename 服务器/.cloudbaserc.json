@@ -1,0 +1,12 @@
+{
+  "version": "2.0",
+  "envId": "prison-museum-dev-8e6hujc6eb768b",
+  "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
+  "framework": {
+    "name": "express",
+    "config": {
+      "runtime": "nodejs16"
+    }
+  }
+}
+

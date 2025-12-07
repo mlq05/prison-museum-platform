@@ -1,0 +1,59 @@
+<!-- ar-link.wxml - AR链接页面（个人主体使用，通过外部浏览器打开） -->
+<view class="ar-link-page">
+  <navigation-bar title="AR体验" />
+  
+  <!-- 方案切换按钮 -->
+  <view class="switch-container">
+    <view class="switch-label">AR方案：</view>
+    <view class="switch-buttons">
+      <view class="switch-btn {{useCloud ? 'active' : ''}}" bindtap="switchToCloud">
+        <text>云端方案</text>
+      </view>
+      <view class="switch-btn {{!useCloud ? 'active' : ''}}" bindtap="switchToLocal">
+        <text>本地方案</text>
+      </view>
+    </view>
+  </view>
+  
+  <scroll-view class="scroll-container" scroll-y="true">
+    <view class="content">
+    <!-- 标题 -->
+    <view class="title">AR体验链接</view>
+    <view class="description">
+      请复制链接后在浏览器中打开，或扫描二维码进行AR体验
+    </view>
+    
+    <!-- 二维码显示 -->
+    <view class="qr-code-container" wx:if="{{qrCodeUrl}}">
+      <canvas canvas-id="qrCanvas" class="qr-canvas" wx:if="{{showCanvas}}"></canvas>
+      <image src="{{qrCodeUrl}}" class="qr-code" mode="aspectFit" wx:else />
+      <view class="qr-tip">扫描二维码在浏览器中打开</view>
+    </view>
+    
+    <!-- 链接显示 -->
+    <view class="link-container">
+      <view class="link-label">AR页面链接：</view>
+      <view class="link-text">{{arUrl}}</view>
+      <button class="copy-btn" bindtap="copyLink">📋 复制链接</button>
+    </view>
+    
+    <!-- 操作提示 -->
+    <view class="tips">
+      <view class="tip-title">📱 使用说明</view>
+      <view class="tip-item">1. 点击"复制链接"按钮</view>
+      <view class="tip-item">2. 在浏览器中打开链接（Safari/Chrome）</view>
+      <view class="tip-item">3. 允许浏览器访问摄像头权限</view>
+      <view class="tip-item">4. 将Hiro marker对准摄像头</view>
+      <view class="tip-item">5. 保持30-50cm距离，光线充足</view>
+    </view>
+    
+    <!-- Hiro marker提示 -->
+    <view class="marker-tip">
+      <view class="marker-title">📋 Hiro Marker</view>
+      <view class="marker-desc">如果没有marker，可以：</view>
+      <button class="marker-btn" bindtap="showMarkerGuide">查看Hiro Marker图片</button>
+    </view>
+    </view>
+  </scroll-view>
+</view>
+

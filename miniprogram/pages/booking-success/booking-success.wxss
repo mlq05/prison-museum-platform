@@ -1,0 +1,200 @@
+/**booking-success.wxss - 预约成功页面样式**/
+
+.booking-success-page {
+  height: 100vh;
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--bg-color) 40%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-scroll {
+  flex: 1;
+  height: 0;
+  padding-bottom: 140rpx;
+  box-sizing: border-box;
+}
+
+/* 成功内容 */
+.success-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  color: var(--white);
+  position: relative;
+}
+
+.success-icon {
+  width: 160rpx;
+  height: 160rpx;
+  background-color: var(--success-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  animation: scaleIn 0.5s ease-out;
+}
+
+.icon-text {
+  font-size: 96rpx;
+  color: var(--white);
+  font-weight: bold;
+}
+
+.success-title {
+  color: var(--white);
+  margin-bottom: var(--spacing-sm);
+  animation: slideUp 0.5s ease-out 0.2s backwards;
+}
+
+.success-subtitle {
+  font-size: 28rpx;
+  opacity: 0.9;
+  animation: slideUp 0.5s ease-out 0.4s backwards;
+}
+
+/* 印章 */
+.seal-stamp {
+  position: absolute;
+  top: 120rpx;
+  right: 80rpx;
+  width: 200rpx;
+  height: 200rpx;
+  background: linear-gradient(135deg, #FF6B6B 0%, #EE5A6F 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.2);
+}
+
+.seal-text {
+  font-size: 48rpx;
+  color: var(--white);
+  font-weight: bold;
+  font-family: var(--font-family-title);
+  transform: rotate(-15deg);
+}
+
+/* 预约信息 */
+.booking-info {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+
+.info-title {
+  margin-bottom: var(--spacing-md);
+  color: var(--primary-color);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  font-size: 28rpx;
+}
+
+.info-label {
+  color: var(--text-secondary);
+  margin-right: var(--spacing-sm);
+}
+
+.info-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* AR使用指南 */
+.ar-guide {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+
+.guide-title {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  color: var(--primary-color);
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.guide-step {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--secondary-color);
+  border-radius: var(--radius-md);
+}
+
+.step-number {
+  width: 56rpx;
+  height: 56rpx;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.step-icon {
+  width: 60rpx;
+  height: 60rpx;
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.step-desc {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  background-color: var(--white);
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.bottom-actions .btn {
+  width: 100%;
+}
+

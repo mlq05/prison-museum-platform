@@ -1,0 +1,84 @@
+<!--booking.wxml - 预约首页-->
+<view class="booking-page">
+  <navigation-bar title="参观预约" />
+
+  <!-- 可滚动内容区域 -->
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}">
+    <!-- 预约流程 -->
+    <view class="booking-steps card">
+    <view class="steps-title title-medium">预约流程</view>
+    <view class="steps-list">
+      <view class="step-item" wx:for="{{steps}}" wx:key="id">
+        <view class="step-icon-wrapper">
+          <image class="step-icon" src="{{item.icon}}" mode="aspectFit" />
+          <view class="step-number">{{item.id}}</view>
+        </view>
+        <view class="step-content">
+          <view class="step-title">{{item.title}}</view>
+          <view class="step-desc">{{item.desc}}</view>
+        </view>
+        <view class="step-arrow" wx:if="{{item.id < steps.length}}">→</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日预约情况 -->
+  <view class="today-booking card">
+    <view class="today-title title-medium">今日预约情况</view>
+    <view class="today-stats">
+      <view class="stat-item">
+        <view class="stat-value">{{todayBooking.availableSlots}}</view>
+        <view class="stat-label">可预约时段</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-value">{{todayBooking.totalSlots}}</view>
+        <view class="stat-label">总时段数</view>
+      </view>
+    </view>
+    <button class="btn btn-primary" bindtap="onStartBooking" wx:if="{{todayBooking.isAvailable}}">
+      立即预约
+    </button>
+    <view class="full-tip" wx:else>今日已满，请预约其他日期</view>
+  </view>
+
+  <!-- 我的预约 -->
+  <view class="my-bookings card">
+    <view class="bookings-header">
+      <view class="bookings-title title-medium">我的预约</view>
+      <view class="bookings-more" bindtap="onViewMyBookings">查看全部 ></view>
+    </view>
+    <view class="bookings-list" wx:if="{{myBookings.length > 0}}">
+      <view class="booking-item" wx:for="{{myBookings}}" wx:key="id" data-id="{{item.id}}" bindtap="onBookingTap">
+        <view class="booking-date">
+          <!-- 只显示几号，例如 2 -->
+          <view class="booking-day">{{item.day}}</view>
+        </view>
+        <view class="booking-info">
+          <view class="booking-time">{{item.timeSlot}}</view>
+          <view class="booking-count">{{item.visitorCount}}人</view>
+        </view>
+        <view class="booking-status status-{{item.status}}">
+          {{item.statusText}}
+        </view>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <view class="empty-text">暂无预约记录</view>
+      <button class="btn btn-primary" bindtap="onStartBooking">立即预约</button>
+    </view>
+  </view>
+
+    <!-- 温馨提示 -->
+    <view class="tips card">
+      <view class="tips-title title-small">温馨提示</view>
+      <view class="tips-list">
+        <view class="tip-item">• 请至少提前1天预约</view>
+        <view class="tip-item">• 预约成功后请按时参观</view>
+        <view class="tip-item">• 参观时请携带有效证件</view>
+        <view class="tip-item">• 支持AR功能，请确保设备支持</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+

@@ -1,0 +1,233 @@
+/**booking-form.wxss - 预约表单页面样式**/
+
+.booking-form-page {
+  height: 100vh;
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.form-scroll {
+  flex: 1;
+  width: 100%;
+  height: 0;
+  padding-bottom: 140rpx;
+  box-sizing: border-box;
+}
+
+/* 预约信息摘要 */
+.booking-summary {
+  margin: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--primary-color)20 0%, var(--accent-color)20 100%);
+}
+
+.summary-title {
+  margin-bottom: var(--spacing-md);
+  color: var(--primary-color);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  font-size: 28rpx;
+}
+
+.summary-label {
+  color: var(--text-secondary);
+  margin-right: var(--spacing-sm);
+}
+
+.summary-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 表单区域 */
+.form-section {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.section-title {
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2rpx solid var(--border-color);
+}
+
+/* 表单项 */
+.form-item {
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+}
+
+.required {
+  color: var(--error-color);
+  margin-left: 4rpx;
+}
+
+.form-input {
+  width: 100%;
+  min-height: 80rpx;
+  padding: 20rpx 24rpx;
+  background-color: var(--white);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.form-input.error {
+  border-color: var(--error-color);
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10rpx); }
+  75% { transform: translateX(10rpx); }
+}
+
+.error-text {
+  color: var(--error-color);
+  font-size: 24rpx;
+  margin-top: var(--spacing-xs);
+}
+
+.form-hint {
+  color: var(--text-light);
+  font-size: 24rpx;
+  margin-top: var(--spacing-xs);
+}
+
+/* 照片上传 */
+.photo-upload {
+  margin-top: var(--spacing-sm);
+}
+
+.photo-preview {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.photo-image {
+  width: 100%;
+  height: 100%;
+}
+
+.photo-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 48rpx;
+  height: 48rpx;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  border-radius: 0 0 0 16rpx;
+}
+
+.photo-upload-btn {
+  width: 200rpx;
+  height: 200rpx;
+  border: 2rpx dashed var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--white);
+}
+
+.upload-icon {
+  font-size: 64rpx;
+  color: var(--text-light);
+  margin-bottom: var(--spacing-xs);
+}
+
+.upload-text {
+  font-size: 24rpx;
+  color: var(--text-light);
+}
+
+/* Picker */
+.picker-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background-color: var(--white);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.picker-text {
+  font-size: 28rpx;
+  color: var(--text-primary);
+}
+
+.picker-arrow {
+  font-size: 28rpx;
+  color: var(--text-light);
+}
+
+/* 温馨提示 */
+.tips {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.tips-title {
+  margin-bottom: var(--spacing-md);
+}
+
+.tips-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.tips-content text {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  background-color: var(--white);
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.bottom-actions .btn {
+  width: 100%;
+}
+

@@ -1,0 +1,253 @@
+.certificate-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f5f7fa 0%, #e9ecef 100%);
+}
+
+.scroll-content {
+  width: 100%;
+}
+
+.scroll-wrapper {
+  padding: 30rpx;
+  padding-bottom: 40rpx;
+}
+
+/* 证书容器 */
+.certificate-container {
+  width: 100%;
+}
+
+/* 证书卡片 */
+.certificate-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+  border: 4rpx solid #e6a23c;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 证书装饰背景 */
+.certificate-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(230, 162, 60, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* 证书标题 */
+.certificate-header {
+  text-align: center;
+  margin-bottom: 50rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.certificate-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #e6a23c;
+  letter-spacing: 4rpx;
+  text-shadow: 2rpx 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 证书内容 */
+.certificate-body {
+  position: relative;
+  z-index: 1;
+}
+
+.certificate-content {
+  margin-bottom: 40rpx;
+  text-align: center;
+}
+
+.content-text {
+  font-size: 32rpx;
+  color: #303133;
+  line-height: 1.8;
+  display: block;
+}
+
+/* 用户信息 */
+.certificate-user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #e4e7ed;
+  border-bottom: 1rpx solid #e4e7ed;
+}
+
+.user-label {
+  font-size: 28rpx;
+  color: #909399;
+  margin-right: 10rpx;
+}
+
+.user-name {
+  font-size: 32rpx;
+  color: #303133;
+  font-weight: 600;
+}
+
+/* 成绩信息 */
+.certificate-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+}
+
+.score-label {
+  font-size: 28rpx;
+  color: #909399;
+  margin-right: 10rpx;
+}
+
+.score-value {
+  font-size: 36rpx;
+  color: #409EFF;
+  font-weight: 700;
+}
+
+/* 颁发日期 */
+.certificate-date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.date-label {
+  font-size: 24rpx;
+  color: #909399;
+  margin-right: 10rpx;
+}
+
+.date-value {
+  font-size: 24rpx;
+  color: #606266;
+}
+
+/* 证书编号 */
+.certificate-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx dashed #dcdfe6;
+}
+
+.number-label {
+  font-size: 22rpx;
+  color: #c0c4cc;
+  margin-right: 10rpx;
+}
+
+.number-value {
+  font-size: 22rpx;
+  color: #909399;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2rpx;
+}
+
+/* 证书装饰 */
+.certificate-decoration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.decoration-line {
+  flex: 1;
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent 0%, #e6a23c 50%, transparent 100%);
+}
+
+.decoration-text {
+  font-size: 24rpx;
+  color: #e6a23c;
+  margin: 0 20rpx;
+  font-weight: 500;
+}
+
+/* 操作按钮 */
+.certificate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(64, 158, 255, 0.3);
+}
+
+.btn-primary:active {
+  opacity: 0.8;
+  transform: translateY(2rpx);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #E6A23C 0%, #f0c674 100%);
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(230, 162, 60, 0.3);
+}
+
+.btn-secondary:active {
+  opacity: 0.8;
+  transform: translateY(2rpx);
+}
+
+.btn-outline {
+  background: #fff;
+  color: #606266;
+  border: 2rpx solid #dcdfe6;
+}
+
+.btn-outline:active {
+  background: #f5f7fa;
+}
+
+/* 加载中 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400rpx;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #909399;
+}
+
+/* 底部安全区域 */
+.scroll-bottom-safe {
+  height: 40rpx;
+}
+

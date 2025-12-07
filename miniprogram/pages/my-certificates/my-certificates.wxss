@@ -1,0 +1,148 @@
+.my-certificates-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.scroll-content {
+  width: 100%;
+}
+
+.scroll-wrapper {
+  padding: 20rpx;
+  padding-bottom: 40rpx;
+}
+
+/* 证书列表 */
+.certificates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 证书项 */
+.certificate-item {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.certificate-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.certificate-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.certificate-item-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #303133;
+  flex: 1;
+}
+
+.certificate-item-badge {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+.certificate-item-badge.game {
+  background: linear-gradient(135deg, #409EFF 0%, #67C23A 100%);
+}
+
+.certificate-item-badge.visit {
+  background: linear-gradient(135deg, #E6A23C 0%, #f0c674 100%);
+}
+
+.certificate-item-badge.checkin {
+  background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
+}
+
+.certificate-item-content {
+  margin-bottom: 20rpx;
+}
+
+.certificate-item-text {
+  font-size: 28rpx;
+  color: #606266;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.certificate-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.certificate-item-date {
+  font-size: 24rpx;
+  color: #909399;
+}
+
+.certificate-item-arrow {
+  font-size: 28rpx;
+  color: #c0c4cc;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500rpx;
+  padding: 60rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #909399;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #c0c4cc;
+  text-align: center;
+}
+
+/* 加载中 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400rpx;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #909399;
+}
+
+/* 底部安全区域 */
+.scroll-bottom-safe {
+  height: 40rpx;
+}
+

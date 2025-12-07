@@ -1,0 +1,59 @@
+<!--ar-experience.wxml - AR体验页面-->
+<view class="ar-experience-page">
+  <!-- AR web-view页面 -->
+  <view wx:if="{{showARView}}" class="ar-view-container">
+    <web-view 
+      wx:if="{{currentARUrl}}"
+      src="{{currentARUrl}}" 
+      bindmessage="onARMessage"
+      binderror="onARViewError"
+      bindload="onARViewLoad"
+    />
+    <!-- 加载提示 -->
+    <view wx:if="{{arLoading}}" class="ar-loading-overlay">
+      <view class="loading-content">
+        <view class="loading-spinner"></view>
+        <view class="loading-text">AR页面加载中...</view>
+        <view class="loading-url">{{currentARUrl}}</view>
+      </view>
+    </view>
+    <!-- 错误提示 -->
+    <view wx:if="{{arError}}" class="ar-error-overlay">
+      <view class="error-content">
+        <view class="error-title">AR页面加载失败</view>
+        <view class="error-message">{{arError}}</view>
+        <view class="error-url">URL: {{currentARUrl}}</view>
+        <button class="btn btn-primary" bindtap="retryARView">重试</button>
+        <button class="btn btn-secondary" bindtap="closeARView">返回</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- AR体验入口页面 -->
+  <view wx:else class="page-container">
+    <navigation-bar title="AR体验" />
+    
+    <scroll-view class="scroll-content" scroll-y="true" enable-back-to-top="true">
+      <view class="ar-halls-list">
+        <!-- AR展区列表 -->
+        <view 
+          class="ar-hall-card card" 
+          wx:for="{{arHalls}}" 
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onARHallTap"
+        >
+          <view class="hall-cover-wrapper" style="background-color: {{item.bgColor}}20;">
+            <image class="hall-cover" src="{{item.coverImage}}" mode="aspectFill" lazy-load="{{true}}" />
+            <view class="ar-badge">AR体验</view>
+          </view>
+          <view class="hall-info">
+            <view class="hall-name title-small">{{item.name}}</view>
+            <view class="hall-desc">{{item.description}}</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+

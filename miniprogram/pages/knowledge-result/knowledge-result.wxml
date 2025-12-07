@@ -1,0 +1,72 @@
+<!--knowledge-result.wxml-->
+<view class="knowledge-result-page">
+  <navigation-bar title="闯关结果" />
+  
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}" style="height: {{scrollHeight}};">
+    <view class="scroll-wrapper">
+      <!-- 结果卡片 -->
+      <view class="result-card">
+        <!-- 成绩图标 -->
+        <view class="result-icon {{passed ? 'passed' : 'failed'}}">
+          <text class="icon-text">{{passed ? '√' : '×'}}</text>
+        </view>
+        
+        <!-- 成绩分数 -->
+        <view class="score-section">
+          <text class="score-number">{{score}}</text>
+          <text class="score-unit">分</text>
+        </view>
+        
+        <!-- 结果状态 -->
+        <view class="result-status">
+          <view class="status-text {{passed ? 'passed-text' : 'failed-text'}}">
+            {{passed ? '恭喜通过！' : '继续加油！'}}
+          </view>
+          <view class="status-desc">
+            {{passed ? '您已掌握相关知识，获得证书资格' : '未达到及格分数（60分），请重新答题'}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 统计信息 -->
+      <view class="stats-section">
+        <view class="stats-title">答题统计</view>
+        <view class="stats-grid">
+          <view class="stat-item">
+            <text class="stat-value">{{correct}}</text>
+            <text class="stat-label">答对题数</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{total - correct}}</text>
+            <text class="stat-label">答错题数</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{total}}</text>
+            <text class="stat-label">总题数</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{correctRate}}%</text>
+            <text class="stat-label">正确率</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="action-section">
+        <button class="btn btn-primary" bindtap="onRetry">重新答题</button>
+        <button 
+          wx:if="{{passed}}" 
+          class="btn btn-secondary" 
+          bindtap="onViewCertificate"
+        >
+          查看证书
+        </button>
+        <button class="btn btn-outline" bindtap="onBackHome">返回首页</button>
+      </view>
+
+      <!-- 底部安全区域 -->
+      <view class="scroll-bottom-safe"></view>
+    </view>
+  </scroll-view>
+</view>
+

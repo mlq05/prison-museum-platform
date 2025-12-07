@@ -1,0 +1,100 @@
+<!--admin-statistics.wxml-->
+<view class="admin-statistics-page">
+  <navigation-bar title="数据统计" />
+  <scroll-view class="admin-statistics-scroll" scroll-y="true" enable-back-to-top="true">
+    <!-- 日期范围选择 -->
+    <view class="card">
+      <view class="card-title">统计时间范围</view>
+      <view class="date-range">
+        <view class="date-item">
+          <text class="date-label">开始日期</text>
+          <picker mode="date" value="{{dateRange.start}}" bindchange="onStartDateChange">
+            <view class="date-picker">{{dateRange.start || '请选择'}}</view>
+          </picker>
+        </view>
+        <text class="date-separator">至</text>
+        <view class="date-item">
+          <text class="date-label">结束日期</text>
+          <picker mode="date" value="{{dateRange.end}}" bindchange="onEndDateChange">
+            <view class="date-picker">{{dateRange.end || '请选择'}}</view>
+          </picker>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-container">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 统计数据 -->
+    <block wx:if="{{!loading}}">
+      <!-- 总体统计 -->
+      <view class="card">
+        <view class="card-title">总体统计</view>
+        <view class="stats-grid">
+          <view class="stat-item">
+            <view class="stat-value">{{statistics.totalBookings}}</view>
+            <view class="stat-label">总预约数</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-value stat-success">{{statistics.approvedBookings}}</view>
+            <view class="stat-label">已通过</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-value stat-warning">{{statistics.cancelledBookings}}</view>
+            <view class="stat-label">已取消</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-value stat-primary">{{statistics.totalVisitors}}</view>
+            <view class="stat-label">总参观人数</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 取消率 -->
+      <view class="card">
+        <view class="card-title">取消率</view>
+        <view class="cancellation-rate">
+          <view class="rate-value">{{statistics.cancellationRate}}%</view>
+          <view class="rate-bar">
+            <view class="rate-bar-fill" style="width: {{statistics.cancellationRate}}%"></view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 角色分布 -->
+      <view class="card">
+        <view class="card-title">角色分布</view>
+        <view class="role-list">
+          <view class="role-item">
+            <view class="role-info">
+              <text class="role-icon">🎓</text>
+              <text class="role-name">学生</text>
+            </view>
+            <view class="role-count">{{statistics.roleDistribution.student}}</view>
+          </view>
+          <view class="role-item">
+            <view class="role-info">
+              <text class="role-icon">👔</text>
+              <text class="role-name">教职工</text>
+            </view>
+            <view class="role-count">{{statistics.roleDistribution.faculty}}</view>
+          </view>
+          <view class="role-item">
+            <view class="role-info">
+              <text class="role-icon">👤</text>
+              <text class="role-name">访客</text>
+            </view>
+            <view class="role-count">{{statistics.roleDistribution.visitor}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:if="{{statistics.totalBookings === 0}}" class="empty-state">
+        <text class="empty-text">该时间段内暂无预约数据</text>
+      </view>
+    </block>
+  </scroll-view>
+</view>

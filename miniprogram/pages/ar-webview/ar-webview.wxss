@@ -1,0 +1,115 @@
+/* ar-webview.wxss */
+.ar-webview-page {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+/* 加载界面 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1A365D;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  color: white;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 18px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* 错误提示 */
+.error-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.error-content {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.error-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1A365D;
+  margin-bottom: 15px;
+}
+
+.error-message {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.error-tip {
+  font-size: 14px;
+  color: #999;
+  text-align: left;
+  margin-bottom: 20px;
+  line-height: 2;
+}
+
+.error-tip text {
+  display: block;
+}
+
+.retry-btn,
+.back-btn {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  margin: 5px;
+  border: none;
+}
+
+.retry-btn {
+  background-color: #409EFF;
+  color: white;
+}
+
+.back-btn {
+  background-color: #F5F1E6;
+  color: #1A365D;
+}
+

@@ -1,0 +1,8 @@
+<!--ar-guide.wxml-->
+<view class="ar-guide-page">
+  <navigation-bar title="AR使用指南" />
+  <view class="container">
+    <view class="empty-text">功能开发中...</view>
+  </view>
+</view>
+

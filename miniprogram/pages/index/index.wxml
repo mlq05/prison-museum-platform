@@ -1,0 +1,145 @@
+<!--index.wxml - 首页-->
+<view class="index-page">
+  <!-- 导航栏 -->
+  <navigation-bar title="监狱历史文化展览馆" show-back="{{false}}" />
+
+  <!-- 可滚动内容区域 -->
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}">
+  <view class="scroll-wrapper">
+  <!-- 轮播图 -->
+  <swiper class="banner-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{5000}}" duration="{{500}}" circular="{{true}}">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <view class="banner-image" style="background-color: {{item.bgColor || '#1A365D'}}; background-image: url('{{item.image}}');">
+        <image wx:if="{{item.image}}" class="banner-image-img" src="{{item.image}}" mode="aspectFill" />
+      </view>
+      <view class="banner-content">
+        <view class="banner-title">{{item.title}}</view>
+        <view class="banner-subtitle">{{item.subtitle}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 快速入口 -->
+  <view class="quick-actions">
+    <view class="action-item" wx:for="{{quickActions}}" wx:key="id" data-path="{{item.path}}" bindtap="onQuickActionTap">
+      <view class="action-icon-wrapper" style="background-color: {{item.color}}20;">
+        <image class="action-icon" src="{{item.icon}}" mode="aspectFit" />
+      </view>
+      <view class="action-title">{{item.title}}</view>
+    </view>
+  </view>
+
+  <!-- 展馆介绍 -->
+  <view class="exhibition-intro card">
+    <view class="intro-title title-large">{{exhibitionInfo.title}}</view>
+    <view class="intro-description">{{exhibitionInfo.description}}</view>
+    <view class="intro-features">
+      <view class="feature-item" wx:for="{{exhibitionInfo.features}}" wx:key="index" wx:for-item="feature">
+        <text class="feature-icon">√</text>
+        <text class="feature-text">{{feature}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="statistics card">
+    <view class="stat-item">
+      <view class="stat-value">{{statistics.totalVisitors}}</view>
+      <view class="stat-label">累计参观</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-value">{{statistics.totalHalls}}</view>
+      <view class="stat-label">展区数量</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-value">{{statistics.arUsageCount}}</view>
+      <view class="stat-label">AR体验</view>
+    </view>
+  </view>
+
+  <!-- 热门展区 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-title title-medium">热门展区</view>
+      <view class="section-more" bindtap="onViewMoreHalls">更多 ></view>
+    </view>
+    <!-- 展馆轮播图 -->
+    <view class="hall-banner-section">
+      <swiper class="hall-banner-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{5000}}" duration="{{500}}" circular="{{true}}">
+        <swiper-item wx:for="{{hallBanners}}" wx:key="id">
+          <view class="hall-banner-image" style="background-color: {{item.bgColor || '#1A365D'}};">
+            <image wx:if="{{item.image}}" class="hall-banner-image-img" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}" />
+          </view>
+          <view class="hall-banner-content">
+            <view class="hall-banner-title">{{item.title}}</view>
+            <view class="hall-banner-subtitle">{{item.subtitle}}</view>
+          </view>
+        </swiper-item>
+      </swiper>
+    </view>
+    <view wx:if="{{hotHalls.length > 0}}" class="hot-halls-list">
+      <scroll-view class="hall-scroll" scroll-x="{{true}}" show-scrollbar="{{false}}">
+        <view class="hall-list">
+          <view class="hall-card" wx:for="{{hotHalls}}" wx:key="id" data-id="{{item.id}}" bindtap="onHallTap">
+            <view class="hall-cover" style="background-color: {{item.bgColor || '#1A365D'}};">
+              <image wx:if="{{item.coverImage}}" class="hall-cover-img" src="{{item.coverImage}}" mode="aspectFill" />
+              <view wx:else class="hall-cover-placeholder">
+                <text class="hall-cover-icon">🏛️</text>
+              </view>
+              <view class="hall-cover-overlay">
+                <view class="hall-visit-count" wx:if="{{item.visitCount}}">
+                  <text class="hall-visit-icon">👁</text>
+                  <text class="hall-visit-text">{{item.visitCount}}</text>
+                </view>
+              </view>
+            </view>
+            <view class="hall-info">
+              <view class="hall-name">{{item.name}}</view>
+              <view class="hall-desc">{{item.description}}</view>
+              <view class="hall-tags">
+                <text class="hall-tag hall-tag-ar" wx:if="{{item.arEnabled}}">AR体验</text>
+                <text class="hall-tag hall-tag-hot" wx:if="{{item.visitCount > 1000}}">热门</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+    <view wx:else class="empty-state">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无展区数据</text>
+    </view>
+  </view>
+
+  <!-- 互动墙精选 -->
+  <view class="section" wx:if="{{featuredFeedbacks.length > 0}}">
+    <view class="section-header">
+      <view class="section-title title-medium">参观反馈</view>
+      <view class="section-more" bindtap="onViewMoreFeedbacks">更多 ></view>
+    </view>
+    <view class="feedback-list">
+      <view class="feedback-card card" wx:for="{{featuredFeedbacks}}" wx:key="id" data-id="{{item.id}}" bindtap="onFeedbackTap">
+        <view class="feedback-header">
+          <view class="feedback-user">{{item.userName}}</view>
+          <view class="feedback-rating">
+            <view class="rating-star" wx:for="{{5}}" wx:key="*this">{{index < item.rating ? '★' : '☆'}}</view>
+          </view>
+        </view>
+        <view class="feedback-content">{{item.content}}</view>
+        <view class="feedback-images" wx:if="{{item.images && item.images.length > 0}}">
+          <image class="feedback-image" wx:for="{{item.images}}" wx:key="index" src="{{item}}" mode="aspectFill" />
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+  </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,106 @@
+<!--interactive-wall.wxml-->
+<view class="interactive-wall-page">
+  <navigation-bar title="互动墙" />
+  
+  <scroll-view 
+    class="scroll-container" 
+    scroll-y 
+    refresher-enabled 
+    refresher-triggered="{{refreshing || false}}"
+    bindrefresherrefresh="onPullDownRefresh"
+    bindscrolltolower="onReachBottom"
+    lower-threshold="100">
+    
+    <!-- 反馈列表 -->
+    <view class="feedback-list" wx:if="{{feedbacks.length > 0}}">
+      <view 
+        class="feedback-card card" 
+        wx:for="{{feedbacks}}" 
+        wx:key="id" 
+        data-id="{{item.id}}"
+        bindtap="onFeedbackTap">
+        
+        <!-- 反馈头部 -->
+        <view class="feedback-header">
+          <view class="feedback-user-info">
+            <view class="feedback-user">{{item.userName}}</view>
+            <view class="feedback-type">{{item.typeText}}</view>
+          </view>
+          <view class="feedback-time">{{item.relativeTime}}</view>
+        </view>
+        
+        <!-- 评分 -->
+        <view class="feedback-rating" wx:if="{{item.rating > 0}}">
+          <view class="rating-stars">
+            <text class="star" wx:for="{{5}}" wx:key="*this" wx:for-index="starIndex">
+              {{starIndex < item.rating ? '★' : '☆'}}
+            </text>
+          </view>
+          <text class="rating-text">{{item.rating}}分</text>
+        </view>
+        
+        <!-- AR评分（如果有） -->
+        <view class="feedback-ar-rating" wx:if="{{item.arRating > 0}}">
+          <text class="ar-label">AR体验：</text>
+          <view class="rating-stars">
+            <text class="star" wx:for="{{5}}" wx:key="*this" wx:for-index="starIndex">
+              {{starIndex < item.arRating ? '★' : '☆'}}
+            </text>
+          </view>
+        </view>
+        
+        <!-- 反馈内容 -->
+        <view class="feedback-content">{{item.content}}</view>
+        
+        <!-- 反馈图片 -->
+        <view class="feedback-images" wx:if="{{item.images && item.images.length > 0}}">
+          <image 
+            class="feedback-image" 
+            wx:for="{{item.images}}" 
+            wx:key="index" 
+            wx:for-item="img"
+            src="{{img}}" 
+            mode="aspectFill"
+            data-index="{{index}}"
+            data-images="{{item.images}}"
+            bindtap="onImageTap" />
+        </view>
+        
+        <!-- 反馈时间 -->
+        <view class="feedback-footer">
+          <text class="feedback-date">{{item.formattedDate}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{empty && !loading}}">
+      <text class="empty-icon">💬</text>
+      <text class="empty-text">暂无反馈</text>
+      <text class="empty-hint">成为第一个分享参观体验的用户吧！</text>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loading && feedbacks.length > 0}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && feedbacks.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+    
+    <!-- 底部安全区域 -->
+    <view class="scroll-bottom-safe"></view>
+  </scroll-view>
+  
+  <!-- 提交反馈浮动按钮 -->
+  <view class="fab-container">
+    <view class="fab-btn" bindtap="onSubmitFeedback">
+      <text class="fab-icon">✎</text>
+      <text class="fab-text">写反馈</text>
+    </view>
+  </view>
+</view>
+
