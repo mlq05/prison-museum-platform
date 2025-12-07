@@ -114,7 +114,7 @@ router.use((req, res, next) => {
 /**
  * 获取预约列表（管理员）
  */
-router.get('/booking/list', async (req, res) => {
+router.get('/booking/list', authenticate, requireAdmin, async (req, res) => {
   try {
     const {
       status,
@@ -125,9 +125,17 @@ router.get('/booking/list', async (req, res) => {
       keyword
     } = req.query;
 
-    console.log('管理员查询预约列表，参数:', { status, startDate, endDate, page, pageSize, keyword });
+    console.log('管理员查询预约列表，参数:', { 
+      status, 
+      startDate, 
+      endDate, 
+      page, 
+      pageSize, 
+      keyword,
+      adminUser: req.user
+    });
 
-    // 使用云数据库API查询预约列表
+    // 使用云数据库API查询预约列表（管理员查看所有预约）
     const result = await collections.bookings.listAll({
       status: status || 'all',
       startDate: startDate || undefined,
@@ -137,11 +145,17 @@ router.get('/booking/list', async (req, res) => {
       pageSize: parseInt(pageSize),
     });
 
-    console.log('查询预约列表结果:', {
+    console.log('管理员查询预约列表结果:', {
       listLength: result.list ? result.list.length : 0,
       total: result.total,
       page: result.page,
-      pageSize: result.pageSize
+      pageSize: result.pageSize,
+      sampleItems: result.list && result.list.length > 0 ? result.list.slice(0, 2).map(b => ({
+        _id: b._id,
+        userName: b.userName,
+        bookingDate: b.bookingDate,
+        status: b.status
+      })) : []
     });
 
     res.json({
@@ -149,11 +163,12 @@ router.get('/booking/list', async (req, res) => {
       data: result
     });
   } catch (error) {
-    console.error('查询预约列表失败:', error);
+    console.error('管理员查询预约列表失败:', error);
     console.error('错误详情:', {
       message: error.message,
       stack: error.stack,
-      code: error.code
+      code: error.code,
+      name: error.name
     });
     res.status(500).json({
       success: false,

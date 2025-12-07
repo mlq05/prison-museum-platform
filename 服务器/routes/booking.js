@@ -65,9 +65,12 @@ router.post('/create', authenticate, (req, res) => {
     });
   }
 
-  const now = Date.now();
-  const userId = req.user.openId || req.user.userId;
-  const userRole = req.user.role || 'visitor';
+    const now = Date.now();
+    // 优先使用 openId，如果没有则使用 userId（兼容开发环境和生产环境）
+    const userId = req.user.openId || req.user.userId;
+    const userRole = req.user.role || 'visitor';
+    
+    console.log('创建预约 - 用户信息:', { userId, userRole, openId: req.user.openId, userIdField: req.user.userId });
 
   // 使用云数据库API检查容量并创建预约
   (async () => {
@@ -200,7 +203,11 @@ router.get('/list', authenticate, async (req, res) => {
 router.get('/detail', authenticate, async (req, res) => {
   try {
     const { id } = req.query;
-    const userId = req.user.openId || req.user.userId;
+    // 获取用户ID：优先使用 openId，如果没有则使用 userId
+    // 同时检查 openId 和 userId，因为不同环境可能使用不同的字段
+    const currentOpenId = req.user.openId;
+    const currentUserId = req.user.userId;
+    const userRole = req.user.role;
 
     if (!id) {
       return res.status(400).json({
@@ -208,6 +215,14 @@ router.get('/detail', authenticate, async (req, res) => {
         message: '预约ID不能为空'
       });
     }
+
+    console.log('查询预约详情:', { 
+      id, 
+      currentOpenId, 
+      currentUserId, 
+      userRole,
+      fullUser: req.user
+    });
 
     // 使用云数据库API查询预约详情
     const booking = await collections.bookings.findById(id);
@@ -219,8 +234,30 @@ router.get('/detail', authenticate, async (req, res) => {
       });
     }
 
-    // 验证权限（只能查看自己的预约）
-    if (booking.userId !== userId) {
+    console.log('预约详情查询结果:', {
+      bookingId: booking._id,
+      bookingUserId: booking.userId,
+      currentOpenId,
+      currentUserId,
+      openIdMatch: booking.userId === currentOpenId,
+      userIdMatch: booking.userId === currentUserId
+    });
+
+    // 验证权限：
+    // 1. 管理员可以查看所有预约
+    // 2. 普通用户只能查看自己的预约（匹配 openId 或 userId）
+    const isOwner = booking.userId === currentOpenId || booking.userId === currentUserId;
+    const isAdmin = userRole === 'admin';
+    
+    if (!isAdmin && !isOwner) {
+      console.log('权限检查失败:', {
+        userRole,
+        bookingUserId: booking.userId,
+        currentOpenId,
+        currentUserId,
+        isOwner,
+        isAdmin
+      });
       return res.status(403).json({
         success: false,
         message: '无权访问此预约'
