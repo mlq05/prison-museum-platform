@@ -404,16 +404,30 @@ const bookingsCollection = {
       // 日期范围查询：由于 CloudBase 限制，先查询所有数据，然后在内存中过滤
       // 为了避免数据量过大，如果提供了日期范围，先使用日期过滤
       let allBookings;
+      
+      // 先查询所有记录（不做状态过滤，在内存中过滤）
+      // 因为有些旧记录可能没有 status 字段
+      const baseQuery = cloudDb.collection('bookings');
+      const tempResult = await baseQuery.get();
+      allBookings = tempResult.data || [];
+
+      console.log('查询到的预约总数（过滤前）:', allBookings.length);
+      console.log('过滤参数:', { status, startDate, endDate, keyword, keywordType: typeof keyword });
+
+      // 状态过滤（在内存中过滤）
+      // 注意：如果记录没有 status 字段，status 为 undefined
+      // 对于 'pending' 查询，如果没有 status 字段，也视为 pending（兼容旧数据）
+      if (status && status !== 'all') {
+        allBookings = allBookings.filter(booking => {
+          const bookingStatus = booking.status || 'pending'; // 旧数据默认为 pending
+          return bookingStatus === status;
+        });
+        console.log('状态过滤后的预约数:', allBookings.length);
+      }
+
+      // 日期范围过滤（在内存中过滤）
       if (startDate || endDate) {
-        // 如果有日期范围，先查询所有状态的数据，然后在内存中过滤
-        const baseQuery = cloudDb.collection('bookings');
-        let tempQuery = baseQuery;
-        if (status && status !== 'all') {
-          tempQuery = tempQuery.where({ status });
-        }
-        
-        const tempResult = await tempQuery.get();
-        allBookings = (tempResult.data || []).filter(booking => {
+        allBookings = allBookings.filter(booking => {
           if (startDate && booking.bookingDate < startDate) {
             return false;
           }
@@ -422,14 +436,8 @@ const bookingsCollection = {
           }
           return true;
         });
-      } else {
-        // 没有日期范围，直接查询
-        const result = await query.get();
-        allBookings = result.data || [];
+        console.log('日期过滤后的预约数:', allBookings.length);
       }
-
-      console.log('查询到的预约总数（过滤前）:', allBookings.length);
-      console.log('过滤参数:', { status, startDate, endDate, keyword, keywordType: typeof keyword });
 
       // 关键词搜索（在内存中过滤）
       // 注意：keyword 可能是字符串 'undefined'，需要检查
