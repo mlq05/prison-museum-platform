@@ -125,13 +125,17 @@ router.get('/booking/list', authenticate, requireAdmin, async (req, res) => {
       keyword
     } = req.query;
 
+    // 处理 keyword 参数：如果是字符串 'undefined'，转换为 undefined
+    const cleanKeyword = keyword && keyword !== 'undefined' && keyword !== 'null' ? keyword : undefined;
+    
     console.log('管理员查询预约列表，参数:', { 
       status, 
       startDate, 
       endDate, 
       page, 
       pageSize, 
-      keyword,
+      keyword: cleanKeyword,
+      originalKeyword: keyword,
       adminUser: req.user
     });
 
@@ -140,7 +144,7 @@ router.get('/booking/list', authenticate, requireAdmin, async (req, res) => {
       status: status || 'all',
       startDate: startDate || undefined,
       endDate: endDate || undefined,
-      keyword: keyword || undefined,
+      keyword: cleanKeyword,
       page: parseInt(page),
       pageSize: parseInt(pageSize),
     });

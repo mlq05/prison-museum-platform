@@ -307,7 +307,27 @@ const bookingsCollection = {
         .doc(bookingId)
         .get();
       
-      return result.data || null;
+      // CloudBase 数据库返回的数据结构：result.data 是一个数组或对象
+      let booking = result.data;
+      
+      // 如果 result.data 是数组，取第一个元素
+      if (Array.isArray(booking)) {
+        booking = booking.length > 0 ? booking[0] : null;
+      }
+      
+      // 如果 booking 存在，确保包含 _id
+      if (booking && !booking._id && result.id) {
+        booking._id = result.id;
+      }
+      
+      console.log('查询预约详情 - findById 结果:', {
+        bookingId,
+        hasData: !!booking,
+        bookingKeys: booking ? Object.keys(booking) : [],
+        userId: booking ? booking.userId : undefined
+      });
+      
+      return booking || null;
     } catch (error) {
       console.error('查询预约失败:', error);
       throw error;
@@ -409,9 +429,11 @@ const bookingsCollection = {
       }
 
       console.log('查询到的预约总数（过滤前）:', allBookings.length);
+      console.log('过滤参数:', { status, startDate, endDate, keyword, keywordType: typeof keyword });
 
       // 关键词搜索（在内存中过滤）
-      if (keyword) {
+      // 注意：keyword 可能是字符串 'undefined'，需要检查
+      if (keyword && keyword !== 'undefined' && keyword !== 'null') {
         allBookings = allBookings.filter(item => 
           (item.userName && item.userName.includes(keyword)) ||
           (item.phone && item.phone.includes(keyword))

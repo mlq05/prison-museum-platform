@@ -234,9 +234,18 @@ router.get('/detail', authenticate, async (req, res) => {
       });
     }
 
+    // 调试：输出完整的 booking 对象（只包含关键字段）
     console.log('预约详情查询结果:', {
       bookingId: booking._id,
       bookingUserId: booking.userId,
+      bookingAllKeys: Object.keys(booking),
+      bookingSample: {
+        _id: booking._id,
+        userId: booking.userId,
+        userName: booking.userName,
+        bookingDate: booking.bookingDate,
+        status: booking.status
+      },
       currentOpenId,
       currentUserId,
       openIdMatch: booking.userId === currentOpenId,
