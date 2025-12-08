@@ -303,11 +303,12 @@ const bookingsCollection = {
     }
 
     try {
-      const result = await cloudDb.collection('bookings')
+      // 方法1：尝试使用 .doc().get() 查询
+      let result = await cloudDb.collection('bookings')
         .doc(bookingId)
         .get();
       
-      // CloudBase 数据库返回的数据结构：result.data 是一个数组或对象
+      // CloudBase 数据库返回的数据结构：result.data 可能是对象或数组
       let booking = result.data;
       
       // 如果 result.data 是数组，取第一个元素
@@ -315,21 +316,58 @@ const bookingsCollection = {
         booking = booking.length > 0 ? booking[0] : null;
       }
       
-      // 如果 booking 存在，确保包含 _id
-      if (booking && !booking._id && result.id) {
-        booking._id = result.id;
+      // 如果使用 .doc().get() 没有获取到数据，尝试使用 where 查询
+      if (!booking) {
+        console.log('使用 .doc().get() 未找到数据，尝试使用 where 查询');
+        const whereResult = await cloudDb.collection('bookings')
+          .where({
+            _id: bookingId
+          })
+          .get();
+        
+        if (whereResult.data && whereResult.data.length > 0) {
+          booking = whereResult.data[0];
+        }
       }
       
+      // 如果 booking 存在，确保包含 _id
+      if (booking && !booking._id) {
+        booking._id = bookingId;
+      }
+      
+      // 详细日志：输出完整的数据结构
       console.log('查询预约详情 - findById 结果:', {
         bookingId,
         hasData: !!booking,
         bookingKeys: booking ? Object.keys(booking) : [],
-        userId: booking ? booking.userId : undefined
+        userId: booking ? booking.userId : undefined,
+        phone: booking ? booking.phone : undefined,
+        userName: booking ? booking.userName : undefined,
+        bookingSample: booking ? {
+          _id: booking._id,
+          userId: booking.userId,
+          userName: booking.userName,
+          phone: booking.phone,
+          bookingDate: booking.bookingDate,
+          status: booking.status
+        } : null,
+        resultStructure: {
+          dataType: typeof result.data,
+          isArray: Array.isArray(result.data),
+          hasId: !!result.id,
+          resultId: result.id
+        }
       });
       
       return booking || null;
     } catch (error) {
       console.error('查询预约失败:', error);
+      console.error('查询预约失败 - 错误详情:', {
+        bookingId,
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
       throw error;
     }
   },
@@ -441,12 +479,29 @@ const bookingsCollection = {
 
       // 关键词搜索（在内存中过滤）
       // 注意：keyword 可能是字符串 'undefined'，需要检查
+      console.log('关键词过滤检查:', {
+        keyword,
+        keywordType: typeof keyword,
+        keywordIsUndefinedString: keyword === 'undefined',
+        keywordIsNullString: keyword === 'null',
+        shouldFilter: keyword && keyword !== 'undefined' && keyword !== 'null',
+        beforeFilterCount: allBookings.length
+      });
+      
       if (keyword && keyword !== 'undefined' && keyword !== 'null') {
-        allBookings = allBookings.filter(item => 
-          (item.userName && item.userName.includes(keyword)) ||
-          (item.phone && item.phone.includes(keyword))
-        );
-        console.log('关键词过滤后的预约数:', allBookings.length);
+        const beforeCount = allBookings.length;
+        allBookings = allBookings.filter(item => {
+          const matchesUserName = item.userName && item.userName.includes(keyword);
+          const matchesPhone = item.phone && item.phone.includes(keyword);
+          return matchesUserName || matchesPhone;
+        });
+        console.log('关键词过滤后的预约数:', {
+          before: beforeCount,
+          after: allBookings.length,
+          keyword: keyword
+        });
+      } else {
+        console.log('跳过关键词过滤（keyword 无效）');
       }
 
       // 在内存中排序（按创建时间倒序）
