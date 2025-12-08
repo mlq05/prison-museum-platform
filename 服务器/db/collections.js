@@ -353,19 +353,18 @@ const bookingsCollection = {
       }
       
       // 详细日志：输出完整的数据结构
-      console.log('=== findById 查询结果 ===');
-      console.log('预约ID:', bookingId);
-      console.log('是否有数据:', !!booking);
+      console.log('【findById】预约ID:', bookingId);
+      console.log('【findById】是否有数据:', !!booking);
       if (booking) {
-        console.log('数据字段列表:', Object.keys(booking));
-        console.log('完整数据:', JSON.stringify(booking, null, 2));
-        console.log('userId:', booking.userId);
-        console.log('userName:', booking.userName);
-        console.log('phone:', booking.phone);
-        console.log('status:', booking.status);
-        console.log('bookingDate:', booking.bookingDate);
+        console.log('【findById】数据字段列表:', Object.keys(booking));
+        console.log('【findById】完整数据（JSON）:', JSON.stringify(booking));
+        console.log('【findById】userId:', booking.userId);
+        console.log('【findById】userName:', booking.userName);
+        console.log('【findById】phone:', booking.phone);
+        console.log('【findById】status:', booking.status);
+        console.log('【findById】bookingDate:', booking.bookingDate);
       } else {
-        console.log('未找到预约记录');
+        console.log('【findById】未找到预约记录');
       }
       
       return booking || null;
@@ -458,15 +457,15 @@ const bookingsCollection = {
       const tempResult = await baseQuery.get();
       allBookings = tempResult.data || [];
 
-      console.log('=== 管理员查询预约列表 ===');
-      console.log('查询到的预约总数（过滤前）:', allBookings.length);
-      console.log('过滤参数:', { status, startDate, endDate, keyword, keywordType: typeof keyword });
+      console.log('【管理员查询预约列表】查询到的预约总数（过滤前）:', allBookings.length);
+      console.log('【管理员查询预约列表】过滤参数:', { status, startDate, endDate, keyword, keywordType: typeof keyword });
       
-      // 输出前2条记录的状态，用于调试
+      // 输出所有记录的详细信息，用于调试
       if (allBookings.length > 0) {
-        console.log('前2条记录的status字段:', allBookings.slice(0, 2).map(b => ({
+        console.log('【管理员查询预约列表】所有记录的详细信息:', allBookings.map(b => ({
           _id: b._id,
           status: b.status,
+          statusType: typeof b.status,
           userId: b.userId,
           userName: b.userName,
           bookingDate: b.bookingDate
@@ -477,26 +476,29 @@ const bookingsCollection = {
       // 注意：不再兼容旧数据，要求所有记录必须有 status 字段
       if (status && status !== 'all') {
         const beforeStatusFilter = allBookings.length;
+        console.log('【状态过滤】开始过滤，过滤前记录数:', beforeStatusFilter, '，目标状态:', status);
         allBookings = allBookings.filter(booking => {
           const bookingStatus = booking.status;
           const matches = bookingStatus === status;
-          if (!matches && beforeStatusFilter <= 5) {
-            // 如果记录数较少，输出为什么被过滤
-            console.log(`记录 ${booking._id} 状态不匹配:`, {
-              recordStatus: bookingStatus,
-              filterStatus: status,
-              matches
-            });
-          }
+          // 输出每条记录的匹配情况
+          console.log(`【状态过滤】记录 ${booking._id} 状态检查:`, {
+            recordStatus: bookingStatus,
+            recordStatusType: typeof bookingStatus,
+            filterStatus: status,
+            filterStatusType: typeof status,
+            matches: matches,
+            strictEqual: bookingStatus === status,
+            looseEqual: bookingStatus == status
+          });
           return matches;
         });
-        console.log('状态过滤后的预约数:', {
+        console.log('【状态过滤】过滤后的预约数:', {
           before: beforeStatusFilter,
           after: allBookings.length,
           filterStatus: status
         });
       } else {
-        console.log('跳过状态过滤（status 为 all 或未指定）');
+        console.log('【状态过滤】跳过状态过滤（status 为 all 或未指定）');
       }
 
       // 日期范围过滤（在内存中过滤）
@@ -515,17 +517,16 @@ const bookingsCollection = {
 
       // 关键词搜索（在内存中过滤）
       // 注意：keyword 可能是字符串 'undefined'，需要检查
-      console.log('=== 关键词过滤检查 ===');
-      console.log('keyword 原始值:', keyword);
-      console.log('keyword 类型:', typeof keyword);
-      console.log('keyword === "undefined":', keyword === 'undefined');
-      console.log('keyword === "null":', keyword === 'null');
-      console.log('keyword === "":', keyword === '');
-      console.log('过滤前记录数:', allBookings.length);
+      console.log('【关键词过滤】开始检查，过滤前记录数:', allBookings.length);
+      console.log('【关键词过滤】keyword 原始值:', keyword);
+      console.log('【关键词过滤】keyword 类型:', typeof keyword);
+      console.log('【关键词过滤】keyword === "undefined":', keyword === 'undefined');
+      console.log('【关键词过滤】keyword === "null":', keyword === 'null');
+      console.log('【关键词过滤】keyword === "":', keyword === '');
       
       // 只有真正的有效关键词才执行过滤
       const shouldFilter = keyword && keyword !== 'undefined' && keyword !== 'null' && keyword !== '';
-      console.log('是否应该执行过滤:', shouldFilter);
+      console.log('【关键词过滤】是否应该执行过滤:', shouldFilter);
       
       if (shouldFilter) {
         const beforeCount = allBookings.length;
@@ -534,13 +535,13 @@ const bookingsCollection = {
           const matchesPhone = item.phone && String(item.phone).includes(String(keyword));
           return matchesUserName || matchesPhone;
         });
-        console.log('关键词过滤后的预约数:', {
+        console.log('【关键词过滤】过滤后的预约数:', {
           before: beforeCount,
           after: allBookings.length,
           keyword: keyword
         });
       } else {
-        console.log('跳过关键词过滤（keyword 无效或为空）');
+        console.log('【关键词过滤】跳过关键词过滤（keyword 无效或为空）');
       }
 
       // 在内存中排序（按创建时间倒序）
