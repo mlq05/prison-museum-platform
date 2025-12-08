@@ -303,34 +303,35 @@ const bookingsCollection = {
     }
 
     try {
-      // 方法1：尝试使用 .doc().get() 查询
-      let result = await cloudDb.collection('bookings')
-        .doc(bookingId)
+      // 使用 where 查询，确保与 listByUser 使用相同的查询方式，保证数据结构一致
+      const result = await cloudDb.collection('bookings')
+        .where({
+          _id: bookingId
+        })
         .get();
       
-      // CloudBase 数据库返回的数据结构：result.data 可能是对象或数组
-      let booking = result.data;
-      
-      // 如果 result.data 是数组，取第一个元素
-      if (Array.isArray(booking)) {
-        booking = booking.length > 0 ? booking[0] : null;
+      let booking = null;
+      if (result.data && result.data.length > 0) {
+        booking = result.data[0];
       }
       
-      // 如果使用 .doc().get() 没有获取到数据，尝试使用 where 查询
+      // 如果 where 查询没找到，尝试使用 .doc().get() 作为备选
       if (!booking) {
-        console.log('使用 .doc().get() 未找到数据，尝试使用 where 查询');
-        const whereResult = await cloudDb.collection('bookings')
-          .where({
-            _id: bookingId
-          })
+        const docResult = await cloudDb.collection('bookings')
+          .doc(bookingId)
           .get();
         
-        if (whereResult.data && whereResult.data.length > 0) {
-          booking = whereResult.data[0];
+        let docBooking = docResult.data;
+        if (Array.isArray(docBooking)) {
+          docBooking = docBooking.length > 0 ? docBooking[0] : null;
+        }
+        
+        if (docBooking) {
+          booking = docBooking;
         }
       }
       
-      // 如果 booking 存在，确保包含 _id
+      // 确保 _id 存在
       if (booking && !booking._id) {
         booking._id = bookingId;
       }
@@ -350,13 +351,7 @@ const bookingsCollection = {
           phone: booking.phone,
           bookingDate: booking.bookingDate,
           status: booking.status
-        } : null,
-        resultStructure: {
-          dataType: typeof result.data,
-          isArray: Array.isArray(result.data),
-          hasId: !!result.id,
-          resultId: result.id
-        }
+        } : null
       });
       
       return booking || null;
@@ -453,13 +448,9 @@ const bookingsCollection = {
       console.log('过滤参数:', { status, startDate, endDate, keyword, keywordType: typeof keyword });
 
       // 状态过滤（在内存中过滤）
-      // 注意：如果记录没有 status 字段，status 为 undefined
-      // 对于 'pending' 查询，如果没有 status 字段，也视为 pending（兼容旧数据）
+      // 注意：不再兼容旧数据，要求所有记录必须有 status 字段
       if (status && status !== 'all') {
-        allBookings = allBookings.filter(booking => {
-          const bookingStatus = booking.status || 'pending'; // 旧数据默认为 pending
-          return bookingStatus === status;
-        });
+        allBookings = allBookings.filter(booking => booking.status === status);
         console.log('状态过滤后的预约数:', allBookings.length);
       }
 

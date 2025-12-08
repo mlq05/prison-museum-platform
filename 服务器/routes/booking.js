@@ -257,36 +257,35 @@ router.get('/detail', authenticate, async (req, res) => {
 
     // 验证权限：
     // 1. 管理员可以查看所有预约
-    // 2. 普通用户只能查看自己的预约
-    //    优先匹配 userId/openId，如果没有 userId 字段（旧数据），则使用 phone 匹配
+    // 2. 普通用户只能查看自己的预约（通过 userId 匹配）
     const isAdmin = userRole === 'admin';
     
     // 判断是否是预约的所有者
-    let isOwner = false;
-    if (booking.userId) {
-      // 新数据：有 userId 字段，使用 userId 匹配
-      isOwner = booking.userId === currentOpenId || booking.userId === currentUserId;
-    } else {
-      // 旧数据：没有 userId 字段，使用 phone 匹配（如果当前用户有 phone 信息）
-      // 注意：这是一个兼容方案，适用于旧数据
-      if (booking.phone && req.user.phone) {
-        isOwner = booking.phone === req.user.phone;
-      }
-      // 如果 booking 也没有 phone，或者用户也没有 phone，则无法匹配
+    // 注意：不再兼容旧数据，要求预约必须有 userId 字段
+    if (!booking.userId) {
+      console.error('预约记录缺少 userId 字段:', {
+        bookingId: booking._id,
+        bookingKeys: Object.keys(booking)
+      });
+      return res.status(500).json({
+        success: false,
+        message: '预约数据异常，缺少用户ID'
+      });
     }
+    
+    // 使用 userId 匹配（匹配 openId 或 userId）
+    const isOwner = booking.userId === currentOpenId || booking.userId === currentUserId;
     
     if (!isAdmin && !isOwner) {
       console.log('权限检查失败:', {
         userRole,
         bookingUserId: booking.userId,
-        bookingPhone: booking.phone,
         currentOpenId,
         currentUserId,
-        currentPhone: req.user.phone,
         isOwner,
         isAdmin,
-        hasUserId: !!booking.userId,
-        hasPhone: !!booking.phone
+        openIdMatch: booking.userId === currentOpenId,
+        userIdMatch: booking.userId === currentUserId
       });
       return res.status(403).json({
         success: false,
@@ -332,26 +331,31 @@ router.post('/cancel', authenticate, async (req, res) => {
       });
     }
 
-    // 验证权限：兼容旧数据（没有 userId 的情况）
+    // 验证权限
     const userRole = req.user.role;
-    let hasPermission = false;
+    const currentOpenId = req.user.openId;
+    const currentUserId = req.user.userId;
     
+    // 管理员可以取消任何预约
     if (userRole === 'admin') {
-      // 管理员可以取消任何预约
-      hasPermission = true;
-    } else if (booking.userId) {
-      // 新数据：有 userId 字段
-      hasPermission = booking.userId === userId;
-    } else if (booking.phone && req.user.phone) {
-      // 旧数据：使用 phone 匹配
-      hasPermission = booking.phone === req.user.phone;
-    }
-    
-    if (!hasPermission) {
-      return res.status(403).json({
-        success: false,
-        message: '无权取消此预约'
-      });
+      // 允许取消
+    } else {
+      // 普通用户只能取消自己的预约
+      // 注意：不再兼容旧数据，要求预约必须有 userId 字段
+      if (!booking.userId) {
+        return res.status(500).json({
+          success: false,
+          message: '预约数据异常，缺少用户ID'
+        });
+      }
+      
+      const isOwner = booking.userId === currentOpenId || booking.userId === currentUserId;
+      if (!isOwner) {
+        return res.status(403).json({
+          success: false,
+          message: '无权取消此预约'
+        });
+      }
     }
 
     if (booking.status === 'cancelled') {
