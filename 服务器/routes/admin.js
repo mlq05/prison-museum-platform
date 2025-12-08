@@ -126,10 +126,14 @@ router.get('/booking/list', authenticate, requireAdmin, async (req, res) => {
     } = req.query;
 
     // 处理 keyword 参数：如果是字符串 'undefined'，转换为 undefined
-    const cleanKeyword = keyword && keyword !== 'undefined' && keyword !== 'null' ? keyword : undefined;
+    const cleanKeyword = keyword && keyword !== 'undefined' && keyword !== 'null' && keyword !== '' ? keyword : undefined;
+    
+    // 处理 status 参数：如果是字符串 'undefined'，转换为 undefined
+    const cleanStatus = status && status !== 'undefined' && status !== 'null' && status !== '' ? status : 'all';
     
     console.log('管理员查询预约列表，参数:', { 
-      status, 
+      status: cleanStatus, 
+      originalStatus: status,
       startDate, 
       endDate, 
       page, 
@@ -141,7 +145,7 @@ router.get('/booking/list', authenticate, requireAdmin, async (req, res) => {
 
     // 使用云数据库API查询预约列表（管理员查看所有预约）
     const result = await collections.bookings.listAll({
-      status: status || 'all',
+      status: cleanStatus,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       keyword: cleanKeyword,

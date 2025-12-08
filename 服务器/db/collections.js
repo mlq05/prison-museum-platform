@@ -303,32 +303,17 @@ const bookingsCollection = {
     }
 
     try {
-      // 使用 where 查询，确保与 listByUser 使用相同的查询方式，保证数据结构一致
+      // 直接使用 .doc().get() 查询，这是 CloudBase 推荐的查询单条记录的方式
       const result = await cloudDb.collection('bookings')
-        .where({
-          _id: bookingId
-        })
+        .doc(bookingId)
         .get();
       
-      let booking = null;
-      if (result.data && result.data.length > 0) {
-        booking = result.data[0];
-      }
+      // CloudBase 的 .doc().get() 返回 { data: {...} }，其中 data 就是文档对象本身
+      let booking = result.data;
       
-      // 如果 where 查询没找到，尝试使用 .doc().get() 作为备选
-      if (!booking) {
-        const docResult = await cloudDb.collection('bookings')
-          .doc(bookingId)
-          .get();
-        
-        let docBooking = docResult.data;
-        if (Array.isArray(docBooking)) {
-          docBooking = docBooking.length > 0 ? docBooking[0] : null;
-        }
-        
-        if (docBooking) {
-          booking = docBooking;
-        }
+      // 如果 data 是数组（不应该发生，但为了兼容性），取第一个元素
+      if (Array.isArray(booking)) {
+        booking = booking.length > 0 ? booking[0] : null;
       }
       
       // 确保 _id 存在
@@ -344,6 +329,7 @@ const bookingsCollection = {
         userId: booking ? booking.userId : undefined,
         phone: booking ? booking.phone : undefined,
         userName: booking ? booking.userName : undefined,
+        status: booking ? booking.status : undefined,
         bookingSample: booking ? {
           _id: booking._id,
           userId: booking.userId,
@@ -351,7 +337,9 @@ const bookingsCollection = {
           phone: booking.phone,
           bookingDate: booking.bookingDate,
           status: booking.status
-        } : null
+        } : null,
+        resultDataType: typeof result.data,
+        resultDataIsArray: Array.isArray(result.data)
       });
       
       return booking || null;
@@ -475,15 +463,17 @@ const bookingsCollection = {
         keywordType: typeof keyword,
         keywordIsUndefinedString: keyword === 'undefined',
         keywordIsNullString: keyword === 'null',
-        shouldFilter: keyword && keyword !== 'undefined' && keyword !== 'null',
+        keywordIsEmpty: keyword === '',
+        shouldFilter: keyword && keyword !== 'undefined' && keyword !== 'null' && keyword !== '',
         beforeFilterCount: allBookings.length
       });
       
-      if (keyword && keyword !== 'undefined' && keyword !== 'null') {
+      // 只有真正的有效关键词才执行过滤
+      if (keyword && keyword !== 'undefined' && keyword !== 'null' && keyword !== '') {
         const beforeCount = allBookings.length;
         allBookings = allBookings.filter(item => {
-          const matchesUserName = item.userName && item.userName.includes(keyword);
-          const matchesPhone = item.phone && item.phone.includes(keyword);
+          const matchesUserName = item.userName && String(item.userName).includes(String(keyword));
+          const matchesPhone = item.phone && String(item.phone).includes(String(keyword));
           return matchesUserName || matchesPhone;
         });
         console.log('关键词过滤后的预约数:', {
