@@ -76,6 +76,9 @@ export const STORAGE_KEYS = {
 export const API_ENDPOINTS = {
   // 用户相关
   USER_LOGIN: '/user/login',
+  USER_LOGIN_ACCOUNT: '/user/login-account',
+  USER_REGISTER: '/user/register',
+  USER_CHECK_USERNAME: '/user/check-username',
   USER_INFO: '/user/info',
   USER_UPDATE: '/user/update',
 

@@ -623,6 +623,46 @@ export const getHallDetail = (id: string): Promise<ApiResponse<ExhibitionHall>> 
 };
 
 /**
+ * 用户账号密码相关API
+ */
+
+/**
+ * 用户注册
+ */
+export const userRegister = (data: {
+  username: string;
+  password: string;
+  openId?: string;
+  code?: string;
+}): Promise<ApiResponse<{ token: string; userInfo: any }>> => {
+  return post(API_ENDPOINTS.USER_REGISTER, data, {
+    loadingText: '注册中...',
+  });
+};
+
+/**
+ * 用户账号密码登录
+ */
+export const userLoginAccount = (data: {
+  username: string;
+  password: string;
+  code?: string;
+}): Promise<ApiResponse<{ token: string; userInfo: any }>> => {
+  return post(API_ENDPOINTS.USER_LOGIN_ACCOUNT, data, {
+    loadingText: '登录中...',
+  });
+};
+
+/**
+ * 检查用户名是否可用
+ */
+export const checkUsername = (username: string): Promise<ApiResponse<{ available: boolean; message: string }>> => {
+  return get(`${API_ENDPOINTS.USER_CHECK_USERNAME}?username=${encodeURIComponent(username)}`, undefined, {
+    showLoading: false,
+  });
+};
+
+/**
  * 管理员相关API
  */
 

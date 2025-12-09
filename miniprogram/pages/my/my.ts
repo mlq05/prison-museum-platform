@@ -8,8 +8,8 @@ Page({
   data: {
     // 用户信息
     userInfo: null as any,
-    // 是否已登录（开发阶段默认视为已登录，方便调试）
-    isLoggedIn: true,
+    // 是否已登录
+    isLoggedIn: false,
     // 菜单列表
     menuItems: [
       {
@@ -70,14 +70,14 @@ Page({
       const userInfo = await app.getUserInfo();
 
       this.setData({
-        // 开发阶段：即使未真正登录，也不强制跳转登录页面
-        isLoggedIn: isLoggedIn || true,
+        isLoggedIn: isLoggedIn,
         userInfo: userInfo || null,
       });
     } catch (e) {
-      // 静默处理，保持已登录状态，方便本地调试
+      // 登录检查失败，设为未登录状态
       this.setData({
-        isLoggedIn: true,
+        isLoggedIn: false,
+        userInfo: null,
       });
     }
   },
@@ -131,8 +131,9 @@ Page({
    * 跳转登录
    */
   goToLogin() {
-    // TODO: 跳转登录页面
-    console.log('跳转登录');
+    wx.navigateTo({
+      url: '/pages/login/login',
+    });
   },
 
   /**

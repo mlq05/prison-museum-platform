@@ -38,6 +38,29 @@ const usersCollection = {
   },
 
   /**
+   * 根据用户名查询用户
+   */
+  async findByUsername(username) {
+    const cloudDb = getCloudDb();
+    if (!cloudDb) {
+      const error = new Error('数据库未初始化，请检查环境变量 TCB_ENV, TCB_SECRET_ID, TCB_SECRET_KEY 是否配置正确');
+      console.error('❌ 数据库操作失败:', error.message);
+      throw error;
+    }
+    
+    try {
+      const result = await cloudDb.collection('users')
+        .where({ username })
+        .get();
+      
+      return result.data && result.data.length > 0 ? result.data[0] : null;
+    } catch (error) {
+      console.error('查询用户失败:', error);
+      throw error;
+    }
+  },
+
+  /**
    * 创建用户
    */
   async create(userData) {

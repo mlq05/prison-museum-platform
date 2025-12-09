@@ -7,7 +7,7 @@
     <view class="user-header" bindtap="onEditProfile">
       <image class="user-avatar" src="{{userInfo.avatarUrl || '/assets/icons/default-avatar.png'}}" mode="aspectFill" />
       <view class="user-info">
-        <view class="user-name">{{userInfo.name || '未设置昵称'}}</view>
+        <view class="user-name">{{userInfo.name || userInfo.username || '未设置昵称'}}</view>
         <view class="user-role">{{userInfo.role === 'student' ? '学生' : userInfo.role === 'faculty' ? '教职工' : '访客'}}</view>
       </view>
       <view class="edit-icon">✎</view>

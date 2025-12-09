@@ -1,0 +1,31 @@
+========== 修复部署失败 - 执行步骤 ==========
+
+问题：collections.js 文件没有被提交到 GitHub
+
+请在 Git Bash 中执行以下命令：
+
+1. 切换到项目目录
+   cd /f/test4
+
+2. 检查文件是否存在
+   ls -la 服务器/db/collections.js
+
+3. 添加所有需要提交的文件
+   git add 服务器/db/collections.js
+   git add 服务器/db/database.js
+   git add 服务器/routes/booking.js
+   git add 服务器/routes/feedback.js
+
+4. 查看将要提交的文件
+   git status
+
+5. 提交更改
+   git commit -m "修复：添加数据库集合服务层collections.js，更新路由使用云数据库API"
+
+6. 推送到 GitHub
+   git push origin main
+
+7. 等待自动部署完成（2-5分钟）
+
+===============================================
+

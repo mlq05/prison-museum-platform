@@ -1,0 +1,92 @@
+<!--login.wxml - 登录/注册页面-->
+<view class="login-page">
+  <navigation-bar title="{{isRegister ? '注册账号' : '登录'}}" />
+  
+  <view class="container">
+    <view class="card">
+      <!-- 切换登录/注册 -->
+      <view class="tabs">
+        <view class="tab-item {{!isRegister ? 'active' : ''}}" bindtap="switchToLogin">登录</view>
+        <view class="tab-item {{isRegister ? 'active' : ''}}" bindtap="switchToRegister">注册</view>
+      </view>
+
+      <!-- 登录表单 -->
+      <view class="form-container" wx:if="{{!isRegister}}">
+        <view class="form-item">
+          <text class="label">用户名</text>
+          <input
+            class="input"
+            placeholder="请输入用户名"
+            value="{{username}}"
+            bindinput="onUsernameInput"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">密码</text>
+          <input
+            class="input"
+            type="password"
+            placeholder="请输入密码"
+            password="{{true}}"
+            value="{{password}}"
+            bindinput="onPasswordInput"
+          />
+        </view>
+        <button class="primary-btn" bindtap="onLogin" loading="{{loading}}">登录</button>
+      </view>
+
+      <!-- 注册表单 -->
+      <view class="form-container" wx:else>
+        <view class="form-item">
+          <text class="label">用户名</text>
+          <input
+            class="input {{usernameError ? 'error' : ''}}"
+            placeholder="4-20个字符，字母、数字、下划线"
+            value="{{username}}"
+            bindinput="onUsernameInput"
+            bindblur="checkUsernameAvailable"
+          />
+          <view class="error-msg" wx:if="{{usernameError}}">{{usernameError}}</view>
+          <view class="success-msg" wx:if="{{usernameChecked && !usernameError}}">用户名可用</view>
+        </view>
+        <view class="form-item">
+          <text class="label">密码</text>
+          <input
+            class="input {{passwordError ? 'error' : ''}}"
+            type="password"
+            placeholder="至少6位字符"
+            password="{{true}}"
+            value="{{password}}"
+            bindinput="onPasswordInput"
+          />
+          <view class="error-msg" wx:if="{{passwordError}}">{{passwordError}}</view>
+        </view>
+        <view class="form-item">
+          <text class="label">确认密码</text>
+          <input
+            class="input {{confirmPasswordError ? 'error' : ''}}"
+            type="password"
+            placeholder="请再次输入密码"
+            password="{{true}}"
+            value="{{confirmPassword}}"
+            bindinput="onConfirmPasswordInput"
+          />
+          <view class="error-msg" wx:if="{{confirmPasswordError}}">{{confirmPasswordError}}</view>
+        </view>
+        <button class="primary-btn" bindtap="onRegister" loading="{{loading}}">注册</button>
+      </view>
+
+      <!-- 微信登录提示（可选） -->
+      <view class="wechat-login" wx:if="{{!isRegister}}">
+        <view class="divider">
+          <text>或</text>
+        </view>
+        <button class="wechat-btn" bindtap="onWechatLogin" open-type="getUserInfo">
+          <text class="wechat-icon">🔐</text>
+          <text>微信快速登录</text>
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+

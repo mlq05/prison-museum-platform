@@ -21,6 +21,7 @@
     "pages/my/my",
     "pages/my-collections/my-collections",
     "pages/my-certificates/my-certificates",
+    "pages/login/login",
     "pages/admin/admin",
     "pages/admin-booking/admin-booking",
     "pages/admin-statistics/admin-statistics",

@@ -4,8 +4,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { db } = require('../db/database');
+const { db, collections } = require('../db/database');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 /**
  * 用户登录（微信登录）
@@ -163,20 +164,284 @@ router.post('/admin-login', (req, res) => {
 });
 
 /**
- * 获取用户信息
+ * 用户注册（账号密码注册，绑定openId）
  */
-router.get('/info', require('../middleware/auth').authenticate, (req, res) => {
-  const userId = req.user.openId || req.user.userId;
+router.post('/register', async (req, res) => {
+  try {
+    const { username, password, openId, code } = req.body;
 
-  db.get('SELECT * FROM users WHERE openId = ?', [userId], (err, user) => {
-    if (err) {
-      console.error('查询用户信息失败:', err);
-      return res.status(500).json({
+    // 验证参数
+    if (!username || !password) {
+      return res.status(400).json({
         success: false,
-        message: '查询失败'
+        message: '用户名和密码不能为空',
       });
     }
 
+    // 验证用户名格式（4-20个字符，只能包含字母、数字、下划线）
+    const usernameRegex = /^[a-zA-Z0-9_]{4,20}$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名格式不正确（4-20个字符，只能包含字母、数字、下划线）',
+      });
+    }
+
+    // 验证密码强度（至少6位）
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: '密码长度至少为6位',
+      });
+    }
+
+    // 如果提供了code，使用微信登录获取openId（暂时模拟）
+    let userOpenId = openId;
+    if (!userOpenId && code) {
+      // TODO: 调用微信API换取openId
+      // 目前使用模拟数据
+      userOpenId = `wx_openid_${Date.now()}`;
+    }
+
+    // 如果没有openId也没有code，生成一个临时的openId
+    if (!userOpenId) {
+      userOpenId = `temp_openid_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // 检查用户名是否已存在
+    const existingUser = await collections.users.findByUsername(username);
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名已存在',
+      });
+    }
+
+    // 检查openId是否已绑定账号
+    const existingByOpenId = await collections.users.findByOpenId(userOpenId);
+    if (existingByOpenId && existingByOpenId.username) {
+      return res.status(400).json({
+        success: false,
+        message: '该微信账号已绑定其他用户名',
+      });
+    }
+
+    // 加密密码
+    const passwordHash = bcrypt.hashSync(password, 10);
+
+    // 创建用户或更新现有用户
+    const now = Date.now();
+    let user;
+    
+    if (existingByOpenId) {
+      // 更新现有用户，绑定账号密码
+      user = await collections.users.update(userOpenId, {
+        username,
+        passwordHash,
+        updatedAt: now,
+      });
+    } else {
+      // 创建新用户
+      user = await collections.users.create({
+        openId: userOpenId,
+        username,
+        passwordHash,
+        role: 'visitor',
+        name: '',
+        phone: '',
+        verified: false,
+      });
+    }
+
+    // 生成JWT token
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const token = jwt.sign(
+      {
+        openId: user.openId,
+        userId: user.openId,
+        role: user.role || 'visitor',
+        username: user.username,
+      },
+      jwtSecret,
+      { expiresIn: '30d' }
+    );
+
+    res.json({
+      success: true,
+      message: '注册成功',
+      data: {
+        token,
+        userInfo: {
+          openId: user.openId,
+          username: user.username,
+          role: user.role || 'visitor',
+          name: user.name || '',
+          phone: user.phone || '',
+          verified: user.verified || false,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('用户注册失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '注册失败：' + (error.message || '服务器错误'),
+    });
+  }
+});
+
+/**
+ * 用户账号密码登录
+ */
+router.post('/login-account', async (req, res) => {
+  try {
+    const { username, password, code } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名和密码不能为空',
+      });
+    }
+
+    // 查找用户
+    const user = await collections.users.findByUsername(username);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: '用户名或密码错误',
+      });
+    }
+
+    // 验证密码
+    if (!user.passwordHash) {
+      return res.status(401).json({
+        success: false,
+        message: '该账号未设置密码，请使用微信登录',
+      });
+    }
+
+    const isValid = bcrypt.compareSync(password, user.passwordHash);
+    if (!isValid) {
+      return res.status(401).json({
+        success: false,
+        message: '用户名或密码错误',
+      });
+    }
+
+    // 如果提供了code，尝试更新openId（绑定微信）
+    let userOpenId = user.openId;
+    if (code) {
+      // TODO: 调用微信API换取openId
+      // 目前使用模拟数据
+      const wxOpenId = `wx_openid_${Date.now()}`;
+      
+      // 检查新的openId是否已被其他账号使用
+      const existingByWxOpenId = await collections.users.findByOpenId(wxOpenId);
+      if (!existingByWxOpenId || existingByWxOpenId._id === user._id) {
+        // 更新openId，绑定微信
+        await collections.users.update(userOpenId, {
+          openId: wxOpenId,
+        });
+        userOpenId = wxOpenId;
+      }
+    }
+
+    // 更新最后登录时间
+    await collections.users.update(userOpenId, {
+      lastLoginAt: Date.now(),
+    });
+
+    // 生成JWT token
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const token = jwt.sign(
+      {
+        openId: userOpenId,
+        userId: userOpenId,
+        role: user.role || 'visitor',
+        username: user.username,
+      },
+      jwtSecret,
+      { expiresIn: '30d' }
+    );
+
+    res.json({
+      success: true,
+      message: '登录成功',
+      data: {
+        token,
+        userInfo: {
+          openId: userOpenId,
+          username: user.username,
+          role: user.role || 'visitor',
+          name: user.name || '',
+          phone: user.phone || '',
+          verified: user.verified || false,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('用户登录失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '登录失败：' + (error.message || '服务器错误'),
+    });
+  }
+});
+
+/**
+ * 检查用户名是否可用
+ */
+router.get('/check-username', async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名不能为空',
+      });
+    }
+
+    // 验证用户名格式
+    const usernameRegex = /^[a-zA-Z0-9_]{4,20}$/;
+    if (!usernameRegex.test(username)) {
+      return res.json({
+        success: true,
+        data: {
+          available: false,
+          message: '用户名格式不正确（4-20个字符，只能包含字母、数字、下划线）',
+        },
+      });
+    }
+
+    // 检查用户名是否已存在
+    const existingUser = await collections.users.findByUsername(username);
+    
+    res.json({
+      success: true,
+      data: {
+        available: !existingUser,
+        message: existingUser ? '用户名已存在' : '用户名可用',
+      },
+    });
+  } catch (error) {
+    console.error('检查用户名失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '检查失败：' + (error.message || '服务器错误'),
+    });
+  }
+});
+
+/**
+ * 获取用户信息
+ */
+router.get('/info', require('../middleware/auth').authenticate, async (req, res) => {
+  try {
+    const userId = req.user.openId || req.user.userId;
+
+    const user = await collections.users.findByOpenId(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -188,17 +453,24 @@ router.get('/info', require('../middleware/auth').authenticate, (req, res) => {
       success: true,
       data: {
         openId: user.openId,
-        role: user.role,
+        username: user.username || '',
+        role: user.role || 'visitor',
         name: user.name || '',
         phone: user.phone || '',
         studentId: user.studentId || '',
         workId: user.workId || '',
         unit: user.unit || '',
         avatarUrl: user.avatarUrl || '',
-        verified: user.verified === 1
+        verified: user.verified || false
       }
     });
-  });
+  } catch (error) {
+    console.error('获取用户信息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败：' + (error.message || '服务器错误'),
+    });
+  }
 });
 
 /**

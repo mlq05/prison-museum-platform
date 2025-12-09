@@ -482,6 +482,22 @@ window.wx.miniProgram.postMessage({
 - 检查 Node.js 版本是否 ≥ 16
 - 重新运行 `npm run init-db`
 
+### 5. 部署后构建失败
+
+**解决方案**：
+- **推荐**：使用 CloudBase CLI 部署（`cloudbase run deploy`），避免 ZIP 路径问题
+- 或使用 Git 仓库部署方式
+- 检查 `Dockerfile` 是否存在且配置正确
+- 检查 `package.json` 中的依赖配置
+
+### 6. 域名配置问题
+
+**解决方案**：
+- 服务器域名必须以 `https://` 开头
+- 业务域名（web-view）**不要**包含 `https://`
+- 确保域名已通过验证（业务域名需要上传验证文件）
+- 开发环境可以使用云托管测试域名（会有警告提示，但不影响使用）
+
 ## ☁️ 云端部署指南
 
 ### 一、服务器部署（云托管）
@@ -544,13 +560,56 @@ window.wx.miniProgram.postMessage({
 
 ### 二、AR页面部署（静态网站托管）
 
+#### 需要上传的文件
+
+```
+miniprogram/ar-pages/
+├── marker-ar-simple.html        ✅ AR页面主文件
+└── libs/                        ✅ AR库文件目录
+    ├── aframe-ar.js             ✅ AR.js库
+    ├── aframe.min.js            ✅ A-Frame库
+    ├── camera_para.dat          ✅ 相机参数文件
+    └── hiro.patt                ✅ Hiro marker模式文件
+```
+
+#### 部署步骤
+
+**方法一：通过控制台上传（推荐）**
+
 1. 登录 [云开发控制台](https://console.cloud.tencent.com/tcb)
+2. 选择环境：`prison-museum-dev-8e6hujc6eb768b`（或你的环境）
+3. 进入"静态网站托管" → 开通服务（如果未开通）
+4. 点击"上传文件"或"上传文件夹"
+5. 选择整个 `miniprogram/ar-pages/` 目录并上传
 
-2. 进入"静态网站托管" → 开通服务（如果未开通）
+**方法二：使用 CLI 上传**
 
-3. 上传 `miniprogram/ar-pages/` 目录下的所有文件
+```bash
+# 安装 CLI（如果未安装）
+npm install -g @cloudbase/cli
 
-4. 获取访问地址：`https://xxxxx.tcloudbaseapp.com/ar-pages/marker-ar-simple.html`
+# 登录
+cloudbase login
+
+# 上传 AR 页面
+cd miniprogram/ar-pages
+cloudbase hosting:deploy . --envId prison-museum-dev-8e6hujc6eb768b
+```
+
+#### 获取访问地址
+
+上传完成后，在静态网站托管页面查看"默认域名"：
+- 格式如：`https://prison-museum-dev-xxxxx.tcloudbaseapp.com`
+- **AR页面完整地址**：`https://prison-museum-dev-xxxxx.tcloudbaseapp.com/ar-pages/marker-ar-simple.html`
+
+#### 测试 AR 页面
+
+在浏览器中访问：
+```
+https://prison-museum-dev-xxxxx.tcloudbaseapp.com/ar-pages/marker-ar-simple.html?hallId=1
+```
+
+应该能看到 AR 页面正常加载。
 
 ### 三、更新小程序配置
 
@@ -570,10 +629,33 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
 
 #### 3. 配置服务器域名白名单
 
-在微信公众平台 → 开发 → 开发管理 → 开发设置 → 服务器域名中配置：
-- request合法域名：`https://museum-api-xxxxx.tcb.qcloud.la`
-- uploadFile合法域名：同上
-- downloadFile合法域名：同上
+在微信公众平台配置服务器域名：
+
+1. 登录 [微信公众平台](https://mp.weixin.qq.com)
+2. 进入 **"开发" → "开发管理" → "开发设置"**
+3. 找到 **"服务器域名"** 部分，配置以下域名：
+
+   **服务器域名**：
+   - **request合法域名**：`https://museum-api-xxxxx.tcb.qcloud.la`
+   - **uploadFile合法域名**：`https://museum-api-xxxxx.tcb.qcloud.la`
+   - **downloadFile合法域名**：`https://museum-api-xxxxx.tcb.qcloud.la`
+
+   ⚠️ **注意**：
+   - 必须以 `https://` 开头
+   - 不要包含路径，只填写域名部分
+   - 如果看到警告"云托管域名仅用作测试使用"，这是正常的，开发/测试阶段可以使用
+
+#### 4. 配置业务域名（web-view）
+
+配置 AR 页面的 web-view 域名：
+
+1. 在同一页面找到 **"业务域名"** 或 **"web-view合法域名"** 部分
+2. 填写静态网站托管域名（**不需要** `https://`）：
+   ```
+   prison-museum-dev-xxxxx.tcloudbaseapp.com
+   ```
+3. 下载验证文件并上传到静态网站托管根目录
+4. 等待审核通过（通常几分钟内生效）
 
 ### 四、重要注意事项
 
@@ -593,13 +675,57 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
 - `NODE_ENV=production`
 - `JWT_SECRET=你的随机密钥（至少32位）`
 
-### 五、测试部署
+### 五、部署检查清单
 
-1. **健康检查**：访问 `https://museum-api-xxxxx.tcb.qcloud.la/health` 应返回服务器状态
+#### 服务器部署检查
+- [ ] 已创建云托管服务
+- [ ] 已上传代码并部署成功
+- [ ] 已配置环境变量（`NODE_ENV`、`JWT_SECRET`）
+- [ ] 已获取服务地址
+- [ ] 已测试健康检查接口（`/health`）
 
-2. **API 测试**：访问 `https://museum-api-xxxxx.tcb.qcloud.la/api/hall/list` 应返回展区列表
+#### AR页面部署检查
+- [ ] 已开通静态网站托管
+- [ ] 已上传 `marker-ar-simple.html`
+- [ ] 已上传 `libs/` 目录及所有库文件
+- [ ] 文件结构正确
+- [ ] 已获取访问地址
+- [ ] 已测试 AR 页面访问
 
-3. **AR页面测试**：在浏览器中打开 AR 页面 URL，检查是否能正常加载
+#### 小程序配置检查
+- [ ] 已更新 API 地址（`miniprogram/utils/api.ts`）
+- [ ] 已更新 AR 页面 URL（`miniprogram/pages/ar-link/ar-link.ts`）
+- [ ] 已配置服务器域名白名单
+- [ ] 已配置业务域名（web-view）
+- [ ] 已重新编译小程序
+- [ ] 已测试小程序功能
+
+### 六、测试部署
+
+1. **健康检查**：
+   ```
+   https://museum-api-xxxxx.tcb.qcloud.la/health
+   ```
+   应返回：
+   ```json
+   {
+     "success": true,
+     "message": "服务器运行正常",
+     "timestamp": "2024-01-01T00:00:00.000Z"
+   }
+   ```
+
+2. **API 测试**：
+   ```
+   https://museum-api-xxxxx.tcb.qcloud.la/api/hall/list
+   ```
+   应返回展区列表数据
+
+3. **AR页面测试**：
+   ```
+   https://prison-museum-dev-xxxxx.tcloudbaseapp.com/ar-pages/marker-ar-simple.html?hallId=1
+   ```
+   应能看到 AR 页面正常加载
 
 ## 📝 待办事项
 
@@ -609,7 +735,8 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
 - [ ] 多机型兼容性测试
 - [ ] 完善错误处理机制
 - [ ] 添加日志系统
-- [ ] 完善文档
+- [ ] 数据库持久化（迁移到云数据库或 MySQL）
+- [ ] 文件存储迁移到云存储（COS）
 
 ## 📄 许可证
 
