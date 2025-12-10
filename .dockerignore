@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.local
+data/*.db
+data/*.db-journal
+uploads/*
+!uploads/.gitkeep
+.DS_Store
+*.log
+miniprogram/
+服务器/node_modules
+服务器/.git
+
