@@ -9,7 +9,7 @@ import { ApiResponse } from './types';
 // 请求基础URL（云托管服务器）
 // 生产环境：使用云托管地址
 // 开发环境：如需本地调试，改为 http://localhost:3000/api
-const BASE_URL = 'https://museum-api-205770-6-1390408503.sh.run.tcloudbase.com/api';
+const BASE_URL = 'https://museum-api-206841-6-1390050511.sh.run.tcloudbase.com/api';
 
 // 是否使用云开发云函数
 // 本项目当前采用本地 Node.js 服务器，不再使用云函数调用
@@ -632,6 +632,7 @@ export const getHallDetail = (id: string): Promise<ApiResponse<ExhibitionHall>> 
 export const userRegister = (data: {
   username: string;
   password: string;
+  role?: string;
   openId?: string;
   code?: string;
 }): Promise<ApiResponse<{ token: string; userInfo: any }>> => {

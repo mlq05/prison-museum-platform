@@ -73,6 +73,14 @@
           />
           <view class="error-msg" wx:if="{{confirmPasswordError}}">{{confirmPasswordError}}</view>
         </view>
+        <view class="form-item">
+          <text class="label">身份</text>
+          <picker mode="selector" range="{{roleOptions}}" range-key="label" value="{{roleOptions.findIndex(item => item.value === role)}}" bindchange="onRoleChange">
+            <view class="picker-input">
+              {{roleOptions.find(item => item.value === role) ? roleOptions.find(item => item.value === role).label : '请选择身份'}}
+            </view>
+          </picker>
+        </view>
         <button class="primary-btn" bindtap="onRegister" loading="{{loading}}">注册</button>
       </view>
 

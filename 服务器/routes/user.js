@@ -168,7 +168,7 @@ router.post('/admin-login', (req, res) => {
  */
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, openId, code } = req.body;
+    const { username, password, role, openId, code } = req.body;
 
     // 验证参数
     if (!username || !password) {
@@ -194,6 +194,10 @@ router.post('/register', async (req, res) => {
         message: '密码长度至少为6位',
       });
     }
+
+    // 验证身份角色
+    const validRoles = ['student', 'faculty', 'visitor'];
+    const userRole = validRoles.includes(role) ? role : 'visitor';
 
     // 如果提供了code，使用微信登录获取openId（暂时模拟）
     let userOpenId = openId;
@@ -246,7 +250,7 @@ router.post('/register', async (req, res) => {
         openId: userOpenId,
         username,
         passwordHash,
-        role: 'visitor',
+        role: userRole,
         name: '',
         phone: '',
         verified: false,

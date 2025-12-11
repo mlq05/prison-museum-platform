@@ -15,32 +15,32 @@ Page({
       {
         id: 'bookings',
         title: '我的预约',
-        icon: '/assets/icons/booking.png',
+        icon: '/assets/icons/tab-booking.png',
         path: '/pages/booking-list/booking-list',
         badge: 0,
       },
       {
         id: 'collections',
         title: '我的收藏',
-        icon: '/assets/icons/collect.png',
+        icon: '/assets/icons/tab-my.png',
         path: '/pages/my-collections/my-collections',
       },
       {
         id: 'certificates',
         title: '我的证书',
-        icon: '/assets/icons/certificate.png',
+        icon: '/assets/icons/tab-home.png',
         path: '/pages/my-certificates/my-certificates',
       },
       {
         id: 'feedback',
         title: '参观反馈',
-        icon: '/assets/icons/feedback.png',
+        icon: '/assets/icons/tab-ar.png',
         path: '/pages/feedback/feedback',
       },
       {
         id: 'admin',
         title: '管理员入口',
-        icon: '/assets/icons/admin.png',
+        icon: '/assets/icons/tab-my.png',
         path: '/pages/admin/admin',
       },
     ],
@@ -100,31 +100,70 @@ Page({
    * 加载预约数量
    */
   async loadBookingCount() {
-    // TODO: 调用API
-    this.setData({
-      'statistics.bookingCount': 3,
-      'menuItems[0].badge': 1, // 待审核的预约数量
-    });
+    try {
+      const { getBookingList } = require('../../utils/api');
+      const res = await getBookingList({ status: 'all', page: 1, pageSize: 1 });
+      if (res.success && res.data) {
+        const total = res.data.total || 0;
+        // 统计待审核的预约数量
+        const pendingRes = await getBookingList({ status: 'pending', page: 1, pageSize: 1 });
+        const pendingCount = pendingRes.success && pendingRes.data ? (pendingRes.data.total || 0) : 0;
+        
+        this.setData({
+          'statistics.bookingCount': total,
+          'menuItems[0].badge': pendingCount,
+        });
+      }
+    } catch (e) {
+      console.error('加载预约数量失败:', e);
+      this.setData({
+        'statistics.bookingCount': 0,
+        'menuItems[0].badge': 0,
+      });
+    }
   },
 
   /**
    * 加载收藏数量
    */
   async loadCollectionCount() {
-    // TODO: 调用API
-    this.setData({
-      'statistics.collectionCount': 5,
-    });
+    try {
+      const { get } = require('../../utils/api');
+      const { API_ENDPOINTS } = require('../../utils/constants');
+      const res = await get(API_ENDPOINTS.COLLECTION_LIST, undefined, { showLoading: false });
+      if (res.success && res.data) {
+        const count = Array.isArray(res.data) ? res.data.length : 0;
+        this.setData({
+          'statistics.collectionCount': count,
+        });
+      }
+    } catch (e) {
+      console.error('加载收藏数量失败:', e);
+      this.setData({
+        'statistics.collectionCount': 0,
+      });
+    }
   },
 
   /**
    * 加载证书数量
    */
   async loadCertificateCount() {
-    // TODO: 调用API
-    this.setData({
-      'statistics.certificateCount': 2,
-    });
+    try {
+      const { getCertificateList } = require('../../utils/api');
+      const res = await getCertificateList();
+      if (res.success && res.data) {
+        const count = Array.isArray(res.data) ? res.data.length : 0;
+        this.setData({
+          'statistics.certificateCount': count,
+        });
+      }
+    } catch (e) {
+      console.error('加载证书数量失败:', e);
+      this.setData({
+        'statistics.certificateCount': 0,
+      });
+    }
   },
 
   /**
@@ -185,6 +224,24 @@ Page({
       title: '功能开发中',
       icon: 'none',
     });
+  },
+
+  /**
+   * 点击统计数据
+   */
+  onStatTap(e: WechatMiniprogram.TouchEvent) {
+    const { type } = e.currentTarget.dataset;
+    if (!this.data.isLoggedIn) {
+      this.goToLogin();
+      return;
+    }
+
+    const menuItem = this.data.menuItems.find(item => item.id === type);
+    if (menuItem && menuItem.path) {
+      wx.navigateTo({
+        url: menuItem.path,
+      });
+    }
   },
 });
 

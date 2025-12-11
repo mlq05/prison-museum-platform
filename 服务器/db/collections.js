@@ -415,15 +415,21 @@ const bookingsCollection = {
     try {
       const { status, page = 1, pageSize = 10 } = filters;
       
-      let query = cloudDb.collection('bookings').where({ userId });
-
+      // 构建查询条件：CloudBase 不支持多次链式调用 .where()，需要将所有条件合并到一个 where() 中
+      const whereCondition = { userId };
       if (status && status !== 'all') {
-        query = query.where({ status });
+        whereCondition.status = status;
       }
+      
+      let query = cloudDb.collection('bookings').where(whereCondition);
+
+      console.log('【用户预约列表查询】查询条件:', { userId, status, whereCondition });
 
       // 获取总数
       const countResult = await query.count();
       const total = countResult.total || 0;
+
+      console.log('【用户预约列表查询】查询结果总数:', total);
 
       // 获取列表
       const skip = (page - 1) * pageSize;
@@ -433,8 +439,14 @@ const bookingsCollection = {
         .limit(pageSize)
         .get();
 
+      const list = result.data || [];
+      console.log('【用户预约列表查询】返回列表数量:', list.length);
+      if (list.length > 0) {
+        console.log('【用户预约列表查询】列表中的状态:', list.map(b => ({ _id: b._id, status: b.status, userName: b.userName })));
+      }
+
       return {
-        list: result.data || [],
+        list,
         total,
         page,
         pageSize,
@@ -469,7 +481,7 @@ const bookingsCollection = {
       if (status && status !== 'all') {
         query = query.where({ status });
       }
-
+      
       // 日期范围查询：由于 CloudBase 限制，先查询所有数据，然后在内存中过滤
       // 为了避免数据量过大，如果提供了日期范围，先使用日期过滤
       let allBookings;
