@@ -79,6 +79,12 @@
   margin-left: 4rpx;
 }
 
+.optional {
+  color: var(--text-light);
+  margin-left: 4rpx;
+  font-size: 24rpx;
+}
+
 .form-input {
   width: 100%;
   min-height: 80rpx;
@@ -190,6 +196,27 @@
 .picker-arrow {
   font-size: 28rpx;
   color: var(--text-light);
+}
+
+/* Textarea */
+.form-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: 20rpx 24rpx;
+  background-color: var(--white);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.textarea-hint {
+  margin-top: var(--spacing-xs);
+  font-size: 24rpx;
+  color: var(--text-light);
+  text-align: right;
 }
 
 /* 温馨提示 */

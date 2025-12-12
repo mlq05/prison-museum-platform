@@ -200,3 +200,14 @@
   margin-left: 12rpx;
 }
 
+.picker-text.placeholder {
+  color: #999999;
+}
+
+.picker-hint {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.5;
+}
+

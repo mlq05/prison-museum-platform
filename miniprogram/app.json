@@ -29,6 +29,7 @@
     "pages/interactive-wall/interactive-wall",
     "pages/feedback/feedback"
   ],
+
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "监狱历史文化展览馆",

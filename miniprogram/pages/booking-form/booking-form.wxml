@@ -146,6 +146,24 @@
         </picker>
         <view class="error-text" wx:if="{{errors.visitorCount}}">{{errors.visitorCount}}</view>
       </view>
+
+      <!-- 备注 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text>备注</text>
+          <text class="optional">（选填）</text>
+        </view>
+        <textarea
+          class="form-textarea"
+          placeholder="请输入备注信息，如特殊需求、参观目的等（最多200字）"
+          value="{{remark}}"
+          bindinput="onRemarkInput"
+          maxlength="200"
+          auto-height
+          cursor-spacing="20"
+        />
+        <view class="textarea-hint">已输入 {{remark.length}}/200 字</view>
+      </view>
     </view>
 
     <!-- 温馨提示 -->

@@ -21,10 +21,10 @@ REM 注意：如果未登录，部署时会自动提示登录
 
 REM 部署到云托管
 echo 开始部署...
-echo 环境ID: prison-museum-dev-8e6hujc6eb768b
+echo 环境ID: cloud1-6glt083780b46f82
 echo 服务名: museum-api
 echo.
-cloudbase run deploy -e prison-museum-dev-8e6hujc6eb768b -s museum-api --containerPort 80
+cloudbase run deploy -e cloud1-6glt083780b46f82 -s museum-api --containerPort 80
 
 if %errorlevel% equ 0 (
     echo ==========================================

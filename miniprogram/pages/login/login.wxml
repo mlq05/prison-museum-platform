@@ -74,13 +74,14 @@
           <view class="error-msg" wx:if="{{confirmPasswordError}}">{{confirmPasswordError}}</view>
         </view>
         <view class="form-item">
-          <text class="label">身份</text>
+          <text class="label">身份选择</text>
           <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
             <view class="picker-input">
-              <text class="picker-text">{{roleOptions[roleIndex] || '请选择身份'}}</text>
+              <text class="picker-text">{{roleOptions[roleIndex]}}</text>
               <text class="picker-arrow">></text>
             </view>
           </picker>
+          <view class="picker-hint">请选择您的身份：学生、教职工或访客（当前：{{roleOptions[roleIndex]}}）</view>
         </view>
         <button class="primary-btn" bindtap="onRegister" loading="{{loading}}">注册</button>
       </view>

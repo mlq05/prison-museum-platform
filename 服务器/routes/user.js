@@ -238,10 +238,11 @@ router.post('/register', async (req, res) => {
     let user;
     
     if (existingByOpenId) {
-      // 更新现有用户，绑定账号密码
+      // 更新现有用户，绑定账号密码和身份
       user = await collections.users.update(userOpenId, {
         username,
         passwordHash,
+        role: userRole, // 同步更新身份信息
         updatedAt: now,
       });
     } else {

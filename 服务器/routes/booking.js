@@ -27,7 +27,8 @@ router.post('/create', authenticate, (req, res) => {
     workId,
     unit,
     idCard,
-    idCardPhoto
+    idCardPhoto,
+    remark // 备注信息
   } = req.body;
 
   // 验证必填字段
@@ -116,6 +117,7 @@ router.post('/create', authenticate, (req, res) => {
         bookingDate,
         bookingTimeSlot,
         visitorCount: visitorCountNum,
+        remark: remark || '', // 备注信息（可选）
       });
 
       console.log('预约创建成功:', {

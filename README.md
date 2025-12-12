@@ -24,11 +24,12 @@
 
 ### 后端技术
 - **服务器**：Node.js + Express
-- **数据库**：SQLite3
+- **数据库**：腾讯云开发数据库（CloudBase Database）
 - **认证**：JWT（jsonwebtoken）
 - **文件上传**：Multer
 - **加密**：bcryptjs
 - **工具库**：Moment.js（日期处理）
+- **云服务**：腾讯云开发 SDK（@cloudbase/node-sdk）
 
 ### 云服务
 - **云函数**：微信云开发（可选）
@@ -101,8 +102,13 @@ test4/
 ├── 服务器/                   # Node.js 后端服务器
 │   ├── server.js            # 服务器入口
 │   ├── package.json         # 依赖配置
-│   ├── db/                  # 数据库
-│   │   └── database.js      # 数据库初始化
+│   ├── Dockerfile           # Docker构建文件
+│   ├── cloudbaserc.json     # 云开发配置文件
+│   ├── db/                  # 数据库服务层
+│   │   ├── database.js      # 数据库连接和初始化
+│   │   ├── collections.js   # 集合操作服务层（CRUD封装）
+│   │   ├── database-schema.md # 数据库架构文档
+│   │   └── README.md        # 数据库使用说明
 │   ├── routes/              # 路由
 │   │   ├── admin.js        # 管理员路由
 │   │   ├── ar.js           # AR相关路由
@@ -118,10 +124,9 @@ test4/
 │   │   ├── errorHandler.js # 错误处理
 │   │   └── logger.js       # 日志中间件
 │   ├── scripts/             # 脚本
-│   │   └── init-db.js      # 数据库初始化脚本
-│   ├── data/                # 数据目录
-│   │   └── database.db     # SQLite数据库文件
-│   └── uploads/             # 上传文件目录
+│   │   ├── init-db.js      # 数据库初始化脚本
+│   │   └── init-database.js # 数据库初始化脚本（备用）
+│   └── uploads/             # 上传文件目录（云托管使用/tmp/uploads）
 │       ├── images/         # 图片
 │       └── audio/          # 音频
 │
@@ -322,13 +327,49 @@ npm run dev
 
 ### 数据库操作
 
-数据库使用 SQLite，文件位于 `服务器/data/database.db`
+项目使用**腾讯云开发数据库**（CloudBase Database）作为数据存储。
 
-初始化数据库：
+#### 数据库集合
+
+系统包含以下9个数据库集合：
+
+1. **users** - 用户账号信息
+2. **admins** - 管理员账号信息（默认账号：`zysfjgxy` / `123456`）
+3. **bookings** - 预约信息
+4. **halls** - 展区信息
+5. **feedbacks** - 用户反馈信息
+6. **collections** - 用户收藏信息
+7. **certificates** - 电子证书信息
+8. **visit_settings** - 参观时段设置
+9. **ar_checkins** - AR打卡记录
+
+详细字段说明请参考 `服务器/db/database-schema.md`
+
+#### 数据库初始化
+
+系统启动时会自动初始化数据库和默认管理员账号。
+
+手动初始化：
 ```bash
 cd 服务器
 npm run init-db
 ```
+
+#### 数据库服务使用
+
+所有数据库操作都通过统一的服务层进行：
+
+```javascript
+const { collections } = require('./db/database');
+
+// 查询用户
+const user = await collections.users.findByOpenId('openid_123');
+
+// 创建预约
+const booking = await collections.bookings.create({...});
+```
+
+详细API参考请查看 `服务器/db/README.md`
 
 ## 🎨 界面设计规范
 
@@ -548,15 +589,42 @@ window.wx.miniProgram.postMessage({
 
 4. 上传 `server.zip`，配置环境变量并部署
 
-#### 方式三：使用 Git 仓库部署
+#### 方式三：使用 Git 仓库部署（推荐生产环境）
 
 1. 将代码推送到 Git 仓库（GitHub/GitLab/码云）
 
 2. 在云开发控制台选择"Git 仓库"部署方式
 
-3. 输入仓库地址和分支，设置构建目录为 `服务器`
+3. 配置部署参数：
+   - **Git 仓库**：填写仓库地址（如：`mlq05/prison-museum-platform`）
+   - **分支**：`main`
+   - **服务名称**：`museum-api`
+   - **部署类型**：容器型服务
+   - **访问端口**：`80`
+   - **服务端口**：`80`
+   - **目标目录**：`服务器` ⚠️ 必须填写
+   - **Dockerfile 名称**：`Dockerfile`
 
-4. 配置环境变量并部署
+4. 配置环境变量（JSON格式）：
+   ```json
+   {
+     "NODE_ENV": "production",
+     "PORT": "80",
+     "JWT_SECRET": "你的随机密钥（至少32位）",
+     "TCB_ENV": "你的云开发环境ID",
+     "TCB_SECRET_ID": "你的SecretId",
+     "TCB_SECRET_KEY": "你的SecretKey",
+     "COS_BUCKET": "你的COS存储桶名（可选）",
+     "COS_REGION": "ap-shanghai（可选）"
+   }
+   ```
+
+5. 点击"部署"按钮，等待构建完成（约3-5分钟）
+
+**获取 SecretId 和 SecretKey**：
+- 访问：https://console.cloud.tencent.com/cam/capi
+- 创建或查看API密钥
+- 复制 `SecretId` 和 `SecretKey`
 
 ### 二、AR页面部署（静态网站托管）
 
@@ -661,8 +729,9 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
 
 #### 数据库存储
 
-- ⚠️ 云托管使用临时存储（`/tmp` 目录），服务重启后数据会丢失
-- 💡 建议使用云开发数据库或 MySQL 数据库实现持久化存储
+- ✅ 项目已使用**腾讯云开发数据库**，数据持久化存储
+- ✅ 数据库集合会在首次启动时自动创建
+- ✅ 默认管理员账号：用户名 `zysfjgxy`，密码 `123456`
 
 #### 文件上传
 
@@ -671,18 +740,25 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
 
 #### 环境变量
 
-必须在云开发控制台配置：
-- `NODE_ENV=production`
-- `JWT_SECRET=你的随机密钥（至少32位）`
+必须在云开发控制台配置以下环境变量：
+- `NODE_ENV=production` - 运行环境
+- `PORT=80` - 服务端口（可选，默认80）
+- `JWT_SECRET=你的随机密钥（至少32位）` - JWT签名密钥
+- `TCB_ENV=你的云开发环境ID` - 云开发环境ID
+- `TCB_SECRET_ID=你的SecretId` - 腾讯云API密钥ID
+- `TCB_SECRET_KEY=你的SecretKey` - 腾讯云API密钥
+- `COS_BUCKET=你的存储桶名` - 对象存储桶名（可选）
+- `COS_REGION=ap-shanghai` - 对象存储地域（可选）
 
 ### 五、部署检查清单
 
 #### 服务器部署检查
 - [ ] 已创建云托管服务
-- [ ] 已上传代码并部署成功
-- [ ] 已配置环境变量（`NODE_ENV`、`JWT_SECRET`）
+- [ ] 已上传代码并部署成功（或Git仓库已连接）
+- [ ] 已配置所有必需的环境变量（`NODE_ENV`、`JWT_SECRET`、`TCB_ENV`、`TCB_SECRET_ID`、`TCB_SECRET_KEY`）
 - [ ] 已获取服务地址
 - [ ] 已测试健康检查接口（`/health`）
+- [ ] 数据库连接成功（查看日志确认）
 
 #### AR页面部署检查
 - [ ] 已开通静态网站托管
@@ -727,6 +803,33 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
    ```
    应能看到 AR 页面正常加载
 
+## 📊 数据库架构
+
+### 集合说明
+
+项目使用腾讯云开发数据库，包含9个集合：
+
+| 集合名 | 说明 | 主要字段 |
+|--------|------|----------|
+| users | 用户信息 | openId, role, name, phone |
+| admins | 管理员信息 | username, passwordHash, role |
+| bookings | 预约信息 | userId, bookingDate, bookingTimeSlot, status |
+| halls | 展区信息 | name, description, arModelUrl, arMarkerImage |
+| feedbacks | 反馈信息 | userId, content, rating, status |
+| collections | 收藏信息 | userId, type, itemId |
+| certificates | 证书信息 | userId, type, title, certificateNumber |
+| visit_settings | 时段设置 | date, timeSlotId, capacity |
+| ar_checkins | AR打卡 | userId, hallId, checkInPointId |
+
+详细字段说明和索引配置请参考 `服务器/db/database-schema.md`
+
+### 默认管理员账号
+
+- **用户名**：`zysfjgxy`
+- **密码**：`123456`
+
+系统首次启动时会自动创建该管理员账号。
+
 ## 📝 待办事项
 
 - [ ] 完成所有页面的单元测试
@@ -735,7 +838,6 @@ const cloudHostingUrl = 'https://xxxxx.tcloudbaseapp.com';
 - [ ] 多机型兼容性测试
 - [ ] 完善错误处理机制
 - [ ] 添加日志系统
-- [ ] 数据库持久化（迁移到云数据库或 MySQL）
 - [ ] 文件存储迁移到云存储（COS）
 
 ## 📄 许可证

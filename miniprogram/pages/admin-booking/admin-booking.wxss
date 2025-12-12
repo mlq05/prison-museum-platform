@@ -174,6 +174,18 @@
   color: #6b7280;
 }
 
+.remark-label {
+  color: #6b7280;
+  margin-right: 8rpx;
+}
+
+.remark-text {
+  flex: 1;
+  color: #374151;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
 .booking-actions {
   margin-top: 16rpx;
   display: flex;

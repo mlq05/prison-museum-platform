@@ -23,6 +23,8 @@ Page({
     idCard: '',
     // 参观信息
     visitorCount: 1,
+    // 备注信息
+    remark: '',
     // 表单验证
     errors: {} as Record<string, string>,
   },
@@ -137,6 +139,14 @@ Page({
     this.setData({ visitorCount: count });
   },
 
+  /**
+   * 输入备注
+   */
+  onRemarkInput(e: WechatMiniprogram.Textarea) {
+    const remark = e.detail.value;
+    this.setData({ remark });
+  },
+
 
   /**
    * 表单验证
@@ -249,6 +259,7 @@ Page({
         visitorCount: this.data.visitorCount,
         name: this.data.name ? this.data.name.trim() : '',
         phone: this.data.phone ? this.data.phone.trim() : '',
+        remark: this.data.remark ? this.data.remark.trim() : '', // 备注信息
       };
 
       // 根据用户角色添加相应字段

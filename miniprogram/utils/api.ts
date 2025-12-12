@@ -475,6 +475,7 @@ export const createBooking = (data: {
   unit?: string;
   idCard?: string;
   idCardPhoto?: string;
+  remark?: string; // 备注信息
 }): Promise<ApiResponse<{ bookingId: string }>> => {
   return post(API_ENDPOINTS.BOOKING_CREATE, data, {
     loadingText: '提交中...',

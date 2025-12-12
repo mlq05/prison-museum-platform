@@ -92,6 +92,10 @@
               <view class="booking-line small">
                 <text>手机：{{item.maskedPhone}}</text>
               </view>
+              <view class="booking-line small" wx:if="{{item.remark}}">
+                <text class="remark-label">备注：</text>
+                <text class="remark-text">{{item.remark}}</text>
+              </view>
             </view>
 
             <view class="booking-actions" wx:if="{{item.status === 'pending'}}">

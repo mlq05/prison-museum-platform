@@ -47,6 +47,7 @@ export interface BookingInfo {
   bookingTimeSlot: string;       // 时段 如 "09:00-11:00"
   visitorCount: number;          // 参观人数
   status: BookingStatus;
+  remark?: string;               // 备注信息
   rejectReason?: string;         // 驳回原因
   routeId?: string;              // 推荐路线ID
   arModelsPreloaded?: string[];  // 预加载的AR模型列表

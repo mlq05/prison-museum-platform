@@ -14,18 +14,16 @@ if ! command -v cloudbase &> /dev/null; then
     exit 1
 fi
 
-# 检查是否已登录
+# 检查是否已登录（跳过检查，直接尝试部署，如果未登录会提示）
 echo "检查登录状态..."
-cloudbase login --check
-
-if [ $? -ne 0 ]; then
-    echo "请先登录: cloudbase login"
-    exit 1
-fi
+# 注意：如果未登录，部署时会自动提示登录
 
 # 部署到云托管
 echo "开始部署..."
-cloudbase run:deploy --envId test-7g8oe7lq75832d7c
+echo "环境ID: cloud1-6glt083780b46f82"
+echo "服务名: museum-api"
+echo ""
+cloudbase run deploy -e cloud1-6glt083780b46f82 -s museum-api --containerPort 80
 
 if [ $? -eq 0 ]; then
     echo "=========================================="

@@ -319,7 +319,7 @@ Page({
    * 注册
    */
   async onRegister() {
-    const { username, password, confirmPassword } = this.data;
+    const { username, password, confirmPassword, role } = this.data;
 
     // 验证所有字段
     if (!this.validateUsername(username)) {
@@ -341,6 +341,15 @@ Page({
     if (!this.validateConfirmPassword(confirmPassword, password)) {
       wx.showToast({
         title: '两次输入的密码不一致',
+        icon: 'none',
+      });
+      return;
+    }
+
+    // 验证身份选择
+    if (!role || !['student', 'faculty', 'visitor'].includes(role)) {
+      wx.showToast({
+        title: '请选择身份',
         icon: 'none',
       });
       return;
@@ -378,7 +387,7 @@ Page({
       const res = await userRegister({
         username,
         password,
-        role: this.data.role,
+        role: role, // 传递选择的身份：student(学生)、faculty(教职工)、visitor(访客)
         code,
       });
 
