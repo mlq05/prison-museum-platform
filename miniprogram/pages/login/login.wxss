@@ -192,12 +192,11 @@
 
 .picker-text {
   flex: 1;
-  color: #333333;
 }
 
 .picker-arrow {
-  color: #999999;
   font-size: 24rpx;
+  color: #999999;
   margin-left: 12rpx;
 }
 

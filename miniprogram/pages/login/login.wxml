@@ -78,7 +78,7 @@
           <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
             <view class="picker-input">
               <text class="picker-text">{{roleOptions[roleIndex] || '请选择身份'}}</text>
-              <text class="picker-arrow">▼</text>
+              <text class="picker-arrow">></text>
             </view>
           </picker>
         </view>
