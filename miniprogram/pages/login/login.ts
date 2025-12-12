@@ -26,11 +26,9 @@ Page({
     confirmPasswordError: '',
     usernameChecked: false, // 用户名是否已检查过
     role: 'visitor', // 用户身份：student(学生)、faculty(教职工)、visitor(访客)
-    roleOptions: [
-      { value: 'student', label: '学生' },
-      { value: 'faculty', label: '教职工' },
-      { value: 'visitor', label: '访客' },
-    ],
+    roleIndex: 2, // 默认选择访客（索引2）
+    roleOptions: ['学生', '教职工', '访客'],
+    roleValues: ['student', 'faculty', 'visitor'],
   },
 
   onLoad(options: any) {
@@ -54,6 +52,7 @@ Page({
       confirmPasswordError: '',
       usernameChecked: false,
       role: 'visitor',
+      roleIndex: 2,
     });
   },
 
@@ -71,6 +70,7 @@ Page({
       confirmPasswordError: '',
       usernameChecked: false,
       role: 'visitor',
+      roleIndex: 2,
     });
   },
 
@@ -79,8 +79,9 @@ Page({
    */
   onRoleChange(e: WechatMiniprogram.PickerChange) {
     const selectedIndex = parseInt(e.detail.value);
-    const selectedRole = this.data.roleOptions[selectedIndex].value;
+    const selectedRole = this.data.roleValues[selectedIndex];
     this.setData({
+      roleIndex: selectedIndex,
       role: selectedRole,
     });
   },
