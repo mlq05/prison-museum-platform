@@ -1,0 +1,144 @@
+<!--admin-annual-report.wxml-->
+<view class="annual-report-page">
+  <navigation-bar title="年度报告" />
+  <scroll-view class="report-scroll" scroll-y="true" enable-back-to-top="true">
+    <!-- 年份选择 -->
+    <view class="card">
+      <view class="card-title">选择年份</view>
+      <picker mode="date" value="{{selectedYear}}" fields="year" bindchange="onYearChange">
+        <view class="year-picker">{{selectedYear}}年</view>
+      </picker>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="loading-container">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 报告内容 -->
+    <block wx:if="{{!loading && reportData}}">
+      <!-- 总体统计 -->
+      <view class="card">
+        <view class="card-title">年度总体统计</view>
+        <view class="stats-grid">
+          <view class="stat-item">
+            <view class="stat-value">{{reportData.totalBookings}}</view>
+            <view class="stat-label">总预约数</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-value stat-success">{{reportData.approvedBookings}}</view>
+            <view class="stat-label">已通过</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-value stat-primary">{{reportData.totalVisitors}}</view>
+            <view class="stat-label">总来访人数</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-value stat-primary">{{reportData.approvedVisitors}}</view>
+            <view class="stat-label">已通过人数</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 领导来访统计 -->
+      <view class="card leader-card">
+        <view class="card-title leader-title">
+          <text>👑 领导来访统计</text>
+        </view>
+        <view class="leader-stats">
+          <view class="leader-stat-item">
+            <view class="leader-value">{{reportData.leaderVisitCount}}</view>
+            <view class="leader-label">领导来访次数</view>
+          </view>
+          <view class="leader-stat-item">
+            <view class="leader-value">{{reportData.leaderVisitVisitors}}</view>
+            <view class="leader-label">领导来访人数</view>
+          </view>
+        </view>
+        
+        <!-- 领导来访详情 -->
+        <view wx:if="{{reportData.leaderVisits.length > 0}}" class="leader-visits">
+          <view class="section-subtitle">领导来访记录</view>
+          <view class="leader-visit-list">
+            <view class="leader-visit-item" wx:for="{{reportData.leaderVisits}}" wx:key="_id">
+              <view class="visit-header">
+                <text class="visit-name">{{item.userName}}</text>
+                <text class="visit-date">{{item.bookingDate}}</text>
+              </view>
+              <view class="visit-info">
+                <text class="visit-count">来访人数：{{item.visitorCount}}人</text>
+                <text class="visit-status" wx:if="{{item.status === 'approved'}}">✓ 已通过</text>
+              </view>
+              <view class="visit-remark" wx:if="{{item.remark}}">{{item.remark}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 备注高频词 -->
+      <view class="card">
+        <view class="card-title">备注高频词（Top 20）</view>
+        <view wx:if="{{reportData.topWords.length > 0}}" class="words-list">
+          <view class="word-item" wx:for="{{reportData.topWords}}" wx:key="word">
+            <text class="word-text">{{item.word}}</text>
+            <text class="word-count">{{item.count}}次</text>
+          </view>
+        </view>
+        <view wx:else class="empty-text">该年度无备注数据</view>
+      </view>
+
+      <!-- 角色分布 -->
+      <view class="card">
+        <view class="card-title">角色分布</view>
+        <view class="role-list">
+          <view class="role-item">
+            <view class="role-info">
+              <text class="role-icon">🎓</text>
+              <text class="role-name">学生</text>
+            </view>
+            <view class="role-count">{{reportData.roleDistribution.student}}</view>
+          </view>
+          <view class="role-item">
+            <view class="role-info">
+              <text class="role-icon">👔</text>
+              <text class="role-name">教职工</text>
+            </view>
+            <view class="role-count">{{reportData.roleDistribution.faculty}}</view>
+          </view>
+          <view class="role-item">
+            <view class="role-info">
+              <text class="role-icon">👤</text>
+              <text class="role-name">访客</text>
+            </view>
+            <view class="role-count">{{reportData.roleDistribution.visitor}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 月度统计 -->
+      <view class="card">
+        <view class="card-title">月度统计</view>
+        <view class="monthly-stats">
+          <view class="month-item" wx:for="{{reportData.monthlyStats}}" wx:key="month">
+            <view class="month-header">
+              <text class="month-name">{{item.month}}月</text>
+            </view>
+            <view class="month-data">
+              <text class="month-label">预约：{{item.bookings}}次</text>
+              <text class="month-label">人数：{{item.visitors}}人</text>
+              <text class="month-label leader-label" wx:if="{{item.leaderVisits > 0}}">
+                领导来访：{{item.leaderVisits}}次
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && !reportData}}" class="empty-state">
+      <text class="empty-text">暂无数据</text>
+    </view>
+  </scroll-view>
+</view>
+

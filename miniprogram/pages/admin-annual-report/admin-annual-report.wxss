@@ -1,0 +1,306 @@
+.annual-report-page {
+  min-height: 100vh;
+  height: 100vh;
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.report-scroll {
+  flex: 1;
+  box-sizing: border-box;
+  padding: 24rpx 24rpx 120rpx;
+  width: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx 24rpx 32rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04);
+  margin-bottom: 32rpx;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 24rpx;
+}
+
+/* 年份选择 */
+.year-picker {
+  padding: 16rpx 20rpx;
+  background-color: #f9fafb;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #111827;
+  text-align: center;
+}
+
+/* 加载状态 */
+.loading-container {
+  text-align: center;
+  padding: 80rpx 0;
+  color: #9ca3af;
+  font-size: 28rpx;
+}
+
+/* 统计网格 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background-color: #f9fafb;
+  border-radius: 12rpx;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8rpx;
+}
+
+.stat-value.stat-success {
+  color: #22c55e;
+}
+
+.stat-value.stat-primary {
+  color: #3b82f6;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+/* 领导来访卡片 */
+.leader-card {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2rpx solid #fbbf24;
+}
+
+.leader-title {
+  color: #92400e;
+  font-size: 36rpx;
+}
+
+.leader-stats {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.leader-stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 12rpx;
+}
+
+.leader-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #d97706;
+  margin-bottom: 8rpx;
+}
+
+.leader-label {
+  font-size: 24rpx;
+  color: #78350f;
+}
+
+.section-subtitle {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #78350f;
+  margin-bottom: 16rpx;
+}
+
+.leader-visits {
+  margin-top: 24rpx;
+}
+
+.leader-visit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.leader-visit-item {
+  padding: 20rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12rpx;
+  border-left: 4rpx solid #d97706;
+}
+
+.visit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.visit-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #78350f;
+}
+
+.visit-date {
+  font-size: 24rpx;
+  color: #92400e;
+}
+
+.visit-info {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+}
+
+.visit-count {
+  font-size: 24rpx;
+  color: #78350f;
+}
+
+.visit-status {
+  font-size: 24rpx;
+  color: #22c55e;
+}
+
+.visit-remark {
+  font-size: 24rpx;
+  color: #92400e;
+  line-height: 1.6;
+  margin-top: 8rpx;
+}
+
+/* 高频词列表 */
+.words-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  background-color: #f9fafb;
+  border-radius: 20rpx;
+  border: 2rpx solid #e5e7eb;
+}
+
+.word-text {
+  font-size: 26rpx;
+  color: #111827;
+  font-weight: 500;
+}
+
+.word-count {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+/* 角色分布 */
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  background-color: #f9fafb;
+  border-radius: 12rpx;
+}
+
+.role-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.role-icon {
+  font-size: 32rpx;
+}
+
+.role-name {
+  font-size: 28rpx;
+  color: #111827;
+}
+
+.role-count {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+/* 月度统计 */
+.monthly-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.month-item {
+  padding: 20rpx;
+  background-color: #f9fafb;
+  border-radius: 12rpx;
+}
+
+.month-header {
+  margin-bottom: 12rpx;
+}
+
+.month-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #111827;
+}
+
+.month-data {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.month-label {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.month-label.leader-label {
+  color: #d97706;
+  font-weight: 500;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 80rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #9ca3af;
+}
+

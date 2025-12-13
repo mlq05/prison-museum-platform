@@ -476,6 +476,7 @@ export const createBooking = (data: {
   idCard?: string;
   idCardPhoto?: string;
   remark?: string; // 备注信息
+  isLeaderVisit?: boolean; // 领导来访标识
 }): Promise<ApiResponse<{ bookingId: string }>> => {
   return post(API_ENDPOINTS.BOOKING_CREATE, data, {
     loadingText: '提交中...',
@@ -710,6 +711,45 @@ export const getAdminStatistics = (params: {
 }>> => {
   return get(API_ENDPOINTS.ADMIN_STATISTICS, params, {
     showLoading: false,
+  });
+};
+
+/**
+ * 获取年度报告
+ */
+export const getAnnualReport = (params: {
+  year: number;
+}): Promise<ApiResponse<{
+  year: number;
+  totalBookings: number;
+  approvedBookings: number;
+  totalVisitors: number;
+  approvedVisitors: number;
+  leaderVisitCount: number;
+  leaderVisitVisitors: number;
+  leaderVisits: Array<{
+    _id: string;
+    userName: string;
+    bookingDate: string;
+    visitorCount: number;
+    remark?: string;
+    status: string;
+  }>;
+  topWords: Array<{ word: string; count: number }>;
+  roleDistribution: {
+    student: number;
+    faculty: number;
+    visitor: number;
+  };
+  monthlyStats: Array<{
+    month: number;
+    bookings: number;
+    visitors: number;
+    leaderVisits: number;
+  }>;
+}>> => {
+  return get(API_ENDPOINTS.ADMIN_ANNUAL_REPORT, params, {
+    showLoading: true,
   });
 };
 

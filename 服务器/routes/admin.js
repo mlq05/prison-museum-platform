@@ -403,6 +403,141 @@ router.post('/visit/settings', (req, res) => {
 });
 
 /**
+ * 获取年度报告
+ */
+router.get('/annual-report', async (req, res) => {
+  try {
+    const { year } = req.query;
+    
+    if (!year) {
+      return res.status(400).json({
+        success: false,
+        message: '年份不能为空'
+      });
+    }
+
+    const yearNum = parseInt(year);
+    if (isNaN(yearNum) || yearNum < 2020 || yearNum > 2100) {
+      return res.status(400).json({
+        success: false,
+        message: '年份无效'
+      });
+    }
+
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
+
+    // 查询该年度所有预约
+    const allBookings = await collections.bookings.listAll({
+      startDate,
+      endDate,
+      page: 1,
+      pageSize: 10000,
+    });
+
+    const bookings = allBookings.list || [];
+
+    // 统计来访人数
+    const totalVisitors = bookings.reduce((sum, b) => sum + (b.visitorCount || 0), 0);
+    const approvedBookings = bookings.filter(b => b.status === 'approved');
+    const approvedVisitors = approvedBookings.reduce((sum, b) => sum + (b.visitorCount || 0), 0);
+
+    // 统计领导来访
+    const leaderVisits = bookings.filter(b => b.isLeaderVisit === true);
+    const leaderVisitCount = leaderVisits.length;
+    const leaderVisitVisitors = leaderVisits.reduce((sum, b) => sum + (b.visitorCount || 0), 0);
+
+    // 统计备注高频词
+    const remarkTexts = bookings
+      .filter(b => b.remark && b.remark.trim())
+      .map(b => b.remark.trim());
+    
+    // 中文分词和词频统计（简单实现）
+    const wordCount = {};
+    const stopWords = new Set(['的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这']);
+    
+    remarkTexts.forEach(text => {
+      // 简单的中文分词：按字符分割，过滤单个字符和停用词
+      const words = text.match(/[\u4e00-\u9fa5]{2,}/g) || [];
+      words.forEach(word => {
+        if (!stopWords.has(word) && word.length >= 2) {
+          wordCount[word] = (wordCount[word] || 0) + 1;
+        }
+      });
+    });
+
+    // 获取高频词（Top 20）
+    const topWords = Object.entries(wordCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map(([word, count]) => ({ word, count }));
+
+    // 按角色统计
+    const roleDistribution = {
+      student: 0,
+      faculty: 0,
+      visitor: 0
+    };
+
+    bookings.forEach(booking => {
+      const role = booking.userRole || 'visitor';
+      if (roleDistribution.hasOwnProperty(role)) {
+        roleDistribution[role]++;
+      }
+    });
+
+    // 按月统计
+    const monthlyStats = Array.from({ length: 12 }, (_, i) => ({
+      month: i + 1,
+      bookings: 0,
+      visitors: 0,
+      leaderVisits: 0
+    }));
+
+    bookings.forEach(booking => {
+      const month = parseInt(booking.bookingDate.split('-')[1]) - 1;
+      if (month >= 0 && month < 12) {
+        monthlyStats[month].bookings++;
+        monthlyStats[month].visitors += (booking.visitorCount || 0);
+        if (booking.isLeaderVisit) {
+          monthlyStats[month].leaderVisits++;
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        year: yearNum,
+        totalBookings: bookings.length,
+        approvedBookings: approvedBookings.length,
+        totalVisitors,
+        approvedVisitors,
+        leaderVisitCount,
+        leaderVisitVisitors,
+        leaderVisits: leaderVisits.map(b => ({
+          _id: b._id,
+          userName: b.userName,
+          bookingDate: b.bookingDate,
+          visitorCount: b.visitorCount,
+          remark: b.remark,
+          status: b.status
+        })),
+        topWords,
+        roleDistribution,
+        monthlyStats
+      }
+    });
+  } catch (error) {
+    console.error('查询年度报告失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败，请稍后重试'
+    });
+  }
+});
+
+/**
  * 获取统计数据
  */
 router.get('/statistics', async (req, res) => {
@@ -441,10 +576,16 @@ router.get('/statistics', async (req, res) => {
 
     bookings.forEach(booking => {
       const role = booking.userRole || 'visitor';
-      if (roleDistribution.hasOwnProperty(role)) {
+      // 添加调试日志
+      if (!roleDistribution.hasOwnProperty(role)) {
+        console.log('未知角色:', role, '预约ID:', booking._id);
+      } else {
         roleDistribution[role]++;
       }
     });
+
+    console.log('角色分布统计结果:', roleDistribution);
+    console.log('预约总数:', totalBookings);
 
     const cancellationRate = totalBookings > 0 
       ? ((cancelledBookings / totalBookings) * 100).toFixed(2)

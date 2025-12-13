@@ -123,8 +123,9 @@ export const API_ENDPOINTS = {
   
   // 管理后台
   ADMIN_BOOKING_LIST: '/admin/booking/list',
-  ADMIN_BOOKING_REVIEW: '/admin/booking/review',
   ADMIN_STATISTICS: '/admin/statistics',
+  ADMIN_ANNUAL_REPORT: '/admin/annual-report',
+  ADMIN_BOOKING_REVIEW: '/admin/booking/review',
   ADMIN_HALL_MANAGE: '/admin/hall/manage',
   ADMIN_VISIT_SETTINGS: '/admin/visit/settings',
 } as const;

@@ -96,6 +96,19 @@ Page({
     });
   },
 
+  onAnnualReport() {
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '请先登录管理员账号',
+        icon: 'none',
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/admin-annual-report/admin-annual-report',
+    });
+  },
+
   onHallManage() {
     if (!this.data.isAdmin) {
       wx.showToast({

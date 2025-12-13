@@ -28,7 +28,8 @@ router.post('/create', authenticate, (req, res) => {
     unit,
     idCard,
     idCardPhoto,
-    remark // 备注信息
+    remark, // 备注信息
+    isLeaderVisit // 领导来访标识
   } = req.body;
 
   // 验证必填字段
@@ -118,6 +119,7 @@ router.post('/create', authenticate, (req, res) => {
         bookingTimeSlot,
         visitorCount: visitorCountNum,
         remark: remark || '', // 备注信息（可选）
+        isLeaderVisit: isLeaderVisit || false, // 领导来访标识
       });
 
       console.log('预约创建成功:', {

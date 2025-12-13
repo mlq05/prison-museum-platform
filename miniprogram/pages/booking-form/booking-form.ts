@@ -25,6 +25,8 @@ Page({
     visitorCount: 1,
     // 备注信息
     remark: '',
+    // 领导来访标识
+    isLeaderVisit: false,
     // 表单验证
     errors: {} as Record<string, string>,
   },
@@ -147,6 +149,13 @@ Page({
     this.setData({ remark });
   },
 
+  /**
+   * 切换领导来访标识
+   */
+  onLeaderVisitChange(e: WechatMiniprogram.SwitchChange) {
+    this.setData({ isLeaderVisit: e.detail.value });
+  },
+
 
   /**
    * 表单验证
@@ -260,6 +269,7 @@ Page({
         name: this.data.name ? this.data.name.trim() : '',
         phone: this.data.phone ? this.data.phone.trim() : '',
         remark: this.data.remark ? this.data.remark.trim() : '', // 备注信息
+        isLeaderVisit: this.data.isLeaderVisit, // 领导来访标识
       };
 
       // 根据用户角色添加相应字段

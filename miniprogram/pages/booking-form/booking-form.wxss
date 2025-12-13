@@ -219,6 +219,28 @@
   text-align: right;
 }
 
+/* 开关项 */
+.switch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background-color: var(--white);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.switch-label {
+  font-size: 28rpx;
+  color: var(--text-primary);
+}
+
+.switch-hint {
+  margin-top: var(--spacing-xs);
+  font-size: 24rpx;
+  color: var(--text-light);
+}
+
 /* 温馨提示 */
 .tips {
   margin: var(--spacing-md);

@@ -147,6 +147,22 @@
         <view class="error-text" wx:if="{{errors.visitorCount}}">{{errors.visitorCount}}</view>
       </view>
 
+      <!-- 领导来访标识 -->
+      <view class="form-item">
+        <view class="form-label">
+          <text>特殊标识</text>
+        </view>
+        <view class="switch-item">
+          <text class="switch-label">领导来访</text>
+          <switch 
+            checked="{{isLeaderVisit}}" 
+            bindchange="onLeaderVisitChange"
+            color="#3b82f6"
+          />
+        </view>
+        <view class="switch-hint">如有领导来访，请开启此选项</view>
+      </view>
+
       <!-- 备注 -->
       <view class="form-item">
         <view class="form-label">
