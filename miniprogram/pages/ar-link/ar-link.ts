@@ -114,10 +114,9 @@ Page({
   useDefaultARUrl(hallId: string) {
     // 从云开发环境获取静态网站托管域名
     // 使用静态网站托管实际访问域名
-    // ⚠️ 请根据实际的静态网站托管域名修改此地址
-    // 可以在云开发控制台 -> 静态网站托管 -> 基础配置中查看
-    const cloudHostingUrl = 'https://prison-museum-dev-8e6hujc6eb768b-1390408503.tcloudbaseapp.com';
-    // 修正路径：AR页面位于 ar-pages 文件夹下
+    // 域名获取方式：云开发控制台 -> 静态网站托管 -> 基础配置 -> 默认域名
+    const cloudHostingUrl = 'https://cloud1-6glt083780b46f82-1390050511.tcloudbaseapp.com';
+    // AR页面位于 ar-pages 文件夹下
     const arPageUrl = `${cloudHostingUrl}/ar-pages/marker-ar-simple.html?hallId=${hallId}`;
     
     this.setData({ arUrl: arPageUrl });

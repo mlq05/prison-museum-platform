@@ -22,11 +22,10 @@ exports.main = async (event, context) => {
     // 从云开发环境获取静态网站托管域名
     // 方式1：从环境变量获取（推荐）
     // 在云开发控制台 -> 设置 -> 环境变量中配置 HOSTING_URL
-    const hostingUrl = process.env.HOSTING_URL || 'https://cloud1-0gra3685c3b4cf70.tcb.qcloud.la';
-    
     // 方式2：直接配置（如果环境变量不可用）
     // 已配置为实际云环境ID对应的静态网站托管域名
-    // const hostingUrl = 'https://cloud1-0gra3685c3b4cf70.tcb.qcloud.la';
+    // 域名获取方式：云开发控制台 -> 静态网站托管 -> 基础配置 -> 默认域名
+    const hostingUrl = process.env.HOSTING_URL || 'https://cloud1-6glt083780b46f82-1390050511.tcloudbaseapp.com';
     
     // 构建AR页面URL
     const arPageUrl = `${hostingUrl}/ar-pages/marker-ar-simple.html?hallId=${hallId}`;
