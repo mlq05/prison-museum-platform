@@ -44,6 +44,11 @@
     <view class="timeslot-section card" wx:if="{{selectedDate}}">
       <view class="section-title title-medium">选择参观时段</view>
       <view class="selected-date">预约日期：{{selectedDate}}</view>
+      <!-- 开放日提示 -->
+      <view class="open-day-notice" wx:if="{{openDaysMap[selectedDate]}}">
+        <text class="notice-icon">📅</text>
+        <text class="notice-text">该日期为开放日，无需预约即可直接参观</text>
+      </view>
       <view class="timeslot-list">
         <view 
           class="timeslot-item {{selectedTimeSlot === item.id ? 'selected' : ''}} {{item.available <= 0 ? 'disabled' : ''}} {{item.isWarning ? 'warning' : ''}}"
