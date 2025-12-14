@@ -63,8 +63,7 @@
       
       <!-- AR节点容器 -->
       <xr-node wx:if="{{arReady}}">
-        <!-- AR追踪器（Marker识别） -->
-        <!-- 优先使用自定义 Marker -->
+        <!-- 优先使用自定义 Marker 1 -->
         <xr-ar-tracker 
           mode="Marker" 
           src="custom-marker-1"
