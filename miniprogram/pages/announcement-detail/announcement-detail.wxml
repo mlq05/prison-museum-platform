@@ -7,8 +7,8 @@
     <view class="announcement-header card">
       <view class="announcement-title">{{announcement.title}}</view>
       <view class="announcement-meta">
-        <text class="meta-item">发布时间：{{announcement.publishAt ? (new Date(announcement.publishAt).toLocaleString('zh-CN')) : '-'}}</text>
-        <text class="meta-item" wx:if="{{announcement.expireAt}}">过期时间：{{new Date(announcement.expireAt).toLocaleString('zh-CN')}}</text>
+        <text class="meta-item">发布时间：{{formatDate(announcement.publishAt)}}</text>
+        <text class="meta-item" wx:if="{{announcement.expireAt}}">过期时间：{{formatDate(announcement.expireAt)}}</text>
       </view>
     </view>
 

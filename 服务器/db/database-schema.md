@@ -264,6 +264,32 @@
 
 ---
 
+### 12. announcements（公告集合）
+
+存储管理员发布的公告信息。
+
+**字段说明**：
+- `_id`: 文档ID（自动生成）
+- `title`: 公告标题
+- `summary`: 公告摘要（用于首页滚动显示）
+- `content`: 公告完整内容
+- `status`: 状态（`draft` | `published`）
+  - `draft`: 草稿（不对外显示）
+  - `published`: 已发布（对外显示）
+- `publishAt`: 发布时间（时间戳，仅当 status 为 `published` 时有值）
+- `expireAt`: 过期时间（时间戳，可选，留空表示永不过期）
+- `createdBy`: 创建人ID（管理员ID）
+- `createdAt`: 创建时间（时间戳）
+- `updatedAt`: 更新时间（时间戳）
+
+**索引**：
+- `status`: 索引
+- `publishAt`: 索引（用于排序）
+- `expireAt`: 索引（用于查询未过期公告）
+- `status + publishAt`: 复合索引（用于查询已发布公告）
+
+---
+
 ## 数据初始化
 
 系统启动时会自动初始化：
