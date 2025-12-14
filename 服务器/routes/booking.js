@@ -11,7 +11,7 @@ const moment = require('moment');
 /**
  * 创建预约
  */
-router.post('/create', authenticate, (req, res) => {
+router.post('/create', authenticate, async (req, res) => {
   console.log('收到创建预约请求:', {
     body: req.body,
     user: req.user
