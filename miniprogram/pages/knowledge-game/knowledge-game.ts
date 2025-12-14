@@ -393,7 +393,7 @@ Page({
       const userInfo = await app.getUserInfo();
       if (!userInfo) return;
 
-      const { getCollectionList } = await import('../../utils/api');
+      const { getCollectionList } = require('../../utils/api');
       const res = await getCollectionList();
       if (res.success && res.data) {
         const currentQuestion = this.data.questions[this.data.currentIndex];
@@ -423,7 +423,7 @@ Page({
       }
 
       const currentQuestion = this.data.questions[this.data.currentIndex];
-      const { addCollection, removeCollection, getCollectionList } = await import('../../utils/api');
+      const { addCollection, removeCollection, getCollectionList } = require('../../utils/api');
 
       if (this.data.isCollected) {
         // 取消收藏

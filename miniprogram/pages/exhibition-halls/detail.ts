@@ -353,7 +353,7 @@ Page({
 
     // 记录AR点击统计
     try {
-      const { recordARClick } = await import('../../utils/api');
+      const { recordARClick } = require('../../utils/api');
       await recordARClick(hallId);
     } catch (e) {
       console.error('记录AR点击统计失败:', e);
@@ -398,7 +398,7 @@ Page({
 
       // 获取收藏数统计（不需要登录）
       try {
-        const { getHallCollectionCount } = await import('../../utils/api');
+        const { getHallCollectionCount } = require('../../utils/api');
         const countRes = await getHallCollectionCount(this.data.hallId);
         if (countRes.success && countRes.data !== undefined) {
           this.setData({
@@ -416,7 +416,7 @@ Page({
       }
 
       try {
-        const { getCollectionList } = await import('../../utils/api');
+        const { getCollectionList } = require('../../utils/api');
         const res = await getCollectionList();
         if (res.success && res.data) {
           const isCollected = res.data.some(
@@ -447,7 +447,7 @@ Page({
         return;
       }
 
-      const { addCollection, removeCollection, getCollectionList } = await import('../../utils/api');
+      const { addCollection, removeCollection, getCollectionList } = require('../../utils/api');
       
       if (this.data.isCollected) {
         // 取消收藏 - 需要先获取收藏ID

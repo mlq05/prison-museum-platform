@@ -12,7 +12,7 @@ Page({
   async loadCollections() {
     this.setData({ loading: true });
     try {
-      const { getCollectionList } = await import('../../utils/api');
+      const { getCollectionList } = require('../../utils/api');
       const res = await getCollectionList();
       if (res.success && res.data) {
         this.setData({
@@ -74,7 +74,7 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            const { removeCollection } = await import('../../utils/api');
+            const { removeCollection } = require('../../utils/api');
             const result = await removeCollection(item._id);
             if (result.success) {
               // 从列表中移除
