@@ -1,0 +1,64 @@
+/* announcement-detail.wxss - 公告详情页面样式 */
+
+.announcement-detail-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-bottom: var(--spacing-xl);
+}
+
+.container {
+  padding: var(--spacing-md);
+}
+
+.card {
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.announcement-header {
+  border-bottom: 2rpx solid var(--border-color);
+  padding-bottom: var(--spacing-md);
+}
+
+.announcement-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-md);
+}
+
+.announcement-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.meta-item {
+  font-size: 24rpx;
+  color: var(--text-light);
+}
+
+.announcement-content {
+  min-height: 200rpx;
+}
+
+.content-text {
+  font-size: 32rpx;
+  color: var(--text-primary);
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400rpx;
+  color: var(--text-light);
+  font-size: 28rpx;
+}
+

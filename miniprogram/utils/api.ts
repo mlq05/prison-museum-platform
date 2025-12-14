@@ -1151,6 +1151,79 @@ export const initDefaultOpenDays = (): Promise<ApiResponse<{
   });
 };
 
+/**
+ * 公告管理API
+ */
+export const getAnnouncementsList = (params?: { page?: number; pageSize?: number }): Promise<ApiResponse<{
+  _id: string;
+  title: string;
+  summary: string;
+  content: string;
+  status: 'draft' | 'published';
+  publishAt: number | null;
+  expireAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}[]>> => {
+  return get(API_ENDPOINTS.ANNOUNCEMENTS_LIST, params, { showLoading: false });
+};
+
+export const getAnnouncementDetail = (id: string): Promise<ApiResponse<{
+  _id: string;
+  title: string;
+  summary: string;
+  content: string;
+  status: 'draft' | 'published';
+  publishAt: number | null;
+  expireAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}>> => {
+  return get(`${API_ENDPOINTS.ANNOUNCEMENTS_DETAIL}/${id}`, undefined, { showLoading: true });
+};
+
+export const getAdminAnnouncementsList = (params?: { page?: number; pageSize?: number; status?: string }): Promise<ApiResponse<{
+  _id: string;
+  title: string;
+  summary: string;
+  content: string;
+  status: 'draft' | 'published';
+  publishAt: number | null;
+  expireAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}[]>> => {
+  return get(API_ENDPOINTS.ANNOUNCEMENTS_ADMIN_LIST, params, { showLoading: false });
+};
+
+export const createAnnouncement = (data: {
+  title: string;
+  content: string;
+  summary?: string;
+  status?: 'draft' | 'published';
+  expireAt?: string | null;
+}): Promise<ApiResponse<{ _id: string }>> => {
+  return post(API_ENDPOINTS.ANNOUNCEMENTS_CREATE, data, { loadingText: '创建中...' });
+};
+
+export const updateAnnouncement = (id: string, data: {
+  title?: string;
+  content?: string;
+  summary?: string;
+  status?: 'draft' | 'published';
+  expireAt?: string | null;
+}): Promise<ApiResponse<void>> => {
+  return put(`${API_ENDPOINTS.ANNOUNCEMENTS_UPDATE}/${id}`, data, { loadingText: '更新中...' });
+};
+
+export const deleteAnnouncement = (id: string): Promise<ApiResponse<void>> => {
+  return del(`${API_ENDPOINTS.ANNOUNCEMENTS_DELETE}/${id}`, undefined, { loadingText: '删除中...' });
+};
+
+export const publishAnnouncement = (id: string, status: 'published' | 'draft'): Promise<ApiResponse<void>> => {
+  return post(`${API_ENDPOINTS.ANNOUNCEMENTS_PUBLISH}/${id}`, { status }, { loadingText: status === 'published' ? '发布中...' : '取消发布中...' });
+};
+
 // 导出API端点常量供使用
 export { API_ENDPOINTS };
 

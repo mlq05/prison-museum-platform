@@ -19,6 +19,20 @@
     </swiper-item>
   </swiper>
 
+  <!-- 公告滚动 -->
+  <view class="announcements-scroll card" wx:if="{{announcements.length > 0}}">
+    <view class="announcements-header">
+      <text class="announcements-icon">📢</text>
+      <text class="announcements-title">公告</text>
+    </view>
+    <scroll-view class="announcements-content" scroll-x="{{true}}" show-scrollbar="{{false}}">
+      <view class="announcement-item" wx:for="{{announcements}}" wx:key="_id" data-id="{{item._id}}" bindtap="onAnnouncementTap">
+        <text class="announcement-text">{{item.title}}</text>
+        <text class="announcement-arrow">></text>
+      </view>
+    </scroll-view>
+  </view>
+
   <!-- 快速入口 -->
   <view class="quick-actions">
     <view class="action-item" wx:for="{{quickActions}}" wx:key="id" data-path="{{item.path}}" bindtap="onQuickActionTap">

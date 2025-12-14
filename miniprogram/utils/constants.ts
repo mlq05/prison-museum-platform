@@ -139,6 +139,15 @@ export const API_ENDPOINTS = {
   OPEN_DAYS_ADD: '/open-days/add',
   OPEN_DAYS_REMOVE: '/open-days/remove',
   OPEN_DAYS_INIT_DEFAULT: '/open-days/init-default',
+  
+  // 公告管理
+  ANNOUNCEMENTS_LIST: '/announcements/list',
+  ANNOUNCEMENTS_DETAIL: '/announcements/detail',
+  ANNOUNCEMENTS_ADMIN_LIST: '/announcements/admin/list',
+  ANNOUNCEMENTS_CREATE: '/announcements/create',
+  ANNOUNCEMENTS_UPDATE: '/announcements/update',
+  ANNOUNCEMENTS_DELETE: '/announcements/delete',
+  ANNOUNCEMENTS_PUBLISH: '/announcements/publish',
 } as const;
 
 // 错误码

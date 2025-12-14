@@ -1,0 +1,26 @@
+<!--announcement-detail.wxml - 公告详情页面-->
+<view class="announcement-detail-page">
+  <navigation-bar title="公告详情" />
+
+  <view class="container" wx:if="{{!loading && announcement}}">
+    <!-- 公告标题 -->
+    <view class="announcement-header card">
+      <view class="announcement-title">{{announcement.title}}</view>
+      <view class="announcement-meta">
+        <text class="meta-item">发布时间：{{announcement.publishAt ? (new Date(announcement.publishAt).toLocaleString('zh-CN')) : '-'}}</text>
+        <text class="meta-item" wx:if="{{announcement.expireAt}}">过期时间：{{new Date(announcement.expireAt).toLocaleString('zh-CN')}}</text>
+      </view>
+    </view>
+
+    <!-- 公告内容 -->
+    <view class="announcement-content card">
+      <view class="content-text">{{announcement.content}}</view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>
+

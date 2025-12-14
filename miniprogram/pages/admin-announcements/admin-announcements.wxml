@@ -1,0 +1,160 @@
+<!--admin-announcements.wxml - 公告管理页面-->
+<view class="admin-announcements-page">
+  <navigation-bar title="公告管理" />
+
+  <view class="container">
+    <!-- 操作按钮 -->
+    <view class="actions">
+      <button class="btn btn-primary" bindtap="showAddModal">发布公告</button>
+    </view>
+
+    <!-- 状态筛选 -->
+    <view class="filter-tabs">
+      <view 
+        class="filter-tab {{statusFilter === 'all' ? 'active' : ''}}"
+        data-status="all"
+        bindtap="onStatusFilterChange"
+      >
+        全部
+      </view>
+      <view 
+        class="filter-tab {{statusFilter === 'published' ? 'active' : ''}}"
+        data-status="published"
+        bindtap="onStatusFilterChange"
+      >
+        已发布
+      </view>
+      <view 
+        class="filter-tab {{statusFilter === 'draft' ? 'active' : ''}}"
+        data-status="draft"
+        bindtap="onStatusFilterChange"
+      >
+        草稿
+      </view>
+    </view>
+
+    <!-- 公告列表 -->
+    <view class="announcements-list">
+      <view class="list-header">
+        <text class="header-title">公告列表</text>
+      </view>
+
+      <view class="list-content" wx:if="{{!loading && announcements.length > 0}}">
+        <view class="announcement-item" wx:for="{{announcements}}" wx:key="_id">
+          <view class="item-content">
+            <view class="item-header">
+              <text class="item-title">{{item.title}}</text>
+              <view class="item-status">
+                <text class="status-badge {{item.status === 'published' ? 'published' : 'draft'}}">
+                  {{item.status === 'published' ? '已发布' : '草稿'}}
+                </text>
+              </view>
+            </view>
+            <view class="item-summary">{{item.summary || item.content.substring(0, 50) + '...'}}</view>
+            <view class="item-meta">
+              <text class="meta-text">创建时间：{{formatDate(item.createdAt)}}</text>
+              <text class="meta-text" wx:if="{{item.publishAt}}">发布时间：{{formatDate(item.publishAt)}}</text>
+              <text class="meta-text" wx:if="{{item.expireAt}}">过期时间：{{formatDate(item.expireAt)}}</text>
+            </view>
+          </view>
+          <view class="item-actions">
+            <button class="btn-action" data-id="{{item._id}}" data-status="{{item.status}}" bindtap="onTogglePublish">
+              {{item.status === 'published' ? '取消发布' : '发布'}}
+            </button>
+            <button class="btn-action" data-id="{{item._id}}" bindtap="showEditModal" data-announcement="{{item}}">编辑</button>
+            <button class="btn-action danger" data-id="{{item._id}}" bindtap="onDelete">删除</button>
+          </view>
+        </view>
+      </view>
+
+      <view class="empty-state" wx:if="{{!loading && announcements.length === 0}}">
+        <text class="empty-text">暂无公告</text>
+        <text class="empty-hint">点击"发布公告"开始创建</text>
+      </view>
+
+      <view class="loading-state" wx:if="{{loading}}">
+        <text>加载中...</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加/编辑弹窗 -->
+  <view class="modal" wx:if="{{showAddModal || showEditModal}}" bindtap="hideAddModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{showAddModal ? '发布公告' : '编辑公告'}}</text>
+        <text class="modal-close" bindtap="{{showAddModal ? 'hideAddModal' : 'hideEditModal'}}">×</text>
+      </view>
+
+      <view class="modal-body">
+        <!-- 标题 -->
+        <view class="form-item">
+          <text class="form-label">标题 *</text>
+          <input
+            class="form-input"
+            placeholder="请输入公告标题"
+            value="{{form.title}}"
+            bindinput="onTitleInput"
+            maxlength="100"
+          />
+        </view>
+
+        <!-- 摘要 -->
+        <view class="form-item">
+          <text class="form-label">摘要</text>
+          <textarea
+            class="form-textarea"
+            placeholder="请输入摘要（可选，不填将自动截取内容前100字符）"
+            value="{{form.summary}}"
+            bindinput="onSummaryInput"
+            maxlength="200"
+          />
+        </view>
+
+        <!-- 内容 -->
+        <view class="form-item">
+          <text class="form-label">内容 *</text>
+          <textarea
+            class="form-textarea large"
+            placeholder="请输入公告内容"
+            value="{{form.content}}"
+            bindinput="onContentInput"
+            maxlength="5000"
+          />
+        </view>
+
+        <!-- 状态 -->
+        <view class="form-item">
+          <text class="form-label">状态</text>
+          <radio-group class="radio-group">
+            <label class="radio-item">
+              <radio value="draft" checked="{{form.status === 'draft'}}" data-status="draft" bindtap="onStatusChange" />
+              草稿
+            </label>
+            <label class="radio-item">
+              <radio value="published" checked="{{form.status === 'published'}}" data-status="published" bindtap="onStatusChange" />
+              立即发布
+            </label>
+          </radio-group>
+        </view>
+
+        <!-- 过期日期 -->
+        <view class="form-item">
+          <text class="form-label">过期日期（可选）</text>
+          <picker mode="date" value="{{form.expireAt}}" bindchange="onExpireDateChange">
+            <view class="picker-view">
+              <text>{{form.expireAt || '请选择过期日期（留空表示永不过期）'}}</text>
+              <text class="picker-arrow">></text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="btn btn-secondary" bindtap="{{showAddModal ? 'hideAddModal' : 'hideEditModal'}}">取消</button>
+        <button class="btn btn-primary" bindtap="{{showAddModal ? 'onSubmitAdd' : 'onSubmitEdit'}}">确定</button>
+      </view>
+    </view>
+  </view>
+</view>
+

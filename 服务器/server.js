@@ -22,6 +22,7 @@ const gameRoutes = require('./routes/game');
 const certificateRoutes = require('./routes/certificate');
 const feedbackRoutes = require('./routes/feedback');
 const openDaysRoutes = require('./routes/open-days');
+const announcementsRoutes = require('./routes/announcements');
 
 // 导入中间件
 const errorHandler = require('./middleware/errorHandler');
@@ -85,6 +86,7 @@ app.use('/api/game', gameRoutes);
 app.use('/api/certificate', certificateRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/open-days', openDaysRoutes);
+app.use('/api/announcements', announcementsRoutes);
 
 // 404处理
 app.use((req, res) => {

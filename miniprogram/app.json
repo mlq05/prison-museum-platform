@@ -28,6 +28,8 @@
     "pages/admin-annual-report/admin-annual-report",
     "pages/admin-halls/admin-halls",
     "pages/admin-open-days/admin-open-days",
+    "pages/admin-announcements/admin-announcements",
+    "pages/announcement-detail/announcement-detail",
     "pages/interactive-wall/interactive-wall",
     "pages/feedback/feedback"
   ],

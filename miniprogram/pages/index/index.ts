@@ -74,6 +74,18 @@ Page({
         '智能化预约管理系统',
       ],
     },
+    // 公告列表
+    announcements: [] as Array<{
+      _id: string;
+      title: string;
+      summary: string;
+      content: string;
+      status: 'draft' | 'published';
+      publishAt: number | null;
+      expireAt: number | null;
+      createdAt: number;
+      updatedAt: number;
+    }>,
     // 热门展区（前6个）
     hotHalls: [
       {
@@ -250,6 +262,7 @@ Page({
         this.loadHotHalls(),
         this.loadFeaturedFeedbacks(),
         this.loadStatistics(),
+        this.loadAnnouncements(),
       ]);
     } catch (e) {
       console.error('初始化失败', e);
@@ -327,6 +340,36 @@ Page({
       },
     ];
     this.setData({ featuredFeedbacks });
+  },
+
+  /**
+   * 加载公告列表
+   */
+  async loadAnnouncements() {
+    try {
+      const { getAnnouncementsList } = require('../../utils/api');
+      const res = await getAnnouncementsList({ page: 1, pageSize: 5 });
+      if (res.success && res.data) {
+        this.setData({
+          announcements: res.data,
+        });
+      }
+    } catch (e) {
+      console.error('加载公告失败:', e);
+      // 静默失败，不影响其他功能
+    }
+  },
+
+  /**
+   * 点击公告
+   */
+  onAnnouncementTap(e: WechatMiniprogram.TouchEvent) {
+    const { id } = e.currentTarget.dataset;
+    if (id) {
+      wx.navigateTo({
+        url: `/pages/announcement-detail/announcement-detail?id=${id}`,
+      });
+    }
   },
 
   /**

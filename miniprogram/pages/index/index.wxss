@@ -131,6 +131,59 @@
   opacity: 0.9;
 }
 
+/* 公告滚动 */
+.announcements-scroll {
+  margin: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+}
+
+.announcements-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.announcements-icon {
+  font-size: 32rpx;
+  margin-right: var(--spacing-xs);
+}
+
+.announcements-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.announcements-content {
+  white-space: nowrap;
+  height: 60rpx;
+}
+
+.announcement-item {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-right: var(--spacing-md);
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  font-size: 26rpx;
+}
+
+.announcement-text {
+  max-width: 500rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.announcement-arrow {
+  margin-left: var(--spacing-xs);
+  font-size: 24rpx;
+}
+
 /* 快速入口 */
 .quick-actions {
   display: flex;
