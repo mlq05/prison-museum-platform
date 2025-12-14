@@ -1078,6 +1078,79 @@ export const getPublicFeedbackList = (params?: {
   });
 };
 
+/**
+ * 开放日设置相关API
+ */
+
+/**
+ * 获取所有开放日设置
+ */
+export const getOpenDaysList = (): Promise<ApiResponse<Array<{
+  _id: string;
+  type: 'weekday' | 'date';
+  weekday?: number;
+  date?: string;
+  description?: string;
+  createdAt: number;
+  updatedAt: number;
+}>>> => {
+  return get(API_ENDPOINTS.OPEN_DAYS_LIST, undefined, {
+    showLoading: false,
+  });
+};
+
+/**
+ * 检查指定日期是否是开放日
+ */
+export const checkOpenDay = (date: string): Promise<ApiResponse<{
+  date: string;
+  isOpenDay: boolean;
+}>> => {
+  return get(API_ENDPOINTS.OPEN_DAYS_CHECK, { date }, {
+    showLoading: false,
+  });
+};
+
+/**
+ * 添加开放日
+ */
+export const addOpenDay = (data: {
+  date?: string;
+  type: 'weekday' | 'date';
+  weekday?: number;
+  description?: string;
+}): Promise<ApiResponse<{
+  _id: string;
+  type: 'weekday' | 'date';
+  weekday?: number;
+  date?: string;
+  description?: string;
+}>> => {
+  return post(API_ENDPOINTS.OPEN_DAYS_ADD, data, {
+    loadingText: '添加中...',
+  });
+};
+
+/**
+ * 删除开放日
+ */
+export const removeOpenDay = (id: string): Promise<ApiResponse<void>> => {
+  return get(API_ENDPOINTS.OPEN_DAYS_REMOVE, { id }, {
+    loadingText: '删除中...',
+  });
+};
+
+/**
+ * 初始化默认开放日（每周五、六）
+ */
+export const initDefaultOpenDays = (): Promise<ApiResponse<{
+  added: Array<{ weekday: number; id: string }>;
+}>> => {
+  return post(API_ENDPOINTS.OPEN_DAYS_INIT_DEFAULT, {}, {
+    loadingText: '初始化中...',
+  });
+};
+
 // 导出API端点常量供使用
 export { API_ENDPOINTS };
 

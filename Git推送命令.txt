@@ -1,0 +1,20 @@
+# Git Bash 推送代码命令
+
+# 1. 检查当前状态
+git status
+
+# 2. 检查是否有未提交的更改
+# 如果有未跟踪的文件，可以选择添加或忽略
+# 当前 Dockerfile 和 .dockerignore 等文件未跟踪，但可以先推送已提交的内容
+
+# 3. 推送到 GitHub
+git push origin main
+
+# 如果推送被阻止（敏感信息），需要：
+# 1. 在 GitHub 网页上允许推送（选择 "I'll fix it later"）
+# 2. 然后再执行推送命令
+
+# 如果提示需要认证，可能需要：
+# git config --global credential.helper store
+# 或者使用 GitHub Personal Access Token
+

@@ -1,0 +1,16 @@
+# 清理 Git REBASE 状态
+
+# 当前状态：代码已推送成功，但还处于 REBASE 状态
+
+# 1. 取消 REBASE（因为代码已经推送成功了）
+git rebase --abort
+
+# 2. 检查状态，应该回到正常的 main 分支
+git status
+
+# 3. 确认远程同步（可选）
+git fetch origin
+
+# 4. 确认本地和远程同步
+git status
+

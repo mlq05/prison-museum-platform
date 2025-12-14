@@ -50,6 +50,21 @@ router.post('/create', authenticate, (req, res) => {
     });
   }
 
+  // 检查是否是开放日（开放日不允许预约）
+  try {
+    const { checkIfOpenDay } = require('./open-days');
+    const isOpenDay = await checkIfOpenDay(bookingDate);
+    if (isOpenDay) {
+      return res.status(400).json({
+        success: false,
+        message: '该日期为开放日，无需预约，可直接参观'
+      });
+    }
+  } catch (e) {
+    // 开放日检查失败不影响预约流程，继续执行
+    console.log('检查开放日失败，继续预约流程:', e.message);
+  }
+
   // 验证人数（单次预约人数上限）
   const visitorCountNum = parseInt(visitorCount);
   if (isNaN(visitorCountNum) || visitorCountNum < 1) {

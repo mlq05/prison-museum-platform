@@ -121,5 +121,18 @@ Page({
       url: '/pages/admin-halls/admin-halls',
     });
   },
+
+  onOpenDaysManage() {
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '请先登录管理员账号',
+        icon: 'none',
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/admin-open-days/admin-open-days',
+    });
+  },
 });
 

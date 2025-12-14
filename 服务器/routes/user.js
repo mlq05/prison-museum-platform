@@ -574,32 +574,47 @@ router.get('/statistics', require('../middleware/auth').authenticate, async (req
       bookingCount = list?.length || 0;
     } catch (e) {
       console.error('查询预约数量失败:', e);
+      bookingCount = 0;
     }
 
     // 2. 查询收藏数量
     let collectionCount = 0;
     try {
       if (cloudDb) {
-        const collectionsResult = await cloudDb.collection('collections')
-          .where({ userId: userId })
-          .count();
-        collectionCount = collectionsResult.total || 0;
+        try {
+          const collectionsResult = await cloudDb.collection('collections')
+            .where({ userId: userId })
+            .count();
+          collectionCount = collectionsResult.total || 0;
+        } catch (e) {
+          // 集合可能不存在，使用默认值0
+          console.log('collections集合查询失败（可能不存在）:', e.message);
+          collectionCount = 0;
+        }
       }
     } catch (e) {
       console.error('查询收藏数量失败:', e);
+      collectionCount = 0;
     }
 
     // 3. 查询证书数量
     let certificateCount = 0;
     try {
       if (cloudDb) {
-        const certificatesResult = await cloudDb.collection('certificates')
-          .where({ userId: userId })
-          .count();
-        certificateCount = certificatesResult.total || 0;
+        try {
+          const certificatesResult = await cloudDb.collection('certificates')
+            .where({ userId: userId })
+            .count();
+          certificateCount = certificatesResult.total || 0;
+        } catch (e) {
+          // 集合可能不存在，使用默认值0
+          console.log('certificates集合查询失败（可能不存在）:', e.message);
+          certificateCount = 0;
+        }
       }
     } catch (e) {
       console.error('查询证书数量失败:', e);
+      certificateCount = 0;
     }
 
     res.json({

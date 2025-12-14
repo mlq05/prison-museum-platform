@@ -27,6 +27,7 @@
     "pages/admin-statistics/admin-statistics",
     "pages/admin-annual-report/admin-annual-report",
     "pages/admin-halls/admin-halls",
+    "pages/admin-open-days/admin-open-days",
     "pages/interactive-wall/interactive-wall",
     "pages/feedback/feedback"
   ],

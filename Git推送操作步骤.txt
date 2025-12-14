@@ -1,0 +1,103 @@
+========================================
+Git Bash 推送命令 - 年度报告功能
+========================================
+
+当前工作目录：D:\test4
+
+========================================
+操作步骤（在 Git Bash 中执行）
+========================================
+
+1. 打开 Git Bash
+   - 在 D:\test4 文件夹右键点击 "Git Bash Here"
+   - 或者在 Git Bash 中执行：cd /d/test4
+
+2. 检查当前状态
+   cd /d/test4
+   git status
+
+3. 添加修改的文件
+   git add 服务器/routes/admin.js
+   git add 服务器/routes/booking.js
+   git add miniprogram/pages/booking-form/
+   git add miniprogram/pages/admin/
+   git add miniprogram/pages/admin-annual-report/
+   git add miniprogram/utils/api.ts
+   git add miniprogram/utils/types.ts
+   git add miniprogram/utils/constants.ts
+   git add miniprogram/app.json
+
+4. 提交更改
+   git commit -m "feat: 添加年度报告功能和领导来访标识
+
+- 修复统计界面角色分布数据同步问题
+- 在预约表单中添加领导来访开关按钮
+- 新增年度报告功能（高频词统计、来访人数、领导来访统计）
+- 创建年度报告页面和API接口
+- 更新类型定义和API封装"
+
+5. 推送到 GitHub
+   git push origin main
+
+========================================
+一键执行命令（复制粘贴到 Git Bash）
+========================================
+
+cd /d/test4 && \
+git add 服务器/routes/admin.js 服务器/routes/booking.js miniprogram/pages/booking-form/ miniprogram/pages/admin/ miniprogram/pages/admin-annual-report/ miniprogram/utils/api.ts miniprogram/utils/types.ts miniprogram/utils/constants.ts miniprogram/app.json && \
+git commit -m "feat: 添加年度报告功能和领导来访标识
+
+- 修复统计界面角色分布数据同步问题
+- 在预约表单中添加领导来访开关按钮
+- 新增年度报告功能（高频词统计、来访人数、领导来访统计）
+- 创建年度报告页面和API接口
+- 更新类型定义和API封装" && \
+git push origin main
+
+========================================
+使用脚本文件（推荐）
+========================================
+
+1. 在 Git Bash 中执行：
+   chmod +x Git推送-年度报告功能.sh
+   ./Git推送-年度报告功能.sh
+
+2. 或者直接双击运行（如果已关联 Git Bash）：
+   Git推送-年度报告功能.sh
+
+========================================
+如果遇到问题
+========================================
+
+问题1：需要身份验证
+   执行：git config --global credential.helper store
+   然后重新推送，输入 GitHub 用户名和 Personal Access Token
+
+问题2：有未提交的更改
+   查看：git status
+   决定：是否先提交或暂存其他更改
+
+问题3：远程有更新
+   先拉取：git pull origin main
+   解决冲突后：git push origin main
+
+问题4：敏感信息被阻止
+   访问 GitHub 仓库的 Security 页面
+   允许被阻止的 secret 后重新推送
+
+========================================
+推送成功后的操作
+========================================
+
+1. 登录腾讯云 CloudBase 控制台
+   https://tcb.cloud.tencent.com
+
+2. 进入云托管服务 museum-api
+
+3. 点击"更新服务"或"部署新版本"
+
+4. 选择从 Git 仓库部署（如果已连接）
+   或手动上传服务器目录代码
+
+========================================
+

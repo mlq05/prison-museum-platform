@@ -36,6 +36,7 @@
         <button class="secondary-btn" bindtap="onStatistics">数据统计</button>
         <button class="secondary-btn" bindtap="onAnnualReport">年度报告</button>
         <button class="secondary-btn" bindtap="onHallManage">展区管理</button>
+        <button class="secondary-btn" bindtap="onOpenDaysManage">开放日设置</button>
       </view>
     </block>
   </view>

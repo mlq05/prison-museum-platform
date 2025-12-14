@@ -14,6 +14,11 @@
         <text class="summary-label">参观时段：</text>
         <text class="summary-value">{{timeSlotLabel}}</text>
       </view>
+      <!-- 开放日提示 -->
+      <view class="open-day-notice" wx:if="{{isOpenDay}}">
+        <text class="notice-icon">📅</text>
+        <text class="notice-text">该日期为开放日，无需预约即可直接参观</text>
+      </view>
     </view>
 
     <!-- 基本信息 -->

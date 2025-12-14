@@ -5,7 +5,7 @@
 import { validatePhone } from '../../utils/common';
 import { UserRole } from '../../utils/types';
 import { BOOKING_CONFIG } from '../../utils/constants';
-import { createBooking, getVisitSettings } from '../../utils/api';
+import { createBooking, getVisitSettings, checkOpenDay } from '../../utils/api';
 
 Page({
   data: {
@@ -29,6 +29,8 @@ Page({
     remark: '',
     // 领导来访标识
     isLeaderVisit: false,
+    // 是否是开放日
+    isOpenDay: false,
     // 表单验证
     errors: {} as Record<string, string>,
   },
@@ -56,6 +58,11 @@ Page({
 
     this.loadUserInfo();
     this.loadVisitSettings();
+    
+    // 如果已有日期，检查是否是开放日
+    if (options.date) {
+      this.checkOpenDayStatus(options.date);
+    }
   },
 
   /**
@@ -307,6 +314,29 @@ Page({
    * 提交预约
    */
   async onSubmit() {
+    // 检查是否是开放日
+    if (this.data.isOpenDay) {
+      wx.showModal({
+        title: '开放日提示',
+        content: '该日期为开放日，无需预约即可直接参观。确定要继续提交预约吗？',
+        success: (res) => {
+          if (res.confirm) {
+            // 用户确认继续预约，执行后续流程
+            this.doSubmit();
+          }
+        },
+      });
+      return;
+    }
+    
+    // 执行提交
+    this.doSubmit();
+  },
+
+  /**
+   * 执行提交预约
+   */
+  async doSubmit() {
     // 表单验证
     if (!this.validateForm()) {
       wx.showToast({

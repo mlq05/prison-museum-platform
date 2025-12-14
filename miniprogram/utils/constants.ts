@@ -132,6 +132,13 @@ export const API_ENDPOINTS = {
   ADMIN_BOOKING_REVIEW: '/admin/booking/review',
   ADMIN_HALL_MANAGE: '/admin/hall/manage',
   ADMIN_VISIT_SETTINGS: '/admin/visit/settings',
+  
+  // 开放日设置
+  OPEN_DAYS_LIST: '/open-days/list',
+  OPEN_DAYS_CHECK: '/open-days/check',
+  OPEN_DAYS_ADD: '/open-days/add',
+  OPEN_DAYS_REMOVE: '/open-days/remove',
+  OPEN_DAYS_INIT_DEFAULT: '/open-days/init-default',
 } as const;
 
 // 错误码

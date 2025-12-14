@@ -44,6 +44,29 @@
   font-weight: 600;
 }
 
+/* 开放日提示 */
+.open-day-notice {
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 4rpx solid #3b82f6;
+  border-radius: var(--radius-sm);
+}
+
+.notice-icon {
+  font-size: 32rpx;
+  margin-right: var(--spacing-sm);
+}
+
+.notice-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #3b82f6;
+  line-height: 1.5;
+}
+
 /* 表单区域 */
 .form-section {
   margin: var(--spacing-md);
