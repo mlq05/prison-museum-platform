@@ -81,6 +81,7 @@ export const API_ENDPOINTS = {
   USER_CHECK_USERNAME: '/user/check-username',
   USER_INFO: '/user/info',
   USER_UPDATE: '/user/update',
+  USER_STATISTICS: '/user/statistics',
 
   // 管理员账号
   ADMIN_LOGIN: '/admin/login',

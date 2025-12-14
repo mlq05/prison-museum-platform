@@ -548,5 +548,81 @@ router.post('/update', require('../middleware/auth').authenticate, (req, res) =>
   );
 });
 
+/**
+ * 获取用户统计数据（预约数、收藏数、证书数）
+ */
+router.get('/statistics', require('../middleware/auth').authenticate, async (req, res) => {
+  try {
+    const userId = req.user?.openId || req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: '未登录'
+      });
+    }
+
+    // 使用云数据库API查询统计数据
+    const { cloudDb } = require('../db/database');
+    
+    // 1. 查询预约数量
+    let bookingCount = 0;
+    try {
+      const { list } = await collections.bookings.listByUser(userId, {
+        page: 1,
+        pageSize: 10000, // 获取所有预约用于统计
+      });
+      bookingCount = list?.length || 0;
+    } catch (e) {
+      console.error('查询预约数量失败:', e);
+    }
+
+    // 2. 查询收藏数量
+    let collectionCount = 0;
+    try {
+      if (cloudDb) {
+        const collectionsResult = await cloudDb.collection('collections')
+          .where({ userId: userId })
+          .count();
+        collectionCount = collectionsResult.total || 0;
+      }
+    } catch (e) {
+      console.error('查询收藏数量失败:', e);
+    }
+
+    // 3. 查询证书数量
+    let certificateCount = 0;
+    try {
+      if (cloudDb) {
+        const certificatesResult = await cloudDb.collection('certificates')
+          .where({ userId: userId })
+          .count();
+        certificateCount = certificatesResult.total || 0;
+      }
+    } catch (e) {
+      console.error('查询证书数量失败:', e);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        bookingCount,
+        collectionCount,
+        certificateCount,
+      }
+    });
+  } catch (error) {
+    console.error('查询用户统计数据失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败，请稍后重试',
+      data: {
+        bookingCount: 0,
+        collectionCount: 0,
+        certificateCount: 0,
+      }
+    });
+  }
+});
+
 module.exports = router;
 

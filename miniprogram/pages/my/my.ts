@@ -89,42 +89,60 @@ Page({
     if (!this.data.isLoggedIn) return;
 
     // 加载统计数据
-    await Promise.all([
-      this.loadBookingCount(),
-      this.loadCollectionCount(),
-      this.loadCertificateCount(),
-    ]);
+    await this.loadStatistics();
   },
 
   /**
-   * 加载预约数量
+   * 加载统计数据
+   */
+  async loadStatistics() {
+    try {
+      const { getUserStatistics } = require('../../utils/api');
+      const res = await getUserStatistics();
+      if (res.success && res.data) {
+        this.setData({
+          'statistics.bookingCount': res.data.bookingCount || 0,
+          'statistics.collectionCount': res.data.collectionCount || 0,
+          'statistics.certificateCount': res.data.certificateCount || 0,
+        });
+      } else {
+        // API失败时使用默认值
+        this.setData({
+          'statistics.bookingCount': 0,
+          'statistics.collectionCount': 0,
+          'statistics.certificateCount': 0,
+        });
+      }
+    } catch (e) {
+      console.error('加载统计数据失败:', e);
+      // 错误时使用默认值
+      this.setData({
+        'statistics.bookingCount': 0,
+        'statistics.collectionCount': 0,
+        'statistics.certificateCount': 0,
+      });
+    }
+  },
+
+  /**
+   * 加载预约数量（已废弃，使用loadStatistics）
    */
   async loadBookingCount() {
-    // TODO: 调用API
-    this.setData({
-      'statistics.bookingCount': 3,
-      'menuItems[0].badge': 1, // 待审核的预约数量
-    });
+    // 已合并到loadStatistics
   },
 
   /**
-   * 加载收藏数量
+   * 加载收藏数量（已废弃，使用loadStatistics）
    */
   async loadCollectionCount() {
-    // TODO: 调用API
-    this.setData({
-      'statistics.collectionCount': 5,
-    });
+    // 已合并到loadStatistics
   },
 
   /**
-   * 加载证书数量
+   * 加载证书数量（已废弃，使用loadStatistics）
    */
   async loadCertificateCount() {
-    // TODO: 调用API
-    this.setData({
-      'statistics.certificateCount': 2,
-    });
+    // 已合并到loadStatistics
   },
 
   /**

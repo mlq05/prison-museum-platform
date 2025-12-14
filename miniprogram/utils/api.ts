@@ -689,6 +689,19 @@ export const checkUsername = (username: string): Promise<ApiResponse<{ available
 };
 
 /**
+ * 获取用户统计数据（预约数、收藏数、证书数）
+ */
+export const getUserStatistics = (): Promise<ApiResponse<{
+  bookingCount: number;
+  collectionCount: number;
+  certificateCount: number;
+}>> => {
+  return get(API_ENDPOINTS.USER_STATISTICS, undefined, {
+    showLoading: false,
+  });
+};
+
+/**
  * 管理员相关API
  */
 
