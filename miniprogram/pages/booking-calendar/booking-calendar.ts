@@ -5,7 +5,7 @@
 import { formatDate, getDateRange } from '../../utils/common';
 import { TIME_SLOTS, BOOKING_CONFIG } from '../../utils/constants';
 import { getWeekday, getDateDay } from '../../utils/date';
-import { getBookingCalendar } from '../../utils/api';
+import { getBookingCalendar, checkOpenDay } from '../../utils/api';
 import { DateBookingInfo } from '../../utils/types';
 
 Page({
@@ -29,6 +29,8 @@ Page({
     getDateDay: getDateDay,
     // 日期列表加载状态
     datesLoading: true,
+    // 开放日状态映射
+    openDaysMap: {} as Record<string, boolean>,
   },
 
   onLoad() {
@@ -192,10 +194,15 @@ Page({
         console.warn('网络请求失败，使用默认数据', networkError);
         // 不显示错误提示，不影响用户体验
       }
+
+      // 加载开放日状态
+      this.loadOpenDaysStatus();
     } catch (e) {
       console.warn('加载预约数据异常，使用默认数据', e);
       // 使用默认数据
       this.initDefaultDates();
+      // 加载开放日状态
+      this.loadOpenDaysStatus();
     }
   },
 
@@ -230,15 +237,64 @@ Page({
   },
 
   /**
+   * 加载开放日状态
+   */
+  async loadOpenDaysStatus() {
+    if (!this.data.dates || this.data.dates.length === 0) {
+      return;
+    }
+
+    const openDaysMap: Record<string, boolean> = {};
+    
+    // 并行检查所有日期的开放日状态
+    const checkPromises = this.data.dates.map(async (date) => {
+      try {
+        const res = await checkOpenDay(date);
+        if (res.success && res.data) {
+          openDaysMap[date] = res.data.isOpenDay;
+        }
+      } catch (e) {
+        // 检查失败，默认为非开放日
+        openDaysMap[date] = false;
+      }
+    });
+
+    await Promise.all(checkPromises);
+    this.setData({ openDaysMap });
+  },
+
+  /**
    * 选择日期
    */
-  onDateSelect(e: WechatMiniprogram.TouchEvent) {
+  async onDateSelect(e: WechatMiniprogram.TouchEvent) {
     const { date } = e.currentTarget.dataset;
     if (!date) {
       console.error('日期数据为空');
       return;
     }
     console.log('选择日期:', date);
+    
+    // 检查是否是开放日
+    const isOpenDay = this.data.openDaysMap[date];
+    if (isOpenDay) {
+      wx.showModal({
+        title: '开放日提示',
+        content: '该日期为开放日，无需预约即可直接参观。确定要继续选择吗？',
+        success: (res) => {
+          if (!res.confirm) {
+            return;
+          }
+          // 用户确认继续，执行选择
+          this.setData({ 
+            selectedDate: date, 
+            selectedTimeSlot: '' 
+          });
+          this.loadTimeSlotsForDate(date);
+        },
+      });
+      return;
+    }
+    
     this.setData({ 
       selectedDate: date, 
       selectedTimeSlot: '' 
@@ -306,6 +362,25 @@ Page({
       wx.showToast({
         title: '请选择时段',
         icon: 'none',
+      });
+      return;
+    }
+
+    // 检查是否是开放日
+    const isOpenDay = this.data.openDaysMap[this.data.selectedDate];
+    if (isOpenDay) {
+      wx.showModal({
+        title: '开放日提示',
+        content: '该日期为开放日，无需预约即可直接参观。确定要继续填写预约信息吗？',
+        success: (res) => {
+          if (!res.confirm) {
+            return;
+          }
+          // 用户确认继续，跳转到预约表单页
+          wx.navigateTo({
+            url: `/pages/booking-form/booking-form?date=${this.data.selectedDate}&timeSlot=${this.data.selectedTimeSlot}`,
+          });
+        },
       });
       return;
     }

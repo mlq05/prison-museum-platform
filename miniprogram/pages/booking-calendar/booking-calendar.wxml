@@ -20,7 +20,12 @@
           >
             <view class="date-day">{{getDateDay(item)}}</view>
             <view class="date-weekday">{{getWeekday(item)}}</view>
-            <view class="date-status" wx:if="{{dateBookingMap[item]}}">
+            <!-- 开放日标识 -->
+            <view class="date-status" wx:if="{{openDaysMap[item]}}">
+              <text class="status-dot open-day">开放日</text>
+            </view>
+            <!-- 普通预约状态 -->
+            <view class="date-status" wx:elif="{{dateBookingMap[item]}}">
               <text class="status-dot" wx:if="{{dateBookingMap[item].isFull}}">满</text>
               <text class="status-dot available" wx:else>可约</text>
             </view>

@@ -7,7 +7,39 @@ const router = express.Router();
 const { cloudDb } = require('../db/database');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 
-// 所有接口都需要认证和管理员权限
+/**
+ * 检查指定日期是否是开放日（公开接口，无需登录）
+ */
+router.get('/check', async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: '日期不能为空',
+      });
+    }
+
+    const isOpenDay = await checkIfOpenDay(date);
+
+    res.json({
+      success: true,
+      data: {
+        date,
+        isOpenDay,
+      },
+    });
+  } catch (error) {
+    console.error('检查开放日失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '检查失败，请稍后重试',
+    });
+  }
+});
+
+// 以下接口需要认证和管理员权限
 router.use(authenticate);
 router.use(requireAdmin);
 
