@@ -8,6 +8,46 @@ const { cloudDb } = require('../db/database');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 
 /**
+ * 检查指定日期是否是开放日的辅助函数
+ * 可以在其他路由中使用
+ */
+async function checkIfOpenDay(dateStr) {
+  try {
+    if (!cloudDb) {
+      return false;
+    }
+
+    // 解析日期
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+      return false;
+    }
+
+    const weekday = date.getDay(); // 0=周日, 5=周五, 6=周六
+    const dateOnly = dateStr.split('T')[0]; // YYYY-MM-DD格式
+
+    // 查询所有开放日设置
+    const result = await cloudDb.collection('open_days').get();
+    const openDays = result.data || [];
+
+    // 检查是否匹配
+    for (const openDay of openDays) {
+      if (openDay.type === 'weekday' && openDay.weekday === weekday) {
+        return true;
+      }
+      if (openDay.type === 'date' && openDay.date === dateOnly) {
+        return true;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.error('检查开放日失败:', error);
+    return false;
+  }
+}
+
+/**
  * 检查指定日期是否是开放日（公开接口，无需登录）
  */
 router.get('/check', async (req, res) => {
@@ -67,38 +107,6 @@ router.get('/list', async (req, res) => {
     res.status(500).json({
       success: false,
       message: '查询失败，请稍后重试',
-    });
-  }
-});
-
-/**
- * 检查指定日期是否是开放日
- */
-router.get('/check', async (req, res) => {
-  try {
-    const { date } = req.query;
-
-    if (!date) {
-      return res.status(400).json({
-        success: false,
-        message: '日期不能为空',
-      });
-    }
-
-    const isOpenDay = await checkIfOpenDay(date);
-
-    res.json({
-      success: true,
-      data: {
-        date,
-        isOpenDay,
-      },
-    });
-  } catch (error) {
-    console.error('检查开放日失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '检查失败，请稍后重试',
     });
   }
 });
@@ -292,46 +300,6 @@ router.post('/init-default', async (req, res) => {
     });
   }
 });
-
-/**
- * 检查指定日期是否是开放日的辅助函数
- * 可以在其他路由中使用
- */
-async function checkIfOpenDay(dateStr) {
-  try {
-    if (!cloudDb) {
-      return false;
-    }
-
-    // 解析日期
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      return false;
-    }
-
-    const weekday = date.getDay(); // 0=周日, 5=周五, 6=周六
-    const dateOnly = dateStr.split('T')[0]; // YYYY-MM-DD格式
-
-    // 查询所有开放日设置
-    const result = await cloudDb.collection('open_days').get();
-    const openDays = result.data || [];
-
-    // 检查是否匹配
-    for (const openDay of openDays) {
-      if (openDay.type === 'weekday' && openDay.weekday === weekday) {
-        return true;
-      }
-      if (openDay.type === 'date' && openDay.date === dateOnly) {
-        return true;
-      }
-    }
-
-    return false;
-  } catch (error) {
-    console.error('检查开放日失败:', error);
-    return false;
-  }
-}
 
 // 导出函数供其他模块使用
 module.exports = router;
