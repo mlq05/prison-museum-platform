@@ -63,7 +63,7 @@ Page({
     
     // 生成证书
     try {
-      const { generateCertificate } = await import('../../utils/api');
+      const { generateCertificate } = require('../../utils/api');
       const userInfo = wx.getStorageSync('userInfo') || {};
       const userName = userInfo.nickName || '游客';
       

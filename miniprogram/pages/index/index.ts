@@ -334,9 +334,9 @@ Page({
    */
   async loadStatistics() {
     try {
-      // 动态导入避免循环依赖
-      const apiModule = await import('../../utils/api');
-      const res = await apiModule.getHomeStatistics();
+      // 使用静态导入
+      const { getHomeStatistics } = require('../../utils/api');
+      const res = await getHomeStatistics();
       if (res.success && res.data) {
         this.setData({
           statistics: {
