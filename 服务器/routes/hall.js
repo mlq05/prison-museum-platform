@@ -79,6 +79,50 @@ router.get('/detail', (req, res) => {
 });
 
 /**
+ * 获取展区收藏数
+ */
+router.get('/collection-count', async (req, res) => {
+  try {
+    const { hallId } = req.query;
+
+    if (!hallId) {
+      return res.status(400).json({
+        success: false,
+        message: '展区ID不能为空'
+      });
+    }
+
+    // 使用云数据库查询该展区的收藏数
+    const { cloudDb } = require('../db/database');
+    if (cloudDb) {
+      const countResult = await cloudDb.collection('collections')
+        .where({
+          type: 'hall',
+          itemId: hallId.toString(),
+        })
+        .count();
+      
+      res.json({
+        success: true,
+        data: countResult.total || 0
+      });
+    } else {
+      res.json({
+        success: true,
+        data: 0
+      });
+    }
+  } catch (error) {
+    console.error('查询展区收藏数失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '查询失败',
+      data: 0
+    });
+  }
+});
+
+/**
  * 获取首页统计数据
  */
 router.get('/home-statistics', async (req, res) => {

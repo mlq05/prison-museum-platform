@@ -272,12 +272,14 @@ Page({
 
       const hall = halls.find(h => h.id === this.data.hallId);
       
-      if (hall) {
+          if (hall) {
         this.setData({
           hall: hall,
           hallName: hall.name,
           loading: false,
         });
+        // 检查收藏状态和收藏数
+        this.checkCollectionStatus();
       } else {
         // 尝试从API加载
         try {
@@ -291,7 +293,7 @@ Page({
               loading: false,
             });
             // 检查收藏状态和收藏数（异步执行，不阻塞页面显示）
-            this.checkCollectionStatus().catch(() => {});
+            this.checkCollectionStatus();
           } else {
             throw new Error('展区不存在');
           }
@@ -387,18 +389,44 @@ Page({
   },
 
   /**
-   * 检查收藏状态
+   * 检查收藏状态和获取收藏数
    */
   async checkCollectionStatus() {
     try {
       const app = getApp<IAppOption>();
       const userInfo = await app.getUserInfo();
-      if (!userInfo) return;
 
-      const { checkCollectionExists } = await import('../../utils/api');
-      // 这里需要实现checkCollectionExists API，暂时跳过
-      
-      // 统计收藏数（可以从后端获取）
+      // 获取收藏数统计（不需要登录）
+      try {
+        const { getHallCollectionCount } = await import('../../utils/api');
+        const countRes = await getHallCollectionCount(this.data.hallId);
+        if (countRes.success && countRes.data !== undefined) {
+          this.setData({
+            collectionCount: countRes.data || 0,
+          });
+        }
+      } catch (e) {
+        console.error('获取收藏数失败:', e);
+      }
+
+      // 检查用户是否已收藏（需要登录）
+      if (!userInfo) {
+        this.setData({ isCollected: false });
+        return;
+      }
+
+      try {
+        const { getCollectionList } = await import('../../utils/api');
+        const res = await getCollectionList();
+        if (res.success && res.data) {
+          const isCollected = res.data.some(
+            (c: any) => c.type === 'hall' && c.itemId === this.data.hallId
+          );
+          this.setData({ isCollected });
+        }
+      } catch (e) {
+        console.error('检查收藏状态失败:', e);
+      }
     } catch (e) {
       console.error('检查收藏状态失败:', e);
     }
@@ -432,7 +460,7 @@ Page({
             await removeCollection(collection._id || '');
             this.setData({
               isCollected: false,
-              collectionCount: Math.max(0, this.data.collectionCount - 1),
+              collectionCount: Math.max(0, (this.data.collectionCount || 0) - 1),
             });
             wx.showToast({
               title: '已取消收藏',
@@ -440,6 +468,11 @@ Page({
             });
           }
         }
+        
+        // 重新获取收藏数（确保准确性）
+        setTimeout(() => {
+          this.checkCollectionStatus();
+        }, 500);
       } else {
         // 添加收藏
         const res = await addCollection({
@@ -455,7 +488,7 @@ Page({
         if (res.success) {
           this.setData({
             isCollected: true,
-            collectionCount: this.data.collectionCount + 1,
+            collectionCount: (this.data.collectionCount || 0) + 1,
           });
           wx.showToast({
             title: '收藏成功',
@@ -463,6 +496,9 @@ Page({
           });
         }
       }
+      
+      // 重新获取收藏数（确保准确性）
+      this.checkCollectionStatus();
     } catch (e: any) {
       console.error('切换收藏状态失败:', e);
       wx.showToast({

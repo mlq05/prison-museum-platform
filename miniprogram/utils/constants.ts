@@ -98,6 +98,7 @@ export const API_ENDPOINTS = {
   HALL_DETAIL: '/hall/detail',
   HALL_AR_MODELS: '/hall/ar-models',
   HALL_HOME_STATISTICS: '/hall/home-statistics',
+  HALL_COLLECTION_COUNT: '/hall/collection-count',
   
   // AR相关
   AR_MODEL_DOWNLOAD: '/ar/model/download',

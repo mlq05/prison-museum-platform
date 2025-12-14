@@ -639,6 +639,15 @@ export const getHomeStatistics = (): Promise<ApiResponse<{
 };
 
 /**
+ * 获取展区收藏数
+ */
+export const getHallCollectionCount = (hallId: string): Promise<ApiResponse<number>> => {
+  return get(`${API_ENDPOINTS.HALL_COLLECTION_COUNT}?hallId=${hallId}`, undefined, {
+    showLoading: false,
+  });
+};
+
+/**
  * 用户账号密码相关API
  */
 
