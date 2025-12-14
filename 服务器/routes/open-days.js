@@ -13,10 +13,6 @@ const { authenticate, requireAdmin } = require('../middleware/auth');
  */
 async function checkIfOpenDay(dateStr) {
   try {
-    if (!cloudDb) {
-      return false;
-    }
-
     // 解析日期
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
@@ -26,18 +22,33 @@ async function checkIfOpenDay(dateStr) {
     const weekday = date.getDay(); // 0=周日, 5=周五, 6=周六
     const dateOnly = dateStr.split('T')[0]; // YYYY-MM-DD格式
 
-    // 查询所有开放日设置
-    const result = await cloudDb.collection('open_days').get();
-    const openDays = result.data || [];
+    // 首先检查默认开放日（每周五、六）
+    if (weekday === 5 || weekday === 6) {
+      return true; // 默认周五、周六为开放日
+    }
 
-    // 检查是否匹配
-    for (const openDay of openDays) {
-      if (openDay.type === 'weekday' && openDay.weekday === weekday) {
-        return true;
+    // 如果数据库未初始化，只检查默认开放日
+    if (!cloudDb) {
+      return false;
+    }
+
+    // 查询所有开放日设置（包括管理员自定义的）
+    try {
+      const result = await cloudDb.collection('open_days').get();
+      const openDays = result.data || [];
+
+      // 检查是否匹配自定义开放日
+      for (const openDay of openDays) {
+        if (openDay.type === 'weekday' && openDay.weekday === weekday) {
+          return true;
+        }
+        if (openDay.type === 'date' && openDay.date === dateOnly) {
+          return true;
+        }
       }
-      if (openDay.type === 'date' && openDay.date === dateOnly) {
-        return true;
-      }
+    } catch (dbError) {
+      // 数据库查询失败，只依赖默认开放日判断
+      console.warn('查询开放日数据库失败:', dbError);
     }
 
     return false;

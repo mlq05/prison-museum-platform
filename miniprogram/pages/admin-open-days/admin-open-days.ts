@@ -12,6 +12,7 @@ Page({
       weekday?: number;
       date?: string;
       description?: string;
+      displayText?: string; // 格式化后的显示文本
     }>,
     loading: false,
     showAddModal: false,
@@ -44,8 +45,22 @@ Page({
     try {
       const res = await getOpenDaysList();
       if (res.success && res.data) {
+        // 格式化开放日显示文本
+        const formattedOpenDays = res.data.map((item: any) => {
+          let displayText = '';
+          if (item.type === 'weekday') {
+            const weekdayLabels = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            displayText = `每周${weekdayLabels[item.weekday || 0]}`;
+          } else {
+            displayText = item.date || '';
+          }
+          return {
+            ...item,
+            displayText,
+          };
+        });
         this.setData({
-          openDays: res.data,
+          openDays: formattedOpenDays,
         });
       } else {
         wx.showToast({
@@ -253,16 +268,5 @@ Page({
     });
   },
 
-  /**
-   * 格式化开放日显示
-   */
-  formatOpenDay(openDay: any): string {
-    if (openDay.type === 'weekday') {
-      const weekdayLabels = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-      return `每周${weekdayLabels[openDay.weekday || 0]}`;
-    } else {
-      return openDay.date || '';
-    }
-  },
 });
 

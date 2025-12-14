@@ -22,7 +22,7 @@
               <text class="type-badge">{{item.type === 'weekday' ? '每周' : '具体日期'}}</text>
             </view>
             <view class="item-info">
-              <text class="item-value">{{formatOpenDay(item)}}</text>
+              <text class="item-value">{{item.displayText}}</text>
               <text class="item-description" wx:if="{{item.description}}">{{item.description}}</text>
             </view>
           </view>
