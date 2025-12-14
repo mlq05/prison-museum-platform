@@ -15,7 +15,19 @@
     >
       <!-- 资源加载 -->
       <xr-assets bind:progress="onAssetsProgress" bind:loaded="onAssetsLoaded">
-        <!-- 加载Hiro marker -->
+        <!-- 加载自定义 Marker（优先） -->
+        <xr-asset-load 
+          type="pattern" 
+          asset-id="custom-marker-1" 
+          src="/miniprogram/ar-pages/libs/pattern-屏幕截图 2025-12-14 121613.patt" 
+        />
+        <!-- 加载备用 Marker -->
+        <xr-asset-load 
+          type="pattern" 
+          asset-id="custom-marker-2" 
+          src="/miniprogram/ar-pages/libs/pattern-屏幕截图 2025-12-14 120653.patt" 
+        />
+        <!-- 加载默认 Hiro marker（最终备用） -->
         <xr-asset-load 
           type="pattern" 
           asset-id="hiro-marker" 
@@ -52,9 +64,10 @@
       <!-- AR节点容器 -->
       <xr-node wx:if="{{arReady}}">
         <!-- AR追踪器（Marker识别） -->
+        <!-- 优先使用自定义 Marker -->
         <xr-ar-tracker 
           mode="Marker" 
-          src="hiro-marker"
+          src="custom-marker-1"
           bind:found="onMarkerFound"
           bind:lost="onMarkerLost"
         >

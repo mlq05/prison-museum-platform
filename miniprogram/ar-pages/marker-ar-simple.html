@@ -108,11 +108,12 @@
         renderer="logarithmicDepthBuffer: true"  <!-- 解决3D模型层级渲染问题 -->
     >
         <!-- 2. Marker标记：AR识别的锚点，必须和你生成的Marker图匹配 -->
-        <!-- type="pattern"：使用自定义Marker；url：Marker图的路径（本地/在线都可以） -->
+        <!-- 支持多个 marker，任何一个被识别都会显示AR内容 -->
+        
+        <!-- 自定义 Marker 1 -->
         <a-marker 
             type="pattern" 
-            url="./libs/hiro.patt"  <!-- 重点：替换成你保存的Marker图路径！默认使用hiro marker -->
-            preset="hiro"  <!-- 备用：如果自定义Marker失效，会自动使用默认hiro标记 -->
+            url="./libs/pattern-屏幕截图 2025-12-14 121613.patt"
         >
             <!-- 3. 要显示的3D内容：这里用基础几何图形（新手友好），也可以替换成3D模型 -->
             <!-- 第一个3D物体：红色立方体 -->
@@ -128,6 +129,45 @@
                 geometry="primitive: sphere; radius: 0.3"  <!-- 几何形状：球体，半径0.3米 -->
                 material="color: #0000ff"  <!-- 材质：蓝色 -->
                 position="0.8 0.3 0"  <!-- 位置：在立方体右侧0.8米处 -->
+            ></a-entity>
+        </a-marker>
+        
+        <!-- 自定义 Marker 2（备用） -->
+        <a-marker 
+            type="pattern" 
+            url="./libs/pattern-屏幕截图 2025-12-14 120653.patt"
+        >
+            <!-- 相同的AR内容，使用多个marker时内容会同步显示 -->
+            <a-entity
+                geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5"
+                material="color: #ff0000; opacity: 0.8"
+                position="0 0.25 0"
+                animation="property: rotation; to: 360 360 360; duration: 10000; repeat: indefinite"
+            ></a-entity>
+            <a-entity
+                geometry="primitive: sphere; radius: 0.3"
+                material="color: #0000ff"
+                position="0.8 0.3 0"
+            ></a-entity>
+        </a-marker>
+        
+        <!-- 默认 Hiro Marker（作为最终备用） -->
+        <a-marker 
+            type="pattern" 
+            url="./libs/hiro.patt"
+            preset="hiro"
+        >
+            <!-- 相同的AR内容 -->
+            <a-entity
+                geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5"
+                material="color: #ff0000; opacity: 0.8"
+                position="0 0.25 0"
+                animation="property: rotation; to: 360 360 360; duration: 10000; repeat: indefinite"
+            ></a-entity>
+            <a-entity
+                geometry="primitive: sphere; radius: 0.3"
+                material="color: #0000ff"
+                position="0.8 0.3 0"
             ></a-entity>
         </a-marker>
 
