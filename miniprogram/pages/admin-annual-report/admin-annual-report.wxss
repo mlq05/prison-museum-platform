@@ -187,6 +187,9 @@
   color: #92400e;
   line-height: 1.6;
   margin-top: 8rpx;
+  word-break: break-all;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 /* 高频词列表 */
@@ -286,6 +289,9 @@
 .month-label {
   font-size: 24rpx;
   color: #6b7280;
+  line-height: 1.6;
+  word-break: break-all;
+  white-space: normal;
 }
 
 .month-label.leader-label {

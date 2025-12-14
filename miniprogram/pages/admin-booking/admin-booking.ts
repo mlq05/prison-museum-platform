@@ -263,6 +263,7 @@ Page({
       formattedCreatedAt: formatDate(booking.createdAt, 'YYYY-MM-DD HH:mm'),
       maskedPhone: desensitizePhone(booking.phone),
       maskedIdCard: booking.idCard ? desensitizeIdCard(booking.idCard) : '',
+      isLeaderVisit: booking.isLeaderVisit || false, // 领导来访标识
     };
   },
 

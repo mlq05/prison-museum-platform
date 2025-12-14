@@ -194,6 +194,9 @@ Page({
     progressPercent: 0, // 进度百分比
     currentQuestion: null as any, // 当前题目
     optionLabels: ['A', 'B', 'C', 'D'], // 选项标签
+    showAnswerModal: false, // 显示答案弹窗
+    answerModalData: null as any, // 答案弹窗数据
+    isCollected: false, // 当前题目是否已收藏
   },
   
   onLoad() {
@@ -241,6 +244,8 @@ Page({
       
       // 更新当前题目和进度
       this.updateCurrentQuestion();
+      // 检查收藏状态
+      this.checkCollectionStatus();
     } catch (error) {
       console.error('加载题目失败', error);
       wx.showToast({
@@ -300,17 +305,169 @@ Page({
   onNextQuestion() {
     const currentIndex = this.data.currentIndex;
     const totalQuestions = this.data.questions.length;
+    const currentQuestion = this.data.questions[currentIndex];
+    const selectedAnswer = this.data.selectedAnswer;
+    
+    // 检查答案是否正确
+    if (selectedAnswer !== null && currentQuestion) {
+      const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+      
+      if (!isCorrect) {
+        // 答错了，显示正确答案和解析
+        this.showAnswerExplanation(currentQuestion, selectedAnswer);
+        return; // 不继续下一题，等待用户查看解析
+      }
+    }
     
     if (currentIndex < totalQuestions - 1) {
       const nextIndex = currentIndex + 1;
       this.setData({
         currentIndex: nextIndex,
         selectedAnswer: this.data.answers[nextIndex] ?? null,
+        isCollected: false, // 重置收藏状态
       });
       this.updateCurrentQuestion();
+      this.checkCollectionStatus();
     } else {
       // 最后一题，提交答案
       this.onSubmit();
+    }
+  },
+
+  /**
+   * 显示答案解析
+   */
+  showAnswerExplanation(question: any, userAnswer: number) {
+    const correctAnswerLabel = this.data.optionLabels[question.correctAnswer];
+    const userAnswerLabel = this.data.optionLabels[userAnswer];
+    
+    this.setData({
+      showAnswerModal: true,
+      answerModalData: {
+        question: question.question,
+        correctAnswer: question.correctAnswer,
+        correctAnswerLabel,
+        correctAnswerText: question.options[question.correctAnswer],
+        userAnswer,
+        userAnswerLabel,
+        userAnswerText: question.options[userAnswer],
+        explanation: question.explanation || '暂无解析',
+      },
+    });
+  },
+
+  /**
+   * 关闭答案弹窗
+   */
+  onCloseAnswerModal() {
+    this.setData({
+      showAnswerModal: false,
+      answerModalData: null,
+    });
+    
+    // 关闭后继续下一题
+    const currentIndex = this.data.currentIndex;
+    const totalQuestions = this.data.questions.length;
+    
+    if (currentIndex < totalQuestions - 1) {
+      const nextIndex = currentIndex + 1;
+      this.setData({
+        currentIndex: nextIndex,
+        selectedAnswer: this.data.answers[nextIndex] ?? null,
+        isCollected: false,
+      });
+      this.updateCurrentQuestion();
+      this.checkCollectionStatus();
+    } else {
+      // 最后一题，提交答案
+      this.onSubmit();
+    }
+  },
+
+  /**
+   * 检查收藏状态
+   */
+  async checkCollectionStatus() {
+    try {
+      const app = getApp<IAppOption>();
+      const userInfo = await app.getUserInfo();
+      if (!userInfo) return;
+
+      const { getCollectionList } = await import('../../utils/api');
+      const res = await getCollectionList();
+      if (res.success && res.data) {
+        const currentQuestion = this.data.questions[this.data.currentIndex];
+        const isCollected = res.data.some(
+          (c: any) => c.type === 'knowledge' && c.itemId === currentQuestion.id
+        );
+        this.setData({ isCollected });
+      }
+    } catch (e) {
+      console.error('检查收藏状态失败:', e);
+    }
+  },
+
+  /**
+   * 切换收藏状态
+   */
+  async onToggleCollection() {
+    try {
+      const app = getApp<IAppOption>();
+      const userInfo = await app.getUserInfo();
+      if (!userInfo) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+        });
+        return;
+      }
+
+      const currentQuestion = this.data.questions[this.data.currentIndex];
+      const { addCollection, removeCollection, getCollectionList } = await import('../../utils/api');
+
+      if (this.data.isCollected) {
+        // 取消收藏
+        const collectionList = await getCollectionList();
+        if (collectionList.success && collectionList.data) {
+          const collection = collectionList.data.find(
+            (c: any) => c.type === 'knowledge' && c.itemId === currentQuestion.id
+          );
+          if (collection) {
+            await removeCollection(collection._id || '');
+            this.setData({ isCollected: false });
+            wx.showToast({
+              title: '已取消收藏',
+              icon: 'success',
+            });
+          }
+        }
+      } else {
+        // 添加收藏
+        const res = await addCollection({
+          type: 'knowledge',
+          itemId: currentQuestion.id,
+          itemData: {
+            id: currentQuestion.id,
+            question: currentQuestion.question,
+            options: currentQuestion.options,
+            hallName: currentQuestion.hallName,
+          },
+        });
+
+        if (res.success) {
+          this.setData({ isCollected: true });
+          wx.showToast({
+            title: '收藏成功',
+            icon: 'success',
+          });
+        }
+      }
+    } catch (e: any) {
+      console.error('切换收藏状态失败:', e);
+      wx.showToast({
+        title: e.message || '操作失败',
+        icon: 'none',
+      });
     }
   },
 

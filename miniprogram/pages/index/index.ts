@@ -333,14 +333,39 @@ Page({
    * 加载统计数据
    */
   async loadStatistics() {
-    // TODO: 调用API获取统计数据
-    // 模拟数据
-    const statistics = {
-      totalVisitors: 12345,
-      totalHalls: 8,
-      arUsageCount: 5678,
-    };
-    this.setData({ statistics });
+    try {
+      // 动态导入避免循环依赖
+      const apiModule = await import('../../utils/api');
+      const res = await apiModule.getHomeStatistics();
+      if (res.success && res.data) {
+        this.setData({
+          statistics: {
+            totalVisitors: res.data.totalVisitors || 0,
+            totalHalls: res.data.totalHalls || 8,
+            arUsageCount: res.data.arUsageCount || 0,
+          }
+        });
+      } else {
+        // 使用默认值
+        this.setData({
+          statistics: {
+            totalVisitors: 0,
+            totalHalls: 8,
+            arUsageCount: 0,
+          }
+        });
+      }
+    } catch (e) {
+      console.error('加载统计数据失败:', e);
+      // 使用默认值
+      this.setData({
+        statistics: {
+          totalVisitors: 0,
+          totalHalls: 8,
+          arUsageCount: 0,
+        }
+      });
+    }
   },
 
   /**

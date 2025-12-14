@@ -46,25 +46,25 @@
     "tabIndent": "insertSpaces",
     "tabSize": 2
   },
-  "libVersion": "3.0.0",
+  "libVersion": "3.12.0",
   "miniprogramNpmDistDir": "./miniprogram/",
   "packOptions": {
     "ignore": [
       {
-        "type": "file",
-        "value": "ar-pages/libs/aframe-ar.js"
+        "value": "ar-pages/libs/aframe-ar.js",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "ar-pages/libs/aframe.min.js"
+        "value": "ar-pages/libs/aframe.min.js",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "ar-pages/marker-ar-simple.html"
+        "value": "ar-pages/marker-ar-simple.html",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "assets/images/改革开放与社会主义建设时期劳改工作的创新.jpg"
+        "value": "assets/images/改革开放与社会主义建设时期劳改工作的创新.jpg",
+        "type": "file"
       }
     ],
     "include": []

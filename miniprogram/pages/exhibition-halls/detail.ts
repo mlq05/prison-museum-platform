@@ -8,6 +8,8 @@ Page({
     hall: null as any,
     loading: true,
     scrollHeight: '550px',
+    isCollected: false, // 是否已收藏
+    collectionCount: 0, // 收藏数
   },
 
   onLoad(options: { id?: string; name?: string }) {
@@ -288,6 +290,8 @@ Page({
               hallName: res.data.name,
               loading: false,
             });
+            // 检查收藏状态和收藏数（异步执行，不阻塞页面显示）
+            this.checkCollectionStatus().catch(() => {});
           } else {
             throw new Error('展区不存在');
           }
@@ -314,7 +318,7 @@ Page({
   /**
    * 开始AR体验
    */
-  onStartAR() {
+  async onStartAR() {
     console.log('点击AR体验按钮', {
       hall: this.data.hall,
       hallId: this.data.hallId,
@@ -345,6 +349,15 @@ Page({
       return;
     }
 
+    // 记录AR点击统计
+    try {
+      const { recordARClick } = await import('../../utils/api');
+      await recordARClick(hallId);
+    } catch (e) {
+      console.error('记录AR点击统计失败:', e);
+      // 不影响AR跳转
+    }
+
     // 直接跳转到AR页面，优先使用xr-frame方案
     // 如果xr-frame不可用，会自动降级到原生AR
     const url = `/pages/ar-xr/ar-xr?hallId=${hallId}`;
@@ -371,6 +384,92 @@ Page({
         });
       },
     });
+  },
+
+  /**
+   * 检查收藏状态
+   */
+  async checkCollectionStatus() {
+    try {
+      const app = getApp<IAppOption>();
+      const userInfo = await app.getUserInfo();
+      if (!userInfo) return;
+
+      const { checkCollectionExists } = await import('../../utils/api');
+      // 这里需要实现checkCollectionExists API，暂时跳过
+      
+      // 统计收藏数（可以从后端获取）
+    } catch (e) {
+      console.error('检查收藏状态失败:', e);
+    }
+  },
+
+  /**
+   * 切换收藏状态
+   */
+  async onToggleCollection() {
+    try {
+      const app = getApp<IAppOption>();
+      const userInfo = await app.getUserInfo();
+      if (!userInfo) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+        });
+        return;
+      }
+
+      const { addCollection, removeCollection, getCollectionList } = await import('../../utils/api');
+      
+      if (this.data.isCollected) {
+        // 取消收藏 - 需要先获取收藏ID
+        const collectionList = await getCollectionList();
+        if (collectionList.success && collectionList.data) {
+          const collection = collectionList.data.find(
+            (c: any) => c.type === 'hall' && c.itemId === this.data.hallId
+          );
+          if (collection) {
+            await removeCollection(collection._id || '');
+            this.setData({
+              isCollected: false,
+              collectionCount: Math.max(0, this.data.collectionCount - 1),
+            });
+            wx.showToast({
+              title: '已取消收藏',
+              icon: 'success',
+            });
+          }
+        }
+      } else {
+        // 添加收藏
+        const res = await addCollection({
+          type: 'hall',
+          itemId: this.data.hallId,
+          itemData: {
+            id: this.data.hallId,
+            name: this.data.hallName,
+            description: this.data.hall?.description || '',
+          },
+        });
+        
+        if (res.success) {
+          this.setData({
+            isCollected: true,
+            collectionCount: this.data.collectionCount + 1,
+          });
+          wx.showToast({
+            title: '收藏成功',
+            icon: 'success',
+          });
+        }
+      }
+    } catch (e: any) {
+      console.error('切换收藏状态失败:', e);
+      wx.showToast({
+        title: e.message || '操作失败',
+        icon: 'none',
+      });
+    }
   },
 
   /**

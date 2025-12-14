@@ -5,7 +5,7 @@
 import { validatePhone } from '../../utils/common';
 import { UserRole } from '../../utils/types';
 import { BOOKING_CONFIG } from '../../utils/constants';
-import { createBooking } from '../../utils/api';
+import { createBooking, getVisitSettings } from '../../utils/api';
 
 Page({
   data: {
@@ -23,6 +23,8 @@ Page({
     idCard: '',
     // 参观信息
     visitorCount: 1,
+    maxVisitorCount: 10, // 最大参观人数（从管理员配置获取）
+    visitorCountOptions: [1,2,3,4,5,6,7,8,9,10], // 人数选择选项
     // 备注信息
     remark: '',
     // 领导来访标识
@@ -53,6 +55,7 @@ Page({
     }
 
     this.loadUserInfo();
+    this.loadVisitSettings();
   },
 
   /**
@@ -70,6 +73,71 @@ Page({
         studentId: userInfo.studentId || '',
         workId: userInfo.workId || '',
         unit: userInfo.unit || '',
+      });
+    }
+  },
+
+  /**
+   * 加载参观时段配置（获取人数上限）
+   */
+  async loadVisitSettings() {
+    const { bookingDate, timeSlot } = this.data;
+    if (!bookingDate || !timeSlot) {
+      return;
+    }
+
+    try {
+      const res = await getVisitSettings({ date: bookingDate });
+      if (res.success && res.data && res.data.length > 0) {
+        // 时段ID映射（从 timeSlot 转为 timeSlotId）
+        const timeSlotIdMap: Record<string, string> = {
+          'morning1': 'morning1',
+          'morning2': 'morning2',
+          'afternoon1': 'afternoon1',
+          'afternoon2': 'afternoon2',
+        };
+        const timeSlotId = timeSlotIdMap[timeSlot] || timeSlot;
+        
+        // 找到对应时段的配置
+        const slotConfig = res.data.find((s: any) => s.timeSlotId === timeSlotId);
+        if (slotConfig) {
+          // 如果设置了单次预约上限，使用它；否则使用总名额上限
+          const maxCount = slotConfig.maxPerBooking || slotConfig.capacity || BOOKING_CONFIG.MAX_VISITOR_COUNT;
+          // 生成人数选择选项
+          const options = Array.from({ length: maxCount }, (_, i) => i + 1);
+          
+          this.setData({
+            maxVisitorCount: maxCount,
+            visitorCountOptions: options,
+            // 如果当前选择的人数超过上限，调整为上限
+            visitorCount: Math.min(this.data.visitorCount, maxCount),
+          });
+        } else {
+          // 如果没有找到配置，使用默认值
+          const defaultMax = BOOKING_CONFIG.MAX_VISITOR_COUNT;
+          const options = Array.from({ length: defaultMax }, (_, i) => i + 1);
+          this.setData({
+            maxVisitorCount: defaultMax,
+            visitorCountOptions: options,
+          });
+        }
+      } else {
+        // 如果没有配置数据，使用默认值
+        const defaultMax = BOOKING_CONFIG.MAX_VISITOR_COUNT;
+        const options = Array.from({ length: defaultMax }, (_, i) => i + 1);
+        this.setData({
+          maxVisitorCount: defaultMax,
+          visitorCountOptions: options,
+        });
+      }
+    } catch (e) {
+      console.error('加载参观时段配置失败:', e);
+      // 使用默认值，不影响表单使用
+      const defaultMax = BOOKING_CONFIG.MAX_VISITOR_COUNT;
+      const options = Array.from({ length: defaultMax }, (_, i) => i + 1);
+      this.setData({
+        maxVisitorCount: defaultMax,
+        visitorCountOptions: options,
       });
     }
   },
@@ -137,7 +205,8 @@ Page({
    * 选择参观人数
    */
   onVisitorCountChange(e: WechatMiniprogram.PickerChange) {
-    const count = parseInt(e.detail.value) + 1;
+    const index = parseInt(e.detail.value);
+    const count = this.data.visitorCountOptions[index] || 1;
     this.setData({ visitorCount: count });
   },
 
@@ -201,8 +270,9 @@ Page({
     }
 
     // 参观人数验证
-    if (visitorCount < 1 || visitorCount > BOOKING_CONFIG.MAX_VISITOR_COUNT) {
-      errors.visitorCount = `参观人数应在1-${BOOKING_CONFIG.MAX_VISITOR_COUNT}人之间`;
+    const maxCount = this.data.maxVisitorCount || BOOKING_CONFIG.MAX_VISITOR_COUNT;
+    if (visitorCount < 1 || visitorCount > maxCount) {
+      errors.visitorCount = `参观人数应在1-${maxCount}人之间`;
     }
 
     if (Object.keys(errors).length > 0) {

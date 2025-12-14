@@ -160,11 +160,64 @@
   word-break: break-word;
 }
 
-/* AR体验按钮 */
+/* 操作按钮区域 */
 .action-section {
   padding: 0 20rpx;
   margin-top: 20rpx;
   margin-bottom: 20rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.collection-button-wrapper {
+  flex: 1;
+}
+
+.collection-button {
+  width: 100%;
+  height: 88rpx;
+  background: #fff;
+  color: #666;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  position: relative;
+}
+
+.collection-button.collected {
+  background: #fff3cd;
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.collection-icon {
+  font-size: 36rpx;
+  color: #ffc107;
+}
+
+.collection-text {
+  font-size: 28rpx;
+}
+
+.collection-count {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  background: #ff5722;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.ar-button-wrapper {
+  flex: 1;
 }
 
 .ar-button {

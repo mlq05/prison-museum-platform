@@ -19,8 +19,15 @@
         <!-- 题目卡片 -->
         <view class="question-card" wx:if="{{currentQuestion}}">
           <view class="question-header">
-            <text class="question-number">题目 {{currentIndex + 1}}</text>
-            <text class="question-hall">{{currentQuestion.hallName}}</text>
+            <view class="question-header-left">
+              <text class="question-number">题目 {{currentIndex + 1}}</text>
+              <text class="question-hall">{{currentQuestion.hallName}}</text>
+            </view>
+            <view class="question-header-right">
+              <view class="collection-btn {{isCollected ? 'collected' : ''}}" bindtap="onToggleCollection">
+                <text class="collection-icon">{{isCollected ? '★' : '☆'}}</text>
+              </view>
+            </view>
           </view>
           <view class="question-content">
             <text class="question-text">{{currentQuestion.question}}</text>
@@ -71,5 +78,35 @@
       <view class="scroll-bottom-safe"></view>
     </view>
   </scroll-view>
+
+  <!-- 答案解析弹窗 -->
+  <view class="answer-modal {{showAnswerModal ? 'show' : ''}}" wx:if="{{answerModalData}}" catchtap="onCloseAnswerModal">
+    <view class="answer-modal-content" catchtap="">
+      <view class="answer-modal-header">
+        <text class="answer-modal-title">答案解析</text>
+        <text class="answer-modal-close" bindtap="onCloseAnswerModal">×</text>
+      </view>
+      <view class="answer-modal-body">
+        <view class="answer-question">{{answerModalData.question}}</view>
+        <view class="answer-section">
+          <view class="answer-item wrong">
+            <text class="answer-label">您的答案：</text>
+            <text class="answer-text">{{answerModalData.userAnswerLabel}}. {{answerModalData.userAnswerText}}</text>
+          </view>
+          <view class="answer-item correct">
+            <text class="answer-label">正确答案：</text>
+            <text class="answer-text">{{answerModalData.correctAnswerLabel}}. {{answerModalData.correctAnswerText}}</text>
+          </view>
+        </view>
+        <view class="explanation-section">
+          <text class="explanation-title">解析：</text>
+          <text class="explanation-text">{{answerModalData.explanation}}</text>
+        </view>
+      </view>
+      <view class="answer-modal-footer">
+        <button class="btn btn-primary" bindtap="onCloseAnswerModal">知道了，继续答题</button>
+      </view>
+    </view>
+  </view>
 </view>
 

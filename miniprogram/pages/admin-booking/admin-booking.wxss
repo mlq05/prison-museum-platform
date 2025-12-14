@@ -145,16 +145,38 @@
   border-bottom: 1rpx solid #f3f4f6;
 }
 
+.booking-item.leader-visit-item {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 20%, #ffffff 20%);
+  padding: 20rpx 16rpx;
+  margin: 0 -16rpx 0 -16rpx;
+  border-left: 4rpx solid #d97706;
+  border-radius: 8rpx;
+}
+
 .booking-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8rpx;
+  flex-wrap: wrap;
+  gap: 8rpx;
 }
 
 .name {
   font-size: 28rpx;
   color: #111827;
+  font-weight: 500;
+}
+
+.leader-badge {
+  font-size: 22rpx;
+  color: #d97706;
+  background-color: rgba(217, 119, 6, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  font-weight: 500;
+  display: inline-block;
+  line-height: 1.4;
 }
 
 .status {

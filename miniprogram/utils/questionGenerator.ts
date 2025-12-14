@@ -3,6 +3,8 @@
  * 根据展馆导览文案生成选择题
  */
 
+import { questionExplanations } from './questionExplanations';
+
 interface Question {
   id: string;
   question: string;
@@ -10,6 +12,7 @@ interface Question {
   correctAnswer: number; // 正确答案的索引 (0-3)
   hallId: string;
   hallName: string;
+  explanation: string; // 解析
 }
 
 /**
@@ -28,6 +31,17 @@ export function generateQuestionsFromHalls(halls: any[]): Question[] {
   
   // 随机打乱题目顺序
   return shuffleArray(questions);
+}
+
+/**
+ * 为题目添加解析
+ */
+function addExplanationToQuestion(question: Partial<Question>): Question {
+  const explanation = questionExplanations[question.id || ''] || '暂无解析';
+  return {
+    ...question,
+    explanation,
+  } as Question;
 }
 
 /**
@@ -50,6 +64,7 @@ function generateQuestionsFromHall(hall: any): Question[] {
           correctAnswer: 3,
           hallId: id,
           hallName: name,
+          explanation: questionExplanations[`q_${id}_1`] || '廷尉狱是秦汉时期的中央监狱名称，不是早期监狱雏形。',
         },
         {
           id: `q_${id}_2`,

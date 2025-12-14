@@ -32,12 +32,23 @@
           <view class="content-text">{{hall.detail}}</view>
         </view>
 
-        <!-- AR体验按钮 -->
-        <view class="action-section" wx:if="{{hall.arEnabled}}">
-          <button class="ar-button" bindtap="onStartAR">
-            <text class="ar-icon">📷</text>
-            <text class="ar-text">开始AR体验</text>
-          </button>
+        <!-- 操作按钮区域 -->
+        <view class="action-section">
+          <!-- 收藏按钮 -->
+          <view class="collection-button-wrapper">
+            <button class="collection-button {{isCollected ? 'collected' : ''}}" bindtap="onToggleCollection">
+              <text class="collection-icon">{{isCollected ? '★' : '☆'}}</text>
+              <text class="collection-text">{{isCollected ? '已收藏' : '收藏'}}</text>
+              <text class="collection-count" wx:if="{{collectionCount > 0}}">{{collectionCount}}</text>
+            </button>
+          </view>
+          <!-- AR体验按钮 -->
+          <view class="ar-button-wrapper" wx:if="{{hall.arEnabled}}">
+            <button class="ar-button" bindtap="onStartAR">
+              <text class="ar-icon">📷</text>
+              <text class="ar-text">开始AR体验</text>
+            </button>
+          </view>
         </view>
 
         <!-- 底部安全区域 -->

@@ -625,6 +625,20 @@ export const getHallDetail = (id: string): Promise<ApiResponse<ExhibitionHall>> 
 };
 
 /**
+ * 获取首页统计数据
+ */
+export const getHomeStatistics = (): Promise<ApiResponse<{
+  totalVisitors: number;
+  totalHalls: number;
+  arUsageCount: number;
+  totalCollections: number;
+}>> => {
+  return get(API_ENDPOINTS.HALL_HOME_STATISTICS, undefined, {
+    showLoading: false,
+  });
+};
+
+/**
  * 用户账号密码相关API
  */
 
@@ -997,6 +1011,40 @@ export const generateCertificate = (data: {
  */
 export const getCertificateDetail = (certificateId: string): Promise<ApiResponse<any>> => {
   return get(`/certificate/detail?id=${certificateId}`);
+};
+
+/**
+ * AR点击统计
+ */
+export const recordARClick = (hallId: string): Promise<ApiResponse<void>> => {
+  return post(API_ENDPOINTS.AR_CLICK, { hallId }, {
+    showLoading: false,
+  });
+};
+
+/**
+ * 收藏相关API
+ */
+export const addCollection = (data: {
+  type: 'knowledge' | 'hall' | 'model';
+  itemId: string;
+  itemData: any;
+}): Promise<ApiResponse<void>> => {
+  return post(API_ENDPOINTS.COLLECTION_ADD, data, {
+    loadingText: '收藏中...',
+  });
+};
+
+export const getCollectionList = (): Promise<ApiResponse<any[]>> => {
+  return get(API_ENDPOINTS.COLLECTION_LIST, undefined, {
+    showLoading: false,
+  });
+};
+
+export const removeCollection = (id: string): Promise<ApiResponse<void>> => {
+  return post(API_ENDPOINTS.COLLECTION_REMOVE, { id }, {
+    loadingText: '取消收藏中...',
+  });
 };
 
 export const getPublicFeedbackList = (params?: {

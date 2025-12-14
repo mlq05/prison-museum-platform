@@ -76,10 +76,11 @@
         </block>
 
         <block wx:for="{{bookings}}" wx:key="id">
-          <view class="booking-item" bindtap="onBookingTap" data-index="{{index}}">
+          <view class="booking-item {{item.isLeaderVisit ? 'leader-visit-item' : ''}}" bindtap="onBookingTap" data-index="{{index}}">
             <view class="booking-main">
               <view class="booking-title">
                 <text class="name">{{item.userName}}</text>
+                <text class="leader-badge" wx:if="{{item.isLeaderVisit}}">领导来访</text>
                 <text class="status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
               </view>
               <view class="booking-line">

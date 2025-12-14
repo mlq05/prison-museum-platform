@@ -43,7 +43,7 @@
       <!-- 领导来访统计 -->
       <view class="card leader-card">
         <view class="card-title leader-title">
-          <text>👑 领导来访统计</text>
+          <text>领导来访统计</text>
         </view>
         <view class="leader-stats">
           <view class="leader-stat-item">
@@ -67,9 +67,11 @@
               </view>
               <view class="visit-info">
                 <text class="visit-count">来访人数：{{item.visitorCount}}人</text>
-                <text class="visit-status" wx:if="{{item.status === 'approved'}}">✓ 已通过</text>
+                <text class="visit-status" wx:if="{{item.status === 'approved'}}">已通过</text>
               </view>
-              <view class="visit-remark" wx:if="{{item.remark}}">{{item.remark}}</view>
+              <view class="visit-remark" wx:if="{{item.remark}}">
+                <text>{{item.remark}}</text>
+              </view>
             </view>
           </view>
         </view>
@@ -124,11 +126,11 @@
               <text class="month-name">{{item.month}}月</text>
             </view>
             <view class="month-data">
-              <text class="month-label">预约：{{item.bookings}}次</text>
-              <text class="month-label">人数：{{item.visitors}}人</text>
-              <text class="month-label leader-label" wx:if="{{item.leaderVisits > 0}}">
+              <view class="month-label">预约：{{item.bookings}}次</view>
+              <view class="month-label">人数：{{item.visitors}}人</view>
+              <view class="month-label leader-label" wx:if="{{item.leaderVisits > 0}}">
                 领导来访：{{item.leaderVisits}}次
-              </text>
+              </view>
             </view>
           </view>
         </view>

@@ -97,6 +97,7 @@ export const API_ENDPOINTS = {
   HALL_LIST: '/hall/list',
   HALL_DETAIL: '/hall/detail',
   HALL_AR_MODELS: '/hall/ar-models',
+  HALL_HOME_STATISTICS: '/hall/home-statistics',
   
   // AR相关
   AR_MODEL_DOWNLOAD: '/ar/model/download',
@@ -107,6 +108,7 @@ export const API_ENDPOINTS = {
   COLLECTION_ADD: '/collection/add',
   COLLECTION_LIST: '/collection/list',
   COLLECTION_REMOVE: '/collection/remove',
+  AR_CLICK: '/ar/click',
   
   // 知识闯关
   GAME_START: '/game/start',

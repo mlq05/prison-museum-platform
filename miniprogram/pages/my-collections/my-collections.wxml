@@ -1,10 +1,37 @@
 <!--my-collections.wxml-->
 <view class="my-collections-page">
   <navigation-bar title="我的收藏" />
-  <view class="container">
-    <view class="empty-state">
-      <view class="empty-text">暂无收藏</view>
+  <scroll-view class="scroll-content" scroll-y="{{true}}" enable-back-to-top="{{true}}">
+    <view class="container">
+      <view wx:if="{{loading}}" class="loading-container">
+        <text class="loading-text">加载中...</text>
+      </view>
+      
+      <view wx:elif="{{collections.length === 0}}" class="empty-state">
+        <text class="empty-text">暂无收藏</text>
+      </view>
+      
+      <view wx:else class="collections-list">
+        <view 
+          class="collection-item"
+          wx:for="{{collections}}"
+          wx:key="_id"
+          wx:for-index="index"
+          data-index="{{index}}"
+          bindtap="onCollectionTap"
+        >
+          <view class="collection-content">
+            <view class="collection-type">{{item.type === 'hall' ? '展区' : item.type === 'knowledge' ? '题目' : 'AR模型'}}</view>
+            <view class="collection-title">{{item.itemData?.name || item.itemData?.question || '收藏项'}}</view>
+            <view class="collection-desc" wx:if="{{item.itemData?.description}}">{{item.itemData.description}}</view>
+            <view class="collection-time">{{getTimeText(item.createdAt)}}</view>
+          </view>
+          <view class="collection-action" data-index="{{index}}" catchtap="onDeleteCollection">
+            <text class="delete-icon">×</text>
+          </view>
+        </view>
+      </view>
     </view>
-  </view>
+  </scroll-view>
 </view>
 
