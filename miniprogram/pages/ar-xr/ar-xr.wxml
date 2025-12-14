@@ -120,6 +120,106 @@
           padding="0.015"
         />
         </xr-ar-tracker>
+        
+        <!-- 备用 Marker 2 -->
+        <xr-ar-tracker 
+          mode="Marker" 
+          src="custom-marker-2"
+          bind:found="onMarkerFound"
+          bind:lost="onMarkerLost"
+        >
+        <xr-model 
+          wx:if="{{modelUrl}}"
+          model="ar-model" 
+          position="0 0.5 0" 
+          scale="{{modelScale}}"
+          bind:tap="onModelTap"
+        />
+        <block wx:else>
+          <xr-mesh 
+            geometry="box:0.4,0.4,0.4" 
+            material="color:#409EFF;opacity:0.9"
+            position="0 0.3 0"
+            animation="rotation:0,360,0;duration:10000;loop:true"
+            bind:tap="onCubeTap"
+          />
+          <xr-mesh 
+            geometry="sphere:0.15" 
+            material="color:#67C23A"
+            position="0.5 0.4 0"
+          />
+        </block>
+        <xr-label 
+          wx:if="{{hallTitle}}"
+          content="{{hallTitle}}" 
+          position="0 0.8 0" 
+          color="#1A365D"
+          size="0.08"
+          align="center"
+          background="rgba(255,255,255,0.9)"
+          padding="0.02"
+        />
+        <xr-label 
+          wx:if="{{hallDescription}}"
+          content="{{hallDescription}}" 
+          position="0 0.6 0" 
+          color="#666666"
+          size="0.06"
+          align="center"
+          background="rgba(255,255,255,0.8)"
+          padding="0.015"
+        />
+        </xr-ar-tracker>
+        
+        <!-- 默认 Hiro Marker（最终备用） -->
+        <xr-ar-tracker 
+          mode="Marker" 
+          src="hiro-marker"
+          bind:found="onMarkerFound"
+          bind:lost="onMarkerLost"
+        >
+        <xr-model 
+          wx:if="{{modelUrl}}"
+          model="ar-model" 
+          position="0 0.5 0" 
+          scale="{{modelScale}}"
+          bind:tap="onModelTap"
+        />
+        <block wx:else>
+          <xr-mesh 
+            geometry="box:0.4,0.4,0.4" 
+            material="color:#409EFF;opacity:0.9"
+            position="0 0.3 0"
+            animation="rotation:0,360,0;duration:10000;loop:true"
+            bind:tap="onCubeTap"
+          />
+          <xr-mesh 
+            geometry="sphere:0.15" 
+            material="color:#67C23A"
+            position="0.5 0.4 0"
+          />
+        </block>
+        <xr-label 
+          wx:if="{{hallTitle}}"
+          content="{{hallTitle}}" 
+          position="0 0.8 0" 
+          color="#1A365D"
+          size="0.08"
+          align="center"
+          background="rgba(255,255,255,0.9)"
+          padding="0.02"
+        />
+        <xr-label 
+          wx:if="{{hallDescription}}"
+          content="{{hallDescription}}" 
+          position="0 0.6 0" 
+          color="#666666"
+          size="0.06"
+          align="center"
+          background="rgba(255,255,255,0.8)"
+          padding="0.015"
+        />
+        </xr-ar-tracker>
       </xr-node>
     </xr-scene>
     
