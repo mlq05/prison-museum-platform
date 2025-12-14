@@ -92,7 +92,7 @@ router.post('/remove', async (req, res) => {
 
     // 验证收藏是否属于当前用户
     const collectionList = await collections.collections.listByUser(userId);
-    const collection = collectionList.find((c: any) => c._id === id);
+    const collection = collectionList.find((c) => c._id === id);
     
     if (!collection) {
       return res.status(404).json({
