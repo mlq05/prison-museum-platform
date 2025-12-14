@@ -22,8 +22,8 @@
         >
           <view class="collection-content">
             <view class="collection-type">{{item.type === 'hall' ? '展区' : item.type === 'knowledge' ? '题目' : 'AR模型'}}</view>
-            <view class="collection-title">{{item.itemData?.name || item.itemData?.question || '收藏项'}}</view>
-            <view class="collection-desc" wx:if="{{item.itemData?.description}}">{{item.itemData.description}}</view>
+            <view class="collection-title">{{item.itemData && item.itemData.name ? item.itemData.name : (item.itemData && item.itemData.question ? item.itemData.question : '收藏项')}}</view>
+            <view class="collection-desc" wx:if="{{item.itemData && item.itemData.description}}">{{item.itemData.description}}</view>
             <view class="collection-time">{{getTimeText(item.createdAt)}}</view>
           </view>
           <view class="collection-action" data-index="{{index}}" catchtap="onDeleteCollection">
