@@ -3,7 +3,7 @@
  */
 
 import { getAdminAnnouncementsList, createAnnouncement, updateAnnouncement, deleteAnnouncement, publishAnnouncement } from '../../utils/api';
-import { formatDate } from '../../utils/common';
+import { formatDate as formatDateUtil } from '../../utils/common';
 
 Page({
   data: {
@@ -102,6 +102,13 @@ Page({
    */
   hideAddModal() {
     this.setData({ showAddModal: false });
+  },
+
+  /**
+   * 阻止事件冒泡（用于弹窗内容区域）
+   */
+  stopPropagation() {
+    // 阻止点击弹窗内容区域关闭弹窗
   },
 
   /**

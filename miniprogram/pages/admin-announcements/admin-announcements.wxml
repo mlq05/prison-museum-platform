@@ -86,7 +86,7 @@
         <text class="modal-close" bindtap="{{showAddModal ? 'hideAddModal' : 'hideEditModal'}}">×</text>
       </view>
 
-      <view class="modal-body">
+      <scroll-view class="modal-body" scroll-y="{{true}}" enable-back-to-top="{{false}}">
         <!-- 标题 -->
         <view class="form-item">
           <text class="form-label">标题 *</text>
@@ -143,12 +143,12 @@
           <text class="form-label">过期日期（可选）</text>
           <picker mode="date" value="{{form.expireAt}}" bindchange="onExpireDateChange">
             <view class="picker-view">
-              <text>{{form.expireAt || '请选择过期日期（留空表示永不过期）'}}</text>
+              <text class="picker-text">{{form.expireAt || '请选择过期日期（留空表示永不过期）'}}</text>
               <text class="picker-arrow">></text>
             </view>
           </picker>
         </view>
-      </view>
+      </scroll-view>
 
       <view class="modal-footer">
         <button class="btn btn-secondary" bindtap="{{showAddModal ? 'hideAddModal' : 'hideEditModal'}}">取消</button>
